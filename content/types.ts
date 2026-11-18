@@ -120,6 +120,37 @@ export interface Stage {
   checkpoint: Checkpoint;
 }
 
+export interface KeyPhrase {
+  phrase: string;
+  use: string; // when / why to use it
+  example: string;
+}
+
+/** A role-play the learner prepares for on BandUp, then practises with ChatGPT. */
+export interface ConversationScenario {
+  id: string;
+  stage: number;
+  title: string;
+  situation: string;
+  ieltsPart: "Part 1" | "Part 2" | "Part 3" | "Full test" | "Real life";
+  minutes: number;
+  xp: number;
+  goals: string[];
+  // Learn first
+  keyPhrases: KeyPhrase[];
+  vocab: VocabItem[];
+  grammar: { title: string; explanation: string; examples: string[] };
+  modelDialogue: ListeningTask;
+  quickCheck: Question[];
+  // Role-play with the AI
+  aiRole: string;
+  learnerRole: string;
+  opener: string;
+  missions: string[];
+  turns: number;
+  selfCheck: string[];
+}
+
 export interface PracticePrompt {
   id: string;
   stage: number;

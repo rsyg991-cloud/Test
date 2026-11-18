@@ -29,14 +29,19 @@ export function textStats(text: string) {
  * Offline demo evaluator, used when AI_MOCK=1 or no API key is configured.
  * It is a rough heuristic so the full experience can be tried locally — not a real assessment.
  */
-export function mockEvaluate(kind: "writing" | "speaking", text: string, minWords: number): Evaluation {
+export function mockEvaluate(
+  kind: "writing" | "speaking",
+  text: string,
+  minWords: number,
+  criteriaNames?: string[],
+): Evaluation {
   const s = textStats(text);
   const lengthScore = Math.min(1, s.words / Math.max(1, minWords));
   const variety = Math.min(1, s.lexicalVariety / 0.6);
   const cohesion = Math.min(1, s.linkers / 6);
   const complexity = Math.min(1, s.avgSentence / 18) * 0.5 + Math.min(1, s.longWordRatio / 0.18) * 0.5;
   const base = 3.5 + 4 * (0.3 * lengthScore + 0.25 * variety + 0.25 * cohesion + 0.2 * complexity);
-  const names = kind === "writing" ? WRITING_CRITERIA : SPEAKING_CRITERIA;
+  const names = criteriaNames ?? (kind === "writing" ? WRITING_CRITERIA : SPEAKING_CRITERIA);
   const bands = [
     roundBand(base + (lengthScore < 1 ? -0.5 : 0)),
     roundBand(base + (cohesion - 0.5)),
@@ -67,7 +72,7 @@ export function mockEvaluate(kind: "writing" | "speaking", text: string, minWord
       ][i],
     })),
     summary:
-      "Demo estimate generated offline (no AI key configured). Connect the Claude API for a real examiner-style assessment with personalised corrections.",
+      "Demo estimate generated offline (no AI evaluator configured). Connect an n8n webhook or the Claude API for a real examiner-style assessment with personalised corrections.",
     strengths: [
       s.words >= minWords ? "You met the word count." : "You produced a complete response under time pressure.",
       s.linkers >= 3 ? "You connected ideas with linking words." : "Your main message is clear.",
@@ -79,6 +84,6 @@ export function mockEvaluate(kind: "writing" | "speaking", text: string, minWord
     ],
     corrections: [],
     upgraded_version:
-      "An upgraded model version of your answer appears here when the Claude API is connected.",
+      "An upgraded model version of your answer appears here when an AI evaluator is connected.",
   };
 }

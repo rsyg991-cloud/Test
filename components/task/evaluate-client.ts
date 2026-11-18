@@ -2,10 +2,10 @@
 
 import type { Evaluation } from "@/lib/ai/schema";
 
-export type EvalSource = "lesson" | "checkpoint" | "practice" | "placement";
+export type EvalSource = "lesson" | "checkpoint" | "practice" | "placement" | "conversation";
 
 export async function requestEvaluation(body: {
-  kind: "writing" | "speaking";
+  kind: "writing" | "speaking" | "conversation";
   source: EvalSource;
   refId: string;
   text: string;

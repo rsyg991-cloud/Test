@@ -90,6 +90,52 @@ const xp = Number(header.match(/([\d,]+) XP/)[1].replace(/,/g, ""));
 if (!(xp > 0)) throw new Error("XP did not increase");
 step(`dashboard shows ${xp} XP and streak`);
 
+// AI conversation: learn → listen → quick check → ChatGPT prompt → paste transcript → feedback → complete
+await page.goto(`${BASE}/practice`);
+await page.getByRole("heading", { name: "AI Conversations" }).waitFor();
+await page.getByRole("link", { name: /Meeting a New Classmate/ }).click();
+await page.waitForURL("**/conversations/c1-meet-classmate");
+await page.getByText("Key phrases").waitFor();
+await snap("12-conversation-learn");
+await page.getByRole("button", { name: /hear a model conversation/ }).click();
+await page.getByRole("button", { name: /quick check/ }).click();
+const qc = await page.getByRole("radiogroup").all();
+await qc[0].getByRole("radio").nth(1).click();
+await qc[1].getByRole("radio").nth(1).click();
+await qc[2].getByRole("radio", { name: "TRUE" }).click();
+await page.getByRole("button", { name: "Check answers" }).click();
+await page.getByRole("button", { name: /ready to talk/ }).click();
+await page.getByRole("button", { name: /Preview prompt/ }).click();
+const promptText = await page.locator("pre").innerText();
+if (!promptText.includes("Hi! I don't think we've met yet. I'm Alex.")) throw new Error("ChatGPT prompt missing opener");
+const chatLink = page.getByRole("link", { name: /Open ChatGPT/ });
+if ((await chatLink.getAttribute("href")) !== "https://chatgpt.com/") throw new Error("ChatGPT link wrong");
+await snap("13-conversation-talk");
+step("conversation prompt ready");
+await page.getByRole("button", { name: /finished my conversation/ }).click();
+for (const box of await page.getByRole("checkbox").all()) await box.check();
+await page.getByLabel("Conversation transcript").fill(
+  [
+    "ChatGPT: Hi! I don't think we've met yet. I'm Alex. Is this your first day too?",
+    "You: Hi Alex, nice to meet you. I'm Sara. Yes, it's my first day. I'm originally from Riyadh but I'm staying in London for three months.",
+    "ChatGPT: Oh nice! So, what brings you here?",
+    "You: I need IELTS because I want to major in public health. What about you? How long have you lived here?",
+    "ChatGPT: About two years. I'm hoping to study medicine.",
+    "You: Oh really? Me too, I love science. In my free time I read about health. What do you do in your free time?",
+  ].join("\n"),
+);
+await page.getByRole("button", { name: "Get feedback" }).click();
+await page.getByLabel("Examiner feedback").waitFor({ timeout: 90_000 });
+const fb = await page.getByLabel("Examiner feedback").innerText();
+if (!fb.includes("Use of Target Language")) throw new Error("Conversation criteria missing");
+await page.getByRole("button", { name: /Complete conversation/ }).click();
+await page.getByRole("dialog").waitFor();
+await snap("14-conversation-complete");
+step("conversation reviewed and completed");
+await page.goto(`${BASE}/practice`);
+if (!(await page.getByText("1/20 completed").isVisible())) throw new Error("Conversation completion not shown");
+step("practice page shows conversation progress");
+
 for (const p of ["journey", "vocab", "progress", "plan", "practice"]) {
   await page.goto(`${BASE}/${p}`);
   await page.locator("main h1").first().waitFor();

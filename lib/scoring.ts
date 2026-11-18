@@ -96,7 +96,7 @@ export function estimateSkillBand(
   let sum = 0;
   let weight = 0;
   recent.forEach((s, i) => {
-    const sourceWeight = s.source === "checkpoint" ? 2 : s.source === "placement" ? 1 : 1.2;
+    const sourceWeight = s.source === "checkpoint" ? 2 : s.source === "placement" || s.source === "conversation" ? 1 : 1.2;
     const w = sourceWeight * Math.pow(0.8, i);
     sum += s.band * w;
     weight += w;

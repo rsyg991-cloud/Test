@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { curriculumFrom, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
+import { curriculumFrom, getConversation, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
 import { getCurrentUser } from "@/lib/auth";
 import { loadOwnedAttempt } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
@@ -10,7 +10,7 @@ import { bandFromScore, gradeQuestions, overallBand, type Answers, type Question
 
 export interface CompletionResult {
   ok: true;
-  band: number;
+  band: number | null;
   pct?: number;
   correct?: number;
   total?: number;
@@ -193,5 +193,58 @@ export async function completePractice(promptId: string, attemptId: string): Pro
     firstTime: true,
     nextHref: "/practice",
     nextTitle: "More practice",
+  };
+}
+
+export async function completeConversation(
+  conversationId: string,
+  payload: { attemptId?: string; checked: number },
+): Promise<CompletionResult | CompletionError> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Please log in again." };
+  const c = getConversation(conversationId);
+  if (!c) return { ok: false, error: "Conversation not found." };
+  if (c.stage > user.unlockedStage) return { ok: false, error: "This stage is still locked." };
+
+  const attempt = payload.attemptId
+    ? await loadOwnedAttempt(user.id, payload.attemptId, { refId: c.id, skill: "conversation" })
+    : null;
+  if (payload.attemptId && !attempt) return { ok: false, error: "We couldn't find your feedback. Please try again." };
+
+  const checked = Math.max(0, Math.min(c.selfCheck.length, Math.round(payload.checked)));
+  const selfScore = checked / c.selfCheck.length;
+  const previous = await prisma.attempt.count({ where: { userId: user.id, kind: "conversation-complete", refId: c.id } });
+  const firstTime = previous === 0;
+
+  // Record completion (used for "done" badges and today's suggestion).
+  await prisma.attempt.create({
+    data: {
+      userId: user.id,
+      kind: "conversation-complete",
+      refId: c.id,
+      skill: "speaking",
+      score: selfScore,
+      band: attempt?.band ?? null,
+      responseJson: JSON.stringify({ checked, attemptId: attempt?.id ?? null }),
+    },
+  });
+
+  if (attempt?.band != null) await addBandSnapshot(user.id, "speaking", attempt.band, "conversation");
+  const vocabAdded = await addVocab(user.id, c.vocab);
+  // Full XP with AI feedback on the transcript; 70% for a self-checked practice.
+  const baseXp = Math.round(c.xp * (attempt ? 1 : 0.7));
+  const activity = await recordActivity(user.id, firstTime ? baseXp : Math.round(baseXp / 3), c.minutes);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/practice");
+  return {
+    ok: true,
+    band: attempt?.band ?? null,
+    pct: selfScore,
+    activity,
+    vocabAdded,
+    firstTime,
+    nextHref: "/practice#conversations",
+    nextTitle: "More conversations",
   };
 }

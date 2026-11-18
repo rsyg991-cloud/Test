@@ -36,6 +36,13 @@ export const WRITING_CRITERIA = [
   "Grammatical Range and Accuracy",
 ];
 
+export const CONVERSATION_CRITERIA = [
+  "Fluency and Interaction",
+  "Lexical Resource",
+  "Grammatical Range and Accuracy",
+  "Use of Target Language",
+];
+
 export const SPEAKING_CRITERIA = [
   "Fluency and Coherence",
   "Lexical Resource",

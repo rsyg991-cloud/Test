@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { catchUp } from "@/app/actions/study";
-import { practicePrompts, SKILLS, type Skill } from "@/content";
+import { conversations, practicePrompts, SKILLS, type Skill } from "@/content";
 import { BandChart } from "@/components/BandChart";
 import { Icon } from "@/components/icons";
 import { JourneyMap } from "@/components/JourneyMap";
@@ -23,11 +23,12 @@ const greeting = () => {
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const { welcome } = await searchParams;
   const user = await requireUser();
-  const [{ items, today, completedIds }, { bands, overall, snapshots }, activity, vocabDue] = await Promise.all([
+  const [{ items, today, completedIds }, { bands, overall, snapshots }, activity, vocabDue, convDone] = await Promise.all([
     getTodayPlan(user),
     getSkillBands(user.id),
     prisma.activityDay.findMany({ where: { userId: user.id, day: { gte: dayKey(addDays(new Date(), -27)) } } }),
     prisma.vocabCard.count({ where: { userId: user.id, due: { lte: new Date() } } }),
+    prisma.attempt.findMany({ where: { userId: user.id, kind: "conversation-complete" }, select: { refId: true } }),
   ]);
 
   const plan = getPlan(user.planMonths);
@@ -42,6 +43,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const practiceSkill: "writing" | "speaking" = weakest === "speaking" ? "speaking" : "writing";
   const practice = practicePrompts.filter((p) => p.stage <= user.unlockedStage && p.skill === practiceSkill);
   const suggestedPractice = practice[(new Date().getUTCDate() + user.xp) % Math.max(1, practice.length)];
+  // Conversation of the day: the first one not yet done, from the highest unlocked stage downwards.
+  const doneConv = new Set(convDone.map((c) => c.refId));
+  const conversation =
+    [...conversations].sort((a, b) => b.stage - a.stage).find((c) => c.stage <= user.unlockedStage && !doneConv.has(c.id)) ??
+    conversations.filter((c) => c.stage <= user.unlockedStage)[new Date().getUTCDate() % 5];
   const examDays = user.examDate ? Math.ceil((user.examDate.getTime() - Date.now()) / 86_400_000) : null;
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i - 6));
 
@@ -171,6 +177,22 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                     <div className="font-bold">Vocabulary review</div>
                     <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
                       {vocabDue} word{vocabDue === 1 ? "" : "s"} ready · ~{Math.max(2, Math.ceil(vocabDue / 3))} min
+                    </div>
+                  </div>
+                  <Icon name="arrow" size={18} style={{ color: "var(--muted)" }} />
+                </Link>
+              </li>
+            )}
+            {conversation && (
+              <li style={{ borderColor: "var(--line)" }}>
+                <Link href={`/conversations/${conversation.id}`} className="flex items-center gap-4 p-4 transition-colors hover:bg-[var(--surface-2)] sm:px-6">
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl text-white" style={{ background: "var(--speaking)" }}>
+                    <Icon name="mic" size={20} />
+                  </span>
+                  <div className="flex-1">
+                    <div className="font-bold">Talk with AI: {conversation.title}</div>
+                    <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
+                      Learn the phrases, then role-play with ChatGPT · ~{conversation.minutes} min · +{conversation.xp} XP
                     </div>
                   </div>
                   <Icon name="arrow" size={18} style={{ color: "var(--muted)" }} />

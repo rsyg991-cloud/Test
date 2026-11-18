@@ -6,6 +6,7 @@ import { practicePrompts } from "./practice";
 import type { Checkpoint, Lesson, PracticePrompt, Stage } from "./types";
 
 export * from "./types";
+export { conversations, getConversation } from "./conversations";
 
 export const stages: Stage[] = [stage1, stage2, stage3, stage4];
 

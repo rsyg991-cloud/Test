@@ -25,18 +25,39 @@ BandUp is a full-stack English learning platform that takes a learner from **B1*
 - **Band tracker**: per-skill estimated band over time against the target line.
 - **Journey map** showing exactly where you are on the mountain.
 - **Spaced-repetition vocabulary deck** (SM-2) filled automatically from lessons.
+- **AI Conversations** (20 role-plays, 5 per stage) — see below.
 - **AI practice drills** (24 extra Writing/Speaking prompts) to fill daily minutes on longer plans.
 - **No-guilt catch-up**: if you fall behind, one tap re-paces the plan so today is a fresh start.
 - Celebrations (confetti, XP, band) after lessons and checkpoints.
 
-## AI examiner (Claude API)
+## AI Conversations — learn first, then talk with ChatGPT
+
+20 speaking role-plays (5 per stage, from "Meeting a New Classmate" to full mock speaking tests and C1 discussions) in `content/conversations/`. Each one has five steps:
+
+1. **Learn** — goals, 5 key phrases with examples, a grammar focus, vocabulary flip-cards.
+2. **Listen** — a model dialogue played with two voices, with transcript.
+3. **Check** — 3 quick questions; 2/3 unlocks the conversation.
+4. **Talk** — a ready-made ChatGPT prompt (`lib/conversation/prompt.ts`) that sets the role, the learner's level, the target phrases and missions, keeps ChatGPT's replies short, avoids mid-conversation corrections and ends with feedback when the learner says "END". One tap copies it; another opens ChatGPT (voice mode recommended).
+5. **Reflect** — a self-check list, then paste the conversation back for BandUp feedback on the learner's turns (fluency & interaction, vocabulary, grammar, use of target language). Completing adds XP, streak, vocabulary and a speaking band estimate.
+
+They live on the Practice page, and the dashboard suggests one each day.
+
+## AI evaluation: n8n webhook, Claude or demo
+
+All evaluation goes through one request shape with three interchangeable providers (`lib/ai/evaluate.ts`), chosen with `AI_PROVIDER` or automatically:
+
+- **n8n webhook** (`N8N_EVAL_WEBHOOK_URL`, optional `N8N_WEBHOOK_SECRET`) — connect any model, including free ones. Full request/response contract and workflow steps: **[docs/n8n.md](docs/n8n.md)**.
+- **Claude API** (`ANTHROPIC_API_KEY`).
+- **Offline demo evaluator** — used when neither is configured, clearly labelled.
+
+### Claude provider details
 
 Writing and Speaking are graded by Claude (`lib/ai/evaluate.ts`) with structured output: a band per official IELTS criterion, strengths, the 3 highest-impact next steps, line-by-line corrections, and the learner's **own answer rewritten one band higher**.
 
 - Speaking uses the browser's microphone (`MediaRecorder`) plus live speech-to-text (Web Speech API; Chrome/Edge). The transcript, speaking time and rate are sent for grading; pronunciation is clearly labelled as an estimate. Other browsers fall back to typing what was said.
 - Listening audio is generated in the browser with speech synthesis (two voices, adjustable speed, optional "exam mode: play once").
 - The API key stays on the server. Requests use the server-side refusal fallback, and each learner has a daily evaluation limit (`AI_DAILY_LIMIT`).
-- Without a key (or with `AI_MOCK=1`) an **offline demo evaluator** gives a rough heuristic estimate, clearly labelled, so the whole app can be tried locally.
+- With no evaluator configured (or with `AI_MOCK=1`) the **offline demo evaluator** gives a rough heuristic estimate, clearly labelled, so the whole app can be tried locally.
 
 ## Tech
 
@@ -48,10 +69,13 @@ app/actions/            server actions (auth, onboarding, lessons/checkpoints, v
 app/api/evaluate/       AI grading endpoint
 components/             UI, journey map, charts, lesson player, task views (reading/listening/writing/speaking)
 content/                the curriculum: 4 stages, 48 lessons, 4 checkpoints, placement test, practice prompts
+content/conversations/  20 AI-conversation role-plays (learn-first material + role-play setup)
 lib/plan/scheduler.ts   plan pacing, review days, catch-up, plan recommendation
 lib/scoring.ts          answer checking, IELTS band rounding, band estimates
 lib/srs.ts              spaced repetition
-lib/ai/                 Claude evaluator, schema, offline demo evaluator
+lib/ai/                 evaluator providers (n8n webhook, Claude, offline demo), schema, response parsing
+lib/conversation/       ChatGPT role-play prompt builder
+docs/n8n.md             n8n integration guide
 prisma/                 schema + demo seed
 ```
 
@@ -59,7 +83,7 @@ prisma/                 schema + demo seed
 
 ```bash
 npm install
-cp .env.example .env        # add ANTHROPIC_API_KEY for real AI grading, or set AI_MOCK=1
+cp .env.example .env        # set N8N_EVAL_WEBHOOK_URL (or ANTHROPIC_API_KEY) for real AI grading
 npm run setup               # create the database and seed a demo learner
 npm run dev                 # http://localhost:3000
 ```
@@ -70,9 +94,9 @@ Checks:
 
 ```bash
 npm run typecheck
-npm test                    # scheduler, scoring, SRS, curriculum integrity, evaluator
+npm test                    # scheduler, scoring, SRS, curriculum & conversation integrity, prompt builder, webhook parsing
 npm run build
-BASE_URL=http://localhost:3000 npm run e2e   # browser smoke test: register → placement → plan → lesson → dashboard
+BASE_URL=http://localhost:3000 npm run e2e   # browser smoke test: register → placement → plan → lesson → AI conversation → dashboard
 ```
 
 For production, switch the Prisma datasource to `postgresql`, set `DATABASE_URL`, and deploy as a standard Next.js app.

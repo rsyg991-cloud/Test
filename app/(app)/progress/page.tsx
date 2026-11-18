@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCheckpoint, getLesson, getPractice, SKILLS } from "@/content";
+import { getCheckpoint, getConversation, getLesson, getPractice, SKILLS } from "@/content";
 import { BandChart } from "@/components/BandChart";
 import { Icon } from "@/components/icons";
 import { PageHeader, Ring, SKILL_META, SkillBadge } from "@/components/ui";
@@ -16,6 +16,7 @@ function titleFor(kind: string, refId: string) {
   if (kind === "lesson") return getLesson(refId)?.title ?? refId;
   if (kind === "checkpoint") return getCheckpoint(refId)?.title ?? refId;
   if (kind === "practice") return `Drill: ${getPractice(refId)?.title ?? refId}`;
+  if (kind === "conversation") return `Conversation: ${getConversation(refId)?.title ?? refId}`;
   return "Placement test";
 }
 
@@ -23,7 +24,7 @@ export default async function ProgressPage() {
   const user = await requireUser();
   const [{ bands, overall, snapshots }, attempts, days, lessonsDone, words] = await Promise.all([
     getSkillBands(user.id),
-    prisma.attempt.findMany({ where: { userId: user.id, skill: { in: ["writing", "speaking"] }, band: { not: null } }, orderBy: { createdAt: "desc" }, take: 12 }),
+    prisma.attempt.findMany({ where: { userId: user.id, skill: { in: ["writing", "speaking", "conversation"] }, band: { not: null } }, orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.activityDay.findMany({ where: { userId: user.id, day: { gte: dayKey(addDays(new Date(), -83)) } } }),
     prisma.lessonProgress.count({ where: { userId: user.id } }),
     prisma.vocabCard.count({ where: { userId: user.id } }),
@@ -115,7 +116,7 @@ export default async function ProgressPage() {
       </div>
 
       <section className="card p-5 sm:p-6">
-        <h2 className="mb-4 font-display text-xl font-bold">Recent Writing & Speaking feedback</h2>
+        <h2 className="mb-4 font-display text-xl font-bold">Recent Writing, Speaking & Conversation feedback</h2>
         {attempts.length === 0 ? (
           <p style={{ color: "var(--muted)" }}>Your AI-graded answers will appear here.</p>
         ) : (
@@ -124,13 +125,13 @@ export default async function ProgressPage() {
               const fb = a.feedbackJson ? (JSON.parse(a.feedbackJson) as { summary?: string; improvements?: string[] }) : null;
               return (
                 <li key={a.id} className="flex flex-wrap items-start gap-4 py-4" style={{ borderColor: "var(--line)" }}>
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl font-display text-lg font-bold text-white" style={{ background: SKILL_META[a.skill as "writing"].color }}>
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl font-display text-lg font-bold text-white" style={{ background: SKILL_META[a.skill === "conversation" ? "speaking" : (a.skill as "writing")].color }}>
                     {a.band?.toFixed(1)}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="font-bold">{titleFor(a.kind, a.refId)}</div>
                     <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                      {SKILL_META[a.skill as "writing"].label} · {a.createdAt.toLocaleDateString("en-GB")}
+                      {a.skill === "conversation" ? "AI Conversation" : SKILL_META[a.skill as "writing"].label} · {a.createdAt.toLocaleDateString("en-GB")}
                     </div>
                     {fb?.improvements?.[0] && (
                       <p className="mt-1 text-sm">

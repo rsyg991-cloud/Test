@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 export async function loadOwnedAttempt(
   userId: string,
   attemptId: string | undefined,
-  expect: { refId: string; skill: "writing" | "speaking" },
+  expect: { refId: string; skill: "writing" | "speaking" | "conversation" },
 ) {
   if (!attemptId) return null;
   const a = await prisma.attempt.findUnique({ where: { id: attemptId } });
