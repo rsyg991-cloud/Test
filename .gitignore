@@ -9,3 +9,6 @@ prisma/*.db
 prisma/*.db-journal
 test-results
 screenshots
+# Licensed (copyrighted) test material must never be committed
+content/mock/licensed/*
+!content/mock/licensed/README.md

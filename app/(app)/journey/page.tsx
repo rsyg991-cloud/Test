@@ -123,6 +123,22 @@ export default async function JourneyPage() {
                       </Link>
                     )}
                   </div>
+                  {s.id === 4 && (
+                    <div className="flex flex-wrap items-center gap-4 border-t px-5 py-4 sm:px-6" style={{ borderColor: "var(--line)" }}>
+                      <span className="grid h-10 w-10 place-items-center rounded-xl text-white" style={{ background: "var(--brand)" }}>
+                        <Icon name="target" size={18} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold">Full IELTS mock test</div>
+                        <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
+                          Complete test with official timing — take it before your exam (open to all stages)
+                        </div>
+                      </div>
+                      <Link href="/practice#mock-tests" className="btn btn-primary px-4 py-2">
+                        Open
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </section>
             );

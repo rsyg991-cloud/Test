@@ -82,6 +82,19 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         )}
       </div>
 
+      {examDays !== null && examDays >= 0 && examDays <= 30 && (
+        <Link href="/practice#mock-tests" className="card flex flex-wrap items-center gap-4 p-4 transition-transform hover:-translate-y-0.5">
+          <span className="grid h-10 w-10 place-items-center rounded-xl text-white" style={{ background: "var(--navy)" }}>
+            <Icon name="trophy" size={20} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="font-bold">Your exam is in {examDays} days — take a full mock test</div>
+            <div className="text-sm" style={{ color: "var(--muted)" }}>The complete test with official timing shows exactly where you stand.</div>
+          </div>
+          <Icon name="arrow" size={18} />
+        </Link>
+      )}
+
       {today.behind >= 2 && (
         <div className="card flex flex-wrap items-center gap-4 p-4" style={{ borderColor: "var(--gold)" }}>
           <span className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: "color-mix(in srgb, var(--gold) 20%, transparent)", color: "var(--writing)" }}>

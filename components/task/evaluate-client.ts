@@ -2,7 +2,7 @@
 
 import type { Evaluation } from "@/lib/ai/schema";
 
-export type EvalSource = "lesson" | "checkpoint" | "practice" | "placement" | "conversation";
+export type EvalSource = "lesson" | "checkpoint" | "practice" | "placement" | "conversation" | "mock";
 
 export async function requestEvaluation(body: {
   kind: "writing" | "speaking" | "conversation";

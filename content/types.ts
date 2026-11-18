@@ -32,7 +32,7 @@ export interface VocabItem {
 }
 
 export interface ChartData {
-  kind: "bar" | "line";
+  kind: "bar" | "line" | "table";
   title: string;
   unit: string;
   labels: string[];
@@ -56,6 +56,9 @@ export interface WritingTask {
   task: "task1" | "task2";
   prompt: string;
   chart?: ChartData;
+  image?: { src: string; alt: string };
+  /** Text description of an image (process, map…) so the AI evaluator can check accuracy. */
+  imageDescription?: string;
   minWords: number;
   timeMinutes: number;
   tips: string[];

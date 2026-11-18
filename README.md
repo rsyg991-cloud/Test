@@ -42,6 +42,15 @@ BandUp is a full-stack English learning platform that takes a learner from **B1*
 
 They live on the Practice page, and the dashboard suggests one each day.
 
+## Full IELTS mock test & official format
+
+- **Full mock test** (`/mock/original-test-1`): a complete IELTS Academic test written for BandUp in the official format — 4 listening parts (40 questions, each recording plays once, map labelling), 3 reading passages (40 questions, ≈2,350 words, 60 minutes), Writing Task 1 + Task 2 (60 minutes, Task 2 counts double) and a 3-part speaking test. Timers auto-submit, progress survives a reload, answers are graded on the server (never sent to the browser), and results show bands from the published conversion tables, accuracy by question type and a full answer review.
+- **All official question types**: multiple choice (one / choose TWO), True/False/Not Given, Yes/No/Not Given, matching (headings, features, sentence endings), note/form/summary completion with word limits, summary with a word box, map/diagram labelling, short answer (`lib/mock/`).
+- **Licensed past papers**: the engine can load authentic tests (e.g. Cambridge IELTS) with real audio once you have a licence — see **[docs/licensed-tests.md](docs/licensed-tests.md)**. `npm run validate:tests` checks every test file. Licensed files are git-ignored.
+- **Resources page** (`/resources`): links to the official free practice tests (British Council, IDP, IELTS.org) and the Cambridge books, with a warning about pirated "past paper" sites.
+
+The 48 lessons and stage checkpoints are original practice material in IELTS style; they are shorter than the real test by design (they teach one skill at a time).
+
 ## AI evaluation: n8n webhook, Claude or demo
 
 All evaluation goes through one request shape with three interchangeable providers (`lib/ai/evaluate.ts`), chosen with `AI_PROVIDER` or automatically:
@@ -75,7 +84,10 @@ lib/scoring.ts          answer checking, IELTS band rounding, band estimates
 lib/srs.ts              spaced repetition
 lib/ai/                 evaluator providers (n8n webhook, Claude, offline demo), schema, response parsing
 lib/conversation/       ChatGPT role-play prompt builder
+lib/mock/               full-test schema, grading rules, band tables, validator, test registry
+content/mock/           full mock tests (original); licensed tests go in MOCK_TESTS_DIR
 docs/n8n.md             n8n integration guide
+docs/licensed-tests.md  how to license and import authentic IELTS tests
 prisma/                 schema + demo seed
 ```
 
@@ -94,9 +106,10 @@ Checks:
 
 ```bash
 npm run typecheck
-npm test                    # scheduler, scoring, SRS, curriculum & conversation integrity, prompt builder, webhook parsing
+npm test                    # scheduler, scoring, SRS, curriculum & conversation integrity, prompt builder, webhook parsing, mock grading & validator
+npm run validate:tests      # validate all full tests (built-in + licensed)
 npm run build
-BASE_URL=http://localhost:3000 npm run e2e   # browser smoke test: register → placement → plan → lesson → AI conversation → dashboard
+BASE_URL=http://localhost:3000 npm run e2e   # browser smoke test: register → placement → plan → lesson → AI conversation → full mock test → dashboard
 ```
 
 For production, switch the Prisma datasource to `postgresql`, set `DATABASE_URL`, and deploy as a standard Next.js app.

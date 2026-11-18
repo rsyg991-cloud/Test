@@ -5,6 +5,7 @@ import { getCheckpoint, getConversation, getLesson, getPractice, type SpeakingTa
 import { placement } from "@/content/placement";
 import { aiEnabled, evaluateConversation, evaluateSpeaking, evaluateWriting } from "@/lib/ai/evaluate";
 import { WebhookError } from "@/lib/ai/webhook";
+import { getMockSpeakingPart, getMockWritingTask } from "@/lib/mock/registry";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { aiUsageToday } from "@/lib/progress";
@@ -13,7 +14,7 @@ export const maxDuration = 120;
 
 const Body = z.object({
   kind: z.enum(["writing", "speaking", "conversation"]),
-  source: z.enum(["lesson", "checkpoint", "practice", "placement", "conversation"]),
+  source: z.enum(["lesson", "checkpoint", "practice", "placement", "conversation", "mock"]),
   refId: z.string().max(64),
   text: z.string().max(20000),
   durationSec: z.number().min(0).max(1200).optional(),
@@ -25,6 +26,13 @@ function resolveTask(source: string, refId: string, kind: "writing" | "speaking"
   if (source === "lesson") return getLesson(refId)?.[kind];
   if (source === "checkpoint") return getCheckpoint(refId)?.[kind];
   if (source === "practice") return getPractice(refId)?.[kind];
+  if (source === "mock") {
+    if (kind === "writing") {
+      const t = getMockWritingTask(refId);
+      return t && { ...t, timeMinutes: t.task === "task1" ? 20 : 40, tips: [] };
+    }
+    return getMockSpeakingPart(refId);
+  }
   return undefined;
 }
 

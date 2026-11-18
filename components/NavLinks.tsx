@@ -13,11 +13,13 @@ const LINKS = [
   { href: "/plan", label: "Plan", icon: "calendar" },
 ];
 
+const SIDE_LINKS = [...LINKS, { href: "/resources", label: "Resources", icon: "shield" }];
+
 export function SideNav({ vocabDue }: { vocabDue: number }) {
   const path = usePathname();
   return (
     <nav className="flex flex-col gap-1" aria-label="Main">
-      {LINKS.map((l) => {
+      {SIDE_LINKS.map((l) => {
         const active = path === l.href || (l.href !== "/dashboard" && path.startsWith(l.href));
         return (
           <Link

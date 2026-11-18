@@ -4,6 +4,7 @@ import { conversations, practicePrompts, stages } from "@/content";
 import { Icon } from "@/components/icons";
 import { PageHeader, SKILL_META, SkillIcon } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { getAllTests } from "@/lib/mock/registry";
 import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Practice" };
@@ -21,6 +22,10 @@ export default async function PracticePage() {
     where: { userId: user.id, kind: "conversation-complete" },
     select: { refId: true, band: true },
   });
+  const tests = getAllTests();
+  const mockAttempts = await prisma.attempt.findMany({ where: { userId: user.id, kind: "mock" }, select: { refId: true, band: true } });
+  const mockBest = new Map<string, number>();
+  for (const m of mockAttempts) if (m.band !== null) mockBest.set(m.refId, Math.max(mockBest.get(m.refId) ?? 0, m.band));
   const convBest = new Map<string, number | null>();
   for (const c of convDone) convBest.set(c.refId, Math.max(convBest.get(c.refId) ?? 0, c.band ?? 0) || null);
 
@@ -31,6 +36,34 @@ export default async function PracticePage() {
         title="Practice"
         subtitle="Talk with AI in real-life and exam role-plays, and sharpen your Writing and Speaking with instant examiner feedback."
       />
+
+      <section id="mock-tests" className="mb-12 scroll-mt-24">
+        <h2 className="mb-1 font-display text-2xl font-bold">Full mock tests</h2>
+        <p className="mb-4 text-sm" style={{ color: "var(--muted)" }}>
+          The complete IELTS Academic test with official timing: 40 listening + 40 reading questions, two writing tasks and three speaking parts.{" "}
+          <Link href="/resources" className="font-bold underline">Official resources</Link>
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {tests.map((t) => (
+            <Link key={t.id} href={`/mock/${t.id}`} className="card flex items-center gap-4 p-5 transition-transform hover:-translate-y-0.5">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white" style={{ background: "var(--navy)" }}>
+                <Icon name="trophy" size={22} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold">{t.title}</div>
+                <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
+                  {t.source.kind === "licensed" ? t.source.attribution : "Original BandUp test"} · ~2 h 45 min
+                </div>
+              </div>
+              {mockBest.has(t.id) && (
+                <span className="chip" style={{ background: "var(--surface-2)" }}>
+                  Best {mockBest.get(t.id)!.toFixed(1)}
+                </span>
+              )}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section id="conversations" className="mb-12 scroll-mt-24">
         <div className="card mb-5 overflow-hidden">

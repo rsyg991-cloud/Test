@@ -11,7 +11,8 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "setup": "prisma db push && tsx prisma/seed.ts",
-    "e2e": "node e2e/smoke.mjs"
+    "e2e": "node e2e/smoke.mjs",
+    "validate:tests": "tsx scripts/validate-tests.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

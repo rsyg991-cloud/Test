@@ -17,6 +17,10 @@ function titleFor(kind: string, refId: string) {
   if (kind === "checkpoint") return getCheckpoint(refId)?.title ?? refId;
   if (kind === "practice") return `Drill: ${getPractice(refId)?.title ?? refId}`;
   if (kind === "conversation") return `Conversation: ${getConversation(refId)?.title ?? refId}`;
+  if (kind === "mock") {
+    const part = refId.split(":")[1] ?? "";
+    return `Mock test: ${part.startsWith("task") ? `Writing ${part.replace("task", "Task ")}` : `Speaking Part ${part.split("-")[1]}`}`;
+  }
   return "Placement test";
 }
 

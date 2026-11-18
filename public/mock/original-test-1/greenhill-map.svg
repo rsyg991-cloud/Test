@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440" font-family="Arial, Helvetica, sans-serif">
+  <title>Map of Greenhill Country Park</title>
+  <rect width="600" height="440" fill="#f3f0e6"/>
+  <!-- woods (north-east) -->
+  <g fill="#9cc49a">
+    <circle cx="430" cy="60" r="22"/><circle cx="470" cy="45" r="20"/><circle cx="515" cy="60" r="24"/>
+    <circle cx="555" cy="45" r="20"/><circle cx="545" cy="105" r="22"/><circle cx="420" cy="110" r="18"/>
+  </g>
+  <text x="560" y="140" font-size="14" text-anchor="end" fill="#2f5d2e" font-weight="bold">Woods</text>
+  <!-- stream from the north into the lake -->
+  <path d="M300 0 C 290 50, 315 90, 300 150" stroke="#7fb3d9" stroke-width="8" fill="none"/>
+  <text x="318" y="45" font-size="13" fill="#2c5f86">Stream</text>
+  <!-- lake -->
+  <ellipse cx="300" cy="215" rx="120" ry="62" fill="#a9d1ee" stroke="#7fb3d9" stroke-width="3"/>
+  <text x="300" y="221" font-size="18" text-anchor="middle" fill="#2c5f86" font-weight="bold">Lake</text>
+  <!-- paths -->
+  <g stroke="#c9a978" stroke-width="10" fill="none" stroke-linecap="round">
+    <path d="M300 430 L300 285"/>
+    <ellipse cx="300" cy="215" rx="150" ry="88"/>
+    <path d="M435 170 L500 90"/>
+  </g>
+  <text x="318" y="370" font-size="12" fill="#7a5a2b" transform="rotate(-90 318 370)">Main path</text>
+  <!-- car park -->
+  <rect x="40" y="345" width="150" height="70" fill="#d9d9d9" stroke="#999" stroke-width="2"/>
+  <text x="115" y="385" font-size="14" text-anchor="middle" fill="#333" font-weight="bold">Car park</text>
+  <!-- entrance -->
+  <rect x="270" y="418" width="60" height="18" fill="#14213d"/>
+  <text x="300" y="431" font-size="12" text-anchor="middle" fill="#fff" font-weight="bold">ENTRANCE</text>
+  <!-- letter markers -->
+  <g font-size="16" font-weight="bold" text-anchor="middle">
+    <g><circle cx="380" cy="385" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="380" y="391">A</text></g>
+    <g><circle cx="240" cy="320" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="240" y="326">B</text></g>
+    <g><circle cx="365" cy="320" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="365" y="326">C</text></g>
+    <g><circle cx="110" cy="215" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="110" y="221">D</text></g>
+    <g><circle cx="255" cy="110" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="255" y="116">E</text></g>
+    <g><circle cx="490" cy="230" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="490" y="236">F</text></g>
+    <g><circle cx="510" cy="80" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="510" y="86">G</text></g>
+    <g><circle cx="215" cy="395" r="15" fill="#fff" stroke="#14213d" stroke-width="2"/><text x="215" y="401">H</text></g>
+  </g>
+  <!-- compass -->
+  <g transform="translate(560 400)"><path d="M0 -22 L7 0 L0 -5 L-7 0 Z" fill="#14213d"/><text x="0" y="16" font-size="12" text-anchor="middle" font-weight="bold">N</text></g>
+</svg>

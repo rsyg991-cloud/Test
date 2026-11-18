@@ -6,7 +6,10 @@ import { getCurrentUser } from "@/lib/auth";
 import { loadOwnedAttempt } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
 import { addBandSnapshot, addVocab, recordActivity, type ActivityResult } from "@/lib/progress";
-import { bandFromScore, gradeQuestions, overallBand, type Answers, type QuestionResult } from "@/lib/scoring";
+import { bandFromScore, gradeQuestions, overallBand, roundBand, type Answers, type QuestionResult } from "@/lib/scoring";
+import { academicReadingBand, listeningBand, writingBand } from "@/lib/mock/bands";
+import { gradeGroups, type MockAnswers, type SectionGrade } from "@/lib/mock/grade";
+import { getTest } from "@/lib/mock/registry";
 
 export interface CompletionResult {
   ok: true;
@@ -247,4 +250,71 @@ export async function completeConversation(
     nextHref: "/practice#conversations",
     nextTitle: "More conversations",
   };
+}
+
+export interface MockCompletion {
+  ok: true;
+  testId: string;
+  listening: SectionGrade & { band: number };
+  reading: SectionGrade & { band: number };
+  writing: { task1: number | null; task2: number | null; band: number | null };
+  speaking: { parts: (number | null)[]; band: number | null };
+  overall: number | null;
+  activity: ActivityResult;
+}
+
+export async function completeMock(
+  testId: string,
+  payload: {
+    listening: MockAnswers;
+    reading: MockAnswers;
+    writing: { task1?: string; task2?: string };
+    speaking: { p1?: string; p2?: string; p3?: string };
+  },
+): Promise<MockCompletion | CompletionError> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Please log in again." };
+  const test = getTest(testId);
+  if (!test) return { ok: false, error: "Test not found." };
+
+  const lg = gradeGroups(test.listening.flatMap((p) => p.groups), payload.listening ?? {});
+  const rg = gradeGroups(test.reading.flatMap((p) => p.groups), payload.reading ?? {});
+  const listening = { ...lg, band: listeningBand(lg.raw) };
+  const reading = { ...rg, band: academicReadingBand(rg.raw) };
+
+  const band = async (attemptId: string | undefined, ref: string, skill: "writing" | "speaking") =>
+    (await loadOwnedAttempt(user.id, attemptId, { refId: `${testId}:${ref}`, skill }))?.band ?? null;
+  const t1 = await band(payload.writing?.task1, "task1", "writing");
+  const t2 = await band(payload.writing?.task2, "task2", "writing");
+  const sp = [
+    await band(payload.speaking?.p1, "speaking-1", "speaking"),
+    await band(payload.speaking?.p2, "speaking-2", "speaking"),
+    await band(payload.speaking?.p3, "speaking-3", "speaking"),
+  ];
+  const spDone = sp.filter((b): b is number => b !== null);
+  const writing = { task1: t1, task2: t2, band: writingBand(t1, t2) };
+  const speaking = { parts: sp, band: spDone.length ? roundBand(spDone.reduce((a, b) => a + b, 0) / spDone.length) : null };
+  const overall = overallBand({ listening: listening.band, reading: reading.band, writing: writing.band, speaking: speaking.band });
+
+  await addBandSnapshot(user.id, "listening", listening.band, "mock");
+  await addBandSnapshot(user.id, "reading", reading.band, "mock");
+  if (writing.band !== null) await addBandSnapshot(user.id, "writing", writing.band, "mock");
+  if (speaking.band !== null) await addBandSnapshot(user.id, "speaking", speaking.band, "mock");
+
+  await prisma.attempt.create({
+    data: {
+      userId: user.id,
+      kind: "mock",
+      refId: testId,
+      skill: "overall",
+      score: (lg.raw + rg.raw) / 80,
+      band: overall,
+      responseJson: JSON.stringify(payload),
+      feedbackJson: JSON.stringify({ listening: { raw: lg.raw, band: listening.band }, reading: { raw: rg.raw, band: reading.band }, writing, speaking }),
+    },
+  });
+  const activity = await recordActivity(user.id, 300, 165);
+  revalidatePath("/dashboard");
+  revalidatePath("/progress");
+  return { ok: true, testId, listening, reading, writing, speaking, overall, activity };
 }

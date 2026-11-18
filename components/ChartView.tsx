@@ -4,6 +4,40 @@ const SERIES_COLORS = ["var(--listening)", "var(--brand)", "var(--reading)", "va
 
 /** Renders an IELTS Writing Task 1 chart (bar or line) from data. */
 export function ChartView({ chart }: { chart: ChartData }) {
+  if (chart.kind === "table") {
+    return (
+      <figure className="overflow-x-auto rounded-2xl border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
+        <table className="w-full min-w-[320px] border-collapse text-sm">
+          <caption className="mb-3 text-center font-bold">{chart.title}</caption>
+          <thead>
+            <tr>
+              <th className="border p-2 text-left" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }} />
+              {chart.series.map((s) => (
+                <th key={s.name} scope="col" className="border p-2 text-center" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }}>
+                  {s.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {chart.labels.map((l, i) => (
+              <tr key={l}>
+                <th scope="row" className="border p-2 text-left font-semibold" style={{ borderColor: "var(--line)" }}>
+                  {l}
+                </th>
+                {chart.series.map((s) => (
+                  <td key={s.name} className="border p-2 text-center" style={{ borderColor: "var(--line)" }}>
+                    {s.values[i]}
+                    {chart.unit}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </figure>
+    );
+  }
   const W = 560;
   const H = 300;
   const pad = { l: 44, r: 12, t: 16, b: 36 };

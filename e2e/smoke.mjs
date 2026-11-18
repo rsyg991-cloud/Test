@@ -136,7 +136,48 @@ await page.goto(`${BASE}/practice`);
 if (!(await page.getByText("1/20 completed").isVisible())) throw new Error("Conversation completion not shown");
 step("practice page shows conversation progress");
 
-for (const p of ["journey", "vocab", "progress", "plan", "practice"]) {
+// Full mock test (timers sped up 100×): listening → reading → writing → speaking → results
+page.on("dialog", (d) => d.accept());
+const mockHtml = await (await page.request.get(`${BASE}/mock/original-test-1`)).text();
+if (mockHtml.includes("Turf roofs for centuries")) throw new Error("Answer explanations leaked to the browser");
+await page.goto(`${BASE}/mock/original-test-1?timeScale=0.01`);
+await page.getByRole("button", { name: /Start the test/ }).click();
+for (let partNo = 1; partNo <= 4; partNo++) {
+  await page.getByRole("button", { name: `Start Part ${partNo}` }).click();
+  if (partNo === 1) {
+    await page.getByLabel("Question 1", { exact: true }).fill("Kowalski");
+    await page.getByLabel("Question 3", { exact: true }).fill("pharmacist");
+    await snap("15-mock-listening");
+  }
+  if (partNo === 2) {
+    await page.getByLabel("Answer for question 15").selectOption("B");
+  }
+  await page.getByRole("button", { name: partNo < 4 ? `Go to Part ${partNo + 1}` : "Check my answers" }).click({ timeout: 30_000 });
+}
+await page.getByRole("button", { name: /Finish Listening/ }).click();
+step("mock listening: 4 parts played once");
+await page.getByRole("radiogroup", { name: "Question 1" }).getByRole("radio", { name: "FALSE" }).click();
+await page.getByRole("radiogroup", { name: "Question 3" }).getByRole("radio", { name: "TRUE" }).click();
+await page.getByLabel("Question 8", { exact: true }).fill("thick");
+await snap("16-mock-reading");
+await page.getByRole("button", { name: "Passage 3", exact: true }).click();
+await page.getByRole("button", { name: /Finish Reading/ }).click();
+const essay = (n) => Array.from({ length: n }, (_, i) => `Sentence ${i + 1} explains my view clearly with an example.`).join(" ");
+await page.getByLabel("Your answer for Task 1").fill(essay(20));
+await page.getByRole("tab", { name: /Task 2/ }).click();
+await page.getByLabel("Your answer for Task 2").fill(essay(32));
+await page.getByRole("button", { name: /Submit Writing/ }).click();
+await page.getByRole("button", { name: "Skip to Part 2" }).click({ timeout: 90_000 });
+await page.getByRole("button", { name: "Skip to Part 3" }).click();
+await page.getByRole("button", { name: /Skip & finish the test/ }).click();
+await page.getByText("Accuracy by question type").waitFor({ timeout: 60_000 });
+const results = await page.locator("main").innerText();
+if (!results.includes("Review Listening answers (3/40)") || !results.includes("Review Reading answers (3/40)")) throw new Error("Unexpected mock raw scores:\n" + results.slice(0, 800));
+await page.keyboard.press("Escape");
+await snap("17-mock-results");
+step("mock test graded on the server (listening 3/40, reading 3/40) with writing bands");
+
+for (const p of ["journey", "vocab", "progress", "plan", "practice", "resources"]) {
   await page.goto(`${BASE}/${p}`);
   await page.locator("main h1").first().waitFor();
   await snap(`10-${p}`);

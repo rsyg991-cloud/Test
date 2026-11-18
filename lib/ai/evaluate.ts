@@ -51,7 +51,9 @@ export function writingRequest(task: WritingTask, essay: string): EvalRequest {
   const chart = task.chart
     ? `\n\nChart data (${task.chart.kind} chart, "${task.chart.title}", unit ${task.chart.unit}):\n` +
       task.chart.series.map((s) => `${s.name}: ` + task.chart!.labels.map((l, i) => `${l}=${s.values[i]}`).join(", ")).join("\n")
-    : "";
+    : task.imageDescription
+      ? `\n\nThe task shows an image. Description of the image: ${task.imageDescription}`
+      : "";
   return {
     kind: "writing",
     instructions: SYSTEM,
