@@ -1,0 +1,124 @@
+// BandUp data model. Curriculum content lives in /content (typed TS);
+// the database stores learners, their plan and everything they do.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
+  passwordHash   String
+  createdAt      DateTime  @default(now())
+
+  // Goal & plan
+  targetBand     Float?
+  examDate       DateTime?
+  planMonths     Int?
+  planStart      DateTime?
+  startStage     Int       @default(1)
+  unlockedStage  Int       @default(1)
+  placementDone  Boolean   @default(false)
+
+  // Motivation
+  xp             Int       @default(0)
+  streak         Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDay  String?   // YYYY-MM-DD (UTC)
+  streakFreezes  Int       @default(1)
+
+  sessions       Session[]
+  progress       LessonProgress[]
+  attempts       Attempt[]
+  bands          BandSnapshot[]
+  vocab          VocabCard[]
+  activity       ActivityDay[]
+}
+
+model Session {
+  id        String   @id // sha256 of the cookie token
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  stage       Int
+  skill       String
+  bestScore   Float    // 0..1
+  band        Float?
+  attempts    Int      @default(1)
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model Attempt {
+  id           String   @id @default(cuid())
+  userId       String
+  kind         String   // lesson | placement | checkpoint | practice
+  refId        String   // lesson id / checkpoint id / practice prompt id
+  skill        String
+  score        Float?   // 0..1 for auto-scored tasks
+  band         Float?
+  responseJson String   // learner answer (JSON)
+  feedbackJson String?  // AI or auto feedback (JSON)
+  aiGraded     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model BandSnapshot {
+  id        String   @id @default(cuid())
+  userId    String
+  skill     String   // reading | listening | writing | speaking
+  band      Float
+  source    String   // placement | lesson | checkpoint | practice
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, skill, createdAt])
+}
+
+model VocabCard {
+  id         String   @id @default(cuid())
+  userId     String
+  word       String
+  definition String
+  example    String
+  ease       Float    @default(2.5)
+  interval   Int      @default(0) // days
+  reps       Int      @default(0)
+  due        DateTime @default(now())
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, word])
+}
+
+model ActivityDay {
+  id      String @id @default(cuid())
+  userId  String
+  day     String // YYYY-MM-DD (UTC)
+  xp      Int    @default(0)
+  minutes Int    @default(0)
+  tasks   Int    @default(0)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, day])
+}
