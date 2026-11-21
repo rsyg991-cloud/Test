@@ -38,7 +38,7 @@ export async function evaluateViaWebhook(
         ...(opts.secret ? { "X-BandUp-Secret": opts.secret } : {}),
       },
       body: JSON.stringify({ ...req, responseSchema: evaluationJsonSchema() }),
-      signal: AbortSignal.timeout(opts.timeoutMs ?? 90_000),
+      signal: AbortSignal.timeout(opts.timeoutMs ?? 55_000),
     });
   } catch (e) {
     const timeout = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");

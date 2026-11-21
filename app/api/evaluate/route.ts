@@ -10,7 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { aiUsageToday } from "@/lib/progress";
 
-export const maxDuration = 120;
+export const maxDuration = 60;
 
 const Body = z.object({
   kind: z.enum(["writing", "speaking", "conversation"]),

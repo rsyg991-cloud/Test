@@ -8,11 +8,12 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "setup": "prisma db push && tsx prisma/seed.ts",
+    "setup": "prisma migrate deploy && tsx prisma/seed.ts",
     "e2e": "node e2e/smoke.mjs",
-    "validate:tests": "tsx scripts/validate-tests.ts"
+    "validate:tests": "tsx scripts/validate-tests.ts",
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate deploy"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -38,5 +39,8 @@
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
     "vitest": "3.2.7"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
