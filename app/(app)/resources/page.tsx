@@ -44,7 +44,7 @@ export default async function ResourcesPage() {
       <PageHeader
         eyebrow="Trusted sources"
         title="Official IELTS resources"
-        subtitle="BandUp's lessons and mock test are original material written in the official format. For authentic past papers, use only the official sources below."
+        subtitle="Balbal's lessons and mock test are original material written in the official format. For authentic past papers, use only the official sources below."
       />
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -85,7 +85,7 @@ export default async function ResourcesPage() {
         <div className="min-w-0 flex-1">
           <h2 className="font-display text-xl font-bold">Ready for the real format?</h2>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Take BandUp&apos;s full mock test: 40 listening + 40 reading questions, two writing tasks and three speaking parts, with official timing.
+            Take Balbal&apos;s full mock test: 40 listening + 40 reading questions, two writing tasks and three speaking parts, with official timing.
           </p>
         </div>
         <Link href="/practice#mock-tests" className="btn btn-primary">

@@ -1,8 +1,8 @@
-# Connecting BandUp's AI grading to n8n
+# Connecting Balbal's AI grading to n8n
 
-BandUp can send every AI evaluation (Writing, Speaking and AI-Conversation feedback) to an **n8n webhook**. Inside n8n you connect any model you like — a free one (Gemini, Groq, OpenRouter free models, a local Ollama…) or a paid one — without changing BandUp's code.
+Balbal can send every AI evaluation (Writing, Speaking and AI-Conversation feedback) to an **n8n webhook**. Inside n8n you connect any model you like — a free one (Gemini, Groq, OpenRouter free models, a local Ollama…) or a paid one — without changing Balbal's code.
 
-## 1. Configure BandUp
+## 1. Configure Balbal
 
 In `.env`:
 
@@ -38,11 +38,11 @@ Provider order when `AI_PROVIDER` is empty: n8n webhook (if the URL is set) → 
    - Respond With: **JSON**
    - Response Body: `{{ $json.output ?? $json.text }}` (whatever field your AI node outputs)
 
-BandUp is forgiving about the reply shape: it accepts the evaluation object itself, an object with `output` / `text` / `response` / `json` / `data` containing it (as an object or a JSON string, even wrapped in ```json fences), or an array of items. It validates the result and clamps every band to 1–9.
+Balbal is forgiving about the reply shape: it accepts the evaluation object itself, an object with `output` / `text` / `response` / `json` / `data` containing it (as an object or a JSON string, even wrapped in ```json fences), or an array of items. It validates the result and clamps every band to 1–9.
 
 The request times out after 55 seconds (Vercel functions on the free plan stop at 60 seconds), so keep the workflow fast.
 
-## 3. Request BandUp sends
+## 3. Request Balbal sends
 
 ```json
 {
@@ -56,10 +56,10 @@ The request times out after 55 seconds (Vercel functions on the free plan stop a
 ```
 
 - `kind` is `writing`, `speaking` or `conversation`.
-- `criteria` lists the four criteria in the order BandUp expects them back.
+- `criteria` lists the four criteria in the order Balbal expects them back.
 - `meta` holds handy numbers (word count, speaking time, words per minute, scenario id…).
 
-## 4. Response BandUp expects
+## 4. Response Balbal expects
 
 ```json
 {
@@ -88,7 +88,7 @@ curl -X POST "$N8N_EVAL_WEBHOOK_URL" \
   -d '{"kind":"writing","instructions":"You are an IELTS examiner. Reply with JSON only.","input":"Assess: <response>I think study in group is better because friends help.</response>","criteria":["Task Achievement / Response","Coherence and Cohesion","Lexical Resource","Grammatical Range and Accuracy"],"meta":{},"responseSchema":{}}'
 ```
 
-Then restart BandUp and submit any Writing task — the feedback card should no longer say "Demo estimate". If something is wrong, the learner sees a friendly error and the server log shows `[evaluate]` with the details.
+Then restart Balbal and submit any Writing task — the feedback card should no longer say "Demo estimate". If something is wrong, the learner sees a friendly error and the server log shows `[evaluate]` with the details.
 
 ## Free model notes
 

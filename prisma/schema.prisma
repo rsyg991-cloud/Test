@@ -1,4 +1,4 @@
-// BandUp data model. Curriculum content lives in /content (typed TS);
+// Balbal data model. Curriculum content lives in /content (typed TS);
 // the database stores learners, their plan and everything they do.
 
 generator client {

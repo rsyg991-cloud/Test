@@ -294,7 +294,7 @@ export function ConversationFlow({
                 ["1", "Copy your ready-made prompt", "It tells ChatGPT its role, your level, today's phrases and how to give you feedback at the end."],
                 ["2", "Open ChatGPT and paste it", "On your phone, use the ChatGPT app and tap the voice button to really speak. On a computer you can type or use voice."],
                 ["3", "Have the conversation", `About ${s.turns} exchanges. Try to complete every mission. Say “END” when you finish to get ChatGPT's feedback.`],
-                ["4", "Copy the conversation and come back", "Select the whole chat (or use the copy button on each message) — you'll paste it here for your BandUp feedback."],
+                ["4", "Copy the conversation and come back", "Select the whole chat (or use the copy button on each message) — you'll paste it here for your Balbal feedback."],
               ].map(([n, t, b]) => (
                 <li key={n} className="flex gap-3">
                   <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold text-[var(--on-skill)]" style={{ background: ACCENT }}>
@@ -374,7 +374,7 @@ export function ConversationFlow({
 
           {!evaluation && (
             <section className="card p-6">
-              <h2 className="font-display text-xl font-bold">Get your BandUp feedback</h2>
+              <h2 className="font-display text-xl font-bold">Get your Balbal feedback</h2>
               <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
                 Paste the whole conversation from ChatGPT. We&apos;ll assess only your turns: fluency, vocabulary, grammar and how well you used today&apos;s phrases.
               </p>

@@ -1,6 +1,6 @@
-# Deploying BandUp (Vercel + Neon)
+# Deploying Balbal (Vercel + Neon)
 
-BandUp is a standard Next.js app with a Postgres database (Prisma). The recommended setup is **Vercel** for hosting and **Neon** for Postgres — both have free plans.
+Balbal is a standard Next.js app with a Postgres database (Prisma). The recommended setup is **Vercel** for hosting and **Neon** for Postgres — both have free plans.
 
 ## First deployment (about 5 minutes)
 
@@ -17,7 +17,7 @@ From then on, **every push to the repository's default branch deploys automatica
 
 - **Production branch**: Vercel uses the repository's default branch. Change it under Project → Settings → Git if needed.
 - **Function time limit**: the free plan stops functions after 60 s, so AI evaluation (`/api/evaluate`) is capped at 60 s and the n8n webhook at 55 s. Keep the n8n workflow fast (a quick model, no long chains).
-- **Demo account**: the seed script (`demo@bandup.app`) is for local development only. Don't run it against production — the password is public.
+- **Demo account**: the seed script (`demo@balbal.app`) is for local development only. Don't run it against production — the password is public.
 - **Licensed IELTS tests**: keep them out of the repository (see [licensed-tests.md](licensed-tests.md)). On Vercel, host the JSON + audio privately and point `MOCK_TESTS_DIR` / `MOCK_ASSETS_BASE_URL` at them, or add a private build step.
 - **Local development**: any Postgres works. Set both `DATABASE_URL` and `DATABASE_URL_UNPOOLED` in `.env`, then `npm run setup && npm run dev`.
 

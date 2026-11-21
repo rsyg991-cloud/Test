@@ -87,7 +87,7 @@ export default async function Home() {
             من الصفر إلى الدرجة اللي تحتاجها.
           </p>
           <p className="mt-4 max-w-xl text-lg leading-relaxed" style={{ color: "var(--muted)" }}>
-            BandUp takes you from wherever you are, even absolute beginner, to the IELTS band you need. Seven stages, four skills, a plan
+            Balbal takes you from wherever you are, even absolute beginner, to the IELTS band you need. Seven stages, four skills, a plan
             that fits your exam date, and an AI examiner that shows you exactly how to reach the next band.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -311,7 +311,7 @@ export default async function Home() {
       </section>
 
       <footer className="border-t py-8 text-center text-sm" style={{ borderColor: "var(--line)", color: "var(--muted)" }}>
-        BandUp · Independent IELTS preparation. IELTS is a registered trademark of its owners; BandUp is not affiliated with them.
+        Balbal · Independent IELTS preparation. IELTS is a registered trademark of its owners; Balbal is not affiliated with them.
       </footer>
     </div>
   );

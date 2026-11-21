@@ -6,10 +6,10 @@ import { passage3 } from "./reading3";
 
 export const originalTest1: FullTest = FullTestSchema.parse({
   id: "original-test-1",
-  title: "BandUp Full Mock Test 1",
+  title: "Balbal Full Mock Test 1",
   module: "academic",
   description: "A complete IELTS Academic test in the official format: 4 listening parts, 3 reading passages, 2 writing tasks and a 3-part speaking test.",
-  source: { kind: "original", publisher: "BandUp" },
+  source: { kind: "original", publisher: "Balbal" },
   listening,
   reading: [passage1, passage2, passage3],
   writing: {

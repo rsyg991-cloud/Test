@@ -1,6 +1,6 @@
 # Adding licensed IELTS tests (e.g. Cambridge IELTS)
 
-BandUp's own lessons and its full mock test are **original material** written in the official IELTS format. Authentic past papers — such as the *Cambridge IELTS 1–19* books — are copyrighted by **Cambridge University Press & Assessment**. They can only be added to BandUp **after you have written permission (a licence)**. Until then, do not copy any of their passages, questions, audio or images into this project.
+Balbal's own lessons and its full mock test are **original material** written in the official IELTS format. Authentic past papers — such as the *Cambridge IELTS 1–19* books — are copyrighted by **Cambridge University Press & Assessment**. They can only be added to Balbal **after you have written permission (a licence)**. Until then, do not copy any of their passages, questions, audio or images into this project.
 
 ## 1. Getting permission
 
@@ -10,7 +10,7 @@ BandUp's own lessons and its full mock test are **original material** written in
    - how the content is protected (login only, no downloading, answers checked on the server);
    - the licence period you need.
 2. Expect a fee and conditions (attribution text, user limits, removal at the end of the licence). Keep the signed licence and its reference number.
-3. If permission is refused or too expensive, alternatives are: licensing tests from another publisher; partnering with an official provider; or keeping BandUp's original tests and sending learners to the official free tests and books (see the in-app **Resources** page).
+3. If permission is refused or too expensive, alternatives are: licensing tests from another publisher; partnering with an official provider; or keeping Balbal's original tests and sending learners to the official free tests and books (see the in-app **Resources** page).
 
 ## 2. Preparing a test file
 
@@ -56,7 +56,7 @@ Questions must be numbered 1–40 in each of Listening and Reading. `explanation
 
 Never commit licensed material to a public repository.
 
-- **Test JSON**: put the files in a private folder and set `MOCK_TESTS_DIR=/path/to/private/tests`. (By default BandUp also reads `content/mock/licensed/`, which is git-ignored.)
+- **Test JSON**: put the files in a private folder and set `MOCK_TESTS_DIR=/path/to/private/tests`. (By default Balbal also reads `content/mock/licensed/`, which is git-ignored.)
 - **Audio and images**: upload them to private storage (e.g. a bucket behind your CDN) and set `MOCK_ASSETS_BASE_URL=https://assets.example.com/ielts`. Relative paths in the JSON (`cambridge-18/test1/part1.mp3`) are resolved against it.
 
 ## 4. Validate and publish

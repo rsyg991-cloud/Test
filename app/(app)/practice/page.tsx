@@ -52,7 +52,7 @@ export default async function PracticePage() {
               <div className="min-w-0 flex-1">
                 <div className="font-bold">{t.title}</div>
                 <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                  {t.source.kind === "licensed" ? t.source.attribution : "Original BandUp test"} · ~2 h 45 min
+                  {t.source.kind === "licensed" ? t.source.attribution : "Original Balbal test"} · ~2 h 45 min
                 </div>
               </div>
               {mockBest.has(t.id) && (

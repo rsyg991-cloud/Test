@@ -1,7 +1,7 @@
 /**
  * Seeds a demo learner with a few weeks of realistic history so the dashboard,
  * band chart and streak can be explored immediately.
- *   email: demo@bandup.app   password: demo12345
+ *   email: demo@balbal.app   password: demo12345
  */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -13,7 +13,7 @@ const dayKey = (d: Date) => d.toISOString().slice(0, 10);
 const utcMidnight = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 
 async function main() {
-  const email = "demo@bandup.app";
+  const email = "demo@balbal.app";
   await prisma.user.deleteMany({ where: { email } });
 
   const today = utcMidnight(new Date());

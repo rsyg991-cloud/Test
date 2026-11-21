@@ -102,7 +102,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
             Hi {name}, let&apos;s plan your <span className="hl">climb</span>.
           </h1>
           <p className="mt-3 text-lg" style={{ color: "var(--muted)" }}>
-            Three quick questions. Starting from zero is fine: BandUp begins with your first words.
+            Three quick questions. Starting from zero is fine: Balbal begins with your first words.
           </p>
           <div className="card mt-8 p-6">
             <h2 className="font-bold">How much English do you know right now?</h2>

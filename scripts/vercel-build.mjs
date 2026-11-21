@@ -15,7 +15,7 @@ if (!pooledName) {
   console.error(`
 ✗ No database connection found.
 
-BandUp needs a Postgres database. In your Vercel project:
+Balbal needs a Postgres database. In your Vercel project:
   1. Open Storage → Create Database → Neon (free) — or connect your existing Neon database.
   2. Make sure it is connected to the "Production" environment (and "Preview" if you use previews).
   3. Leave the environment-variable prefix EMPTY, so the variables are called DATABASE_URL and DATABASE_URL_UNPOOLED.

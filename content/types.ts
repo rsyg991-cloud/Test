@@ -150,7 +150,7 @@ export interface KeyPhrase {
   example: string;
 }
 
-/** A role-play the learner prepares for on BandUp, then practises with ChatGPT. */
+/** A role-play the learner prepares for on Balbal, then practises with ChatGPT. */
 export interface ConversationScenario {
   id: string;
   stage: number;

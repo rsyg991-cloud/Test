@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Skill } from "@/content/types";
 import { Icon } from "./icons";
-import { LOGO_BAND, LOGO_BOX, LOGO_SWIPE, LOGO_UP, LOGO_WIDTH, MARK_ARROW } from "./logo-paths";
+import { LOGO_AR, LOGO_BOX, LOGO_FIRST, LOGO_SECOND, LOGO_SEP, LOGO_SWIPE, LOGO_WIDTH, MARK } from "./logo-paths";
 
 export const SKILL_META: Record<Skill, { label: string; icon: string; color: string; soft: string }> = {
   reading: { label: "Reading", icon: "book", color: "var(--reading)", soft: "color-mix(in srgb, var(--reading) 14%, transparent)" },
@@ -10,29 +10,58 @@ export const SKILL_META: Record<Skill, { label: string; icon: string; color: str
   speaking: { label: "Speaking", icon: "mic", color: "var(--speaking)", soft: "color-mix(in srgb, var(--speaking) 14%, transparent)" },
 };
 
+/** The bulbul on its highlighter tile. Its body is the filled answer bubble. */
+function MarkShapes() {
+  return (
+    <>
+      <rect width="64" height="64" rx="14" fill="var(--highlighter)" />
+      <g fill="var(--on-highlighter)">
+        <path d={MARK.tail} />
+        <path d={MARK.crest} />
+        <path d={MARK.beak} />
+        <circle {...MARK.body} />
+        <circle {...MARK.head} />
+      </g>
+      <circle {...MARK.eye} fill="var(--highlighter)" />
+    </>
+  );
+}
+
 export function BrandMark({ size = 32, title }: { size?: number; title?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} aria-label={title}>
-      <rect width="64" height="64" rx="14" fill="var(--highlighter)" />
-      <circle cx="32" cy="32" r="20" fill="var(--on-highlighter)" />
-      <path d={MARK_ARROW} fill="var(--highlighter)" />
+      <MarkShapes />
     </svg>
   );
 }
 
-/** The BandUp lockup: the answer-bubble mark and the outlined wordmark, "Up" marked by the highlighter. */
+/** Width of the Latin-only lockup (mark + "Balbal"), used on narrow screens. */
+const LATIN_WIDTH = Math.round(LOGO_SEP.x - 4);
+
+/**
+ * The Balbal lockup: the bulbul mark, "Balbal" with the second "bal" marked by the highlighter,
+ * and "بلبل". On phones only the mark and the Latin name are shown.
+ */
 export function Logo({ href = "/", small = false }: { href?: string; small?: boolean }) {
   const h = small ? 28 : 34;
+  const art = (
+    <>
+      <MarkShapes />
+      <rect className="logo-swipe" {...LOGO_SWIPE} fill="var(--highlighter)" />
+      <rect className="logo-box" {...LOGO_BOX} rx="4" fill="var(--highlighter)" />
+      <path d={LOGO_FIRST} fill="var(--ink)" />
+      <path className="logo-marked" d={LOGO_SECOND} />
+    </>
+  );
   return (
-    <Link href={href} className="inline-flex shrink-0 items-center" aria-label="BandUp home">
-      <svg height={h} width={(h * LOGO_WIDTH) / 64} viewBox={`0 0 ${LOGO_WIDTH} 64`} aria-hidden="true" className="bandup-logo">
-        <rect width="64" height="64" rx="14" fill="var(--highlighter)" />
-        <circle cx="32" cy="32" r="20" fill="var(--on-highlighter)" />
-        <path d={MARK_ARROW} fill="var(--highlighter)" />
-        <rect className="logo-swipe" {...LOGO_SWIPE} fill="var(--highlighter)" />
-        <rect className="logo-box" {...LOGO_BOX} rx="4" fill="var(--highlighter)" />
-        <path d={LOGO_BAND} fill="var(--ink)" />
-        <path className="logo-up" d={LOGO_UP} />
+    <Link href={href} className="inline-flex shrink-0 items-center" aria-label="Balbal home">
+      <svg height={h} width={(h * LATIN_WIDTH) / 64} viewBox={`0 0 ${LATIN_WIDTH} 64`} aria-hidden="true" className="brand-logo sm:hidden">
+        {art}
+      </svg>
+      <svg height={h} width={(h * LOGO_WIDTH) / 64} viewBox={`0 0 ${LOGO_WIDTH} 64`} aria-hidden="true" className="brand-logo hidden sm:block">
+        {art}
+        <rect {...LOGO_SEP} fill="var(--line)" />
+        <path d={LOGO_AR} fill="var(--ink)" />
       </svg>
     </Link>
   );

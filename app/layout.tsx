@@ -12,7 +12,7 @@ const siteHost = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteHost ? `https://${siteHost}` : "http://localhost:3000"),
-  title: { default: "BandUp — From any level to the IELTS band you need", template: "%s · BandUp" },
+  title: { default: "Balbal — From any level to the IELTS band you need", template: "%s · Balbal" },
   description:
     "A guided IELTS journey from absolute beginner to Band 7+. Reading, Listening, Writing and Speaking in seven stages, with examiner-style feedback and a plan that fits your exam date.",
 };

@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* BandUp "Score Sheet" tokens. Names map to the design system:
+  /* Balbal "Score Sheet" tokens. Names map to the design system:
      bg=paper, surface=sheet, surface-2=sheet-sunken, brand=action, brand-ink=on-action,
      brand-soft=highlighter-soft, gold=xp, success=correct, danger=sheet-red. */
   --bg: #f7f7f5;
@@ -53,13 +53,13 @@
     --danger: #ff6b7d;
     --shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
   }
-  :root:not(.light) .bandup-logo .logo-box {
+  :root:not(.light) .brand-logo .logo-box {
     display: inline;
   }
-  :root:not(.light) .bandup-logo .logo-swipe {
+  :root:not(.light) .brand-logo .logo-swipe {
     display: none;
   }
-  :root:not(.light) .bandup-logo .logo-up {
+  :root:not(.light) .brand-logo .logo-marked {
     fill: var(--on-highlighter);
   }
   /* In dark, the marker word is set in ink on a full-height band so it stays readable. */
@@ -223,10 +223,10 @@ body {
   .ruled {
     background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
   }
-  .bandup-logo .logo-box {
+  .brand-logo .logo-box {
     display: none;
   }
-  .bandup-logo .logo-up {
+  .brand-logo .logo-marked {
     fill: var(--ink);
   }
   .ar {

@@ -48,7 +48,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       <p className="text-center text-sm" style={{ color: "var(--muted)" }}>
         {mode === "login" ? (
           <>
-            New to BandUp?{" "}
+            New to Balbal?{" "}
             <Link href="/register" className="font-bold underline" style={{ color: "var(--brand)" }}>
               Create an account
             </Link>
