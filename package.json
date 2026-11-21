@@ -15,9 +15,6 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate deploy"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@anthropic-ai/sdk": "1.10.0",
     "@prisma/client": "6.19.3",
@@ -41,6 +38,6 @@
     "vitest": "3.2.7"
   },
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   }
 }
