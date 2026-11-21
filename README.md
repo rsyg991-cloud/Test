@@ -1,22 +1,36 @@
-# BandUp — the IELTS climb from B1 to Band 7+
+# BandUp — from your first words to the IELTS band you need
 
-BandUp is a full-stack English learning platform that takes a learner from **B1** to the **highest IELTS band they can reach**, across all four skills — **Reading, Listening, Writing and Speaking** — in **four stages**, on a plan of **1, 2, 3, 4 or 6 months**.
+BandUp is a full-stack English learning platform that takes a learner from **any level, even absolute beginner (A0)**, to the **IELTS band they need**, across all four skills — **Reading, Listening, Writing and Speaking** — in **seven stages**, on a plan of **1, 2, 3, 4, 6, 9 or 12 months**.
 
 ## The learner journey
 
-1. **Placement test (~15 min)** — grammar, reading, listening, a short writing task and a speaking question → a starting band for each skill.
-2. **Choose a plan** — 1 month (Sprint) · 2 (Accelerate) · 3 (Balanced) · 4 (Steady Climb) · 6 (Deep Growth). The plan is recommended from the band gap and the exam date, and warns if it would end after the exam.
-3. **Climb four stages** (a mountain metaphor runs through the UI):
+1. **Find your level** — beginners answer one question ("How much English do you know?") and start at Stage 1, 2 or 3 straight away. Learners at B1 or above take the **placement test (~15 min)**: grammar, reading, listening, a short writing task and a speaking question → a starting band for each skill and a recommended stage (`content/stageList.ts`).
+2. **Choose a plan** — 1 month (Sprint) · 2 (Accelerate) · 3 (Balanced) · 4 (Steady Climb) · 6 (Deep Growth) · 9 (Foundation Builder) · 12 (Zero to IELTS). The plan is recommended from the band gap and the exam date. It warns if it would end after the exam, and says honestly when it is too tight for the learner's path ("about 3 lessons every day").
+3. **Climb seven stages** — the path runs from the learner's start stage to the stage that reaches their target band (`endStageFor`), so a Band 6.0 target ends at Stage 5 and a Band 7.5+ target runs to Exam Mastery:
 
    | Stage | Camp | Level | Focus |
    |---|---|---|---|
-   | 1 Foundation | Base Camp | B1 → B1+ | Test format, skim/scan, Listening Parts 1–2, Task 1 basics, Part 1 fluency |
-   | 2 Development | The Ridge | B1+ → B2 | T/F/NG, headings, Part 3 discussions, full Task 2 essays, 2-minute Part 2 |
-   | 3 Advanced | High Camp | B2 → C1 | Inference, writer's views, Part 4 lectures, argument depth, abstract Part 3 |
-   | 4 Exam Mastery | The Summit | C1 | Timed passages, distractors, Band 8 language, full mock |
+   | 1 First Words | Trailhead | A0 → A1 | Alphabet and spelling, numbers and times, simple texts, first sentences, personal questions |
+   | 2 Everyday English | Foothills | A1 → A2 | Comparisons, past and future, everyday calls and forms, first emails, a 45-second talk |
+   | 3 Ready for IELTS | Approach | A2 → B1 | First T/F/NG, Part 1–2 listening, first chart and essay, first Part 2 and Part 3 |
+   | 4 Foundation | Base Camp | B1 → B1+ | Test format, skim/scan, Listening Parts 1–2, Task 1 basics, Part 1 fluency |
+   | 5 Development | The Ridge | B1+ → B2 | T/F/NG, headings, Part 3 discussions, full Task 2 essays, 2-minute Part 2 |
+   | 6 Advanced | High Camp | B2 → C1 | Inference, writer's views, Part 4 lectures, argument depth, abstract Part 3 |
+   | 7 Exam Mastery | The Summit | C1 | Timed passages, distractors, Band 8 language, full mock |
 
-   Each stage has 3 units × 4 skills (48 lessons in total) and ends with a **checkpoint test** across all four skills that unlocks the next stage.
+   Each stage has 3 units × 4 skills (84 lessons in total) and ends with a **checkpoint test** across all four skills that unlocks the next stage.
+
+   **Foundation stages (1–3)** explain every strategy in Arabic beside the English (right-to-left, Noto Kufi Arabic). Stages 1–2 also give the Arabic meaning of every word and an Arabic explanation for every answer; Stage 3 keeps only the strategy summaries, and the Arabic is gone from Stage 4. Listening in these stages starts slower (0.8–0.95×). Foundation lesson ids start with `f1-`…`f3-`; the IELTS stages keep their original `s1-`…`s4-` ids so saved progress stays valid (the `seven_stages` migration shifts stored stage numbers by three).
 4. **Every lesson** = a short strategy ("Skill builder") → key vocabulary flip-cards → a real IELTS-style task → instant feedback.
+
+## Brand
+
+The "Score Sheet" identity is built from the exam itself: the answer sheet, the filled answer bubble (the mark: a bubble with an arrow pointing up) and the highlighter that marks what matters.
+
+- **Colours** are tokens in `app/globals.css` (light and dark): paper, sheet, ink, one action colour (ink in light, the highlighter yellow in dark), the highlighter `#FFE14D`, sheet red for wrong answers, a green for correct ones, and one colour per skill.
+- **Type**: Archivo Black for headlines, Public Sans for text, JetBrains Mono for every band, score, timer and question number (`.num`), Noto Kufi Arabic for Arabic (`.ar`).
+- **Logo** files are in `public/brand/` (lockup, on-dark, one-colour, mark); the site's `<Logo>` uses the same outlined paths (`components/logo-paths.ts`), and `app/icon.svg`, `app/apple-icon.tsx` and `app/opengraph-image.tsx` are built from the mark.
+- One highlighted word per headline (`.hl`), tight corners (6 / 10 / 16 px), borders rather than shadows.
 
 ## What keeps learners going
 
@@ -25,14 +39,14 @@ BandUp is a full-stack English learning platform that takes a learner from **B1*
 - **Band tracker**: per-skill estimated band over time against the target line.
 - **Journey map** showing exactly where you are on the mountain.
 - **Spaced-repetition vocabulary deck** (SM-2) filled automatically from lessons.
-- **AI Conversations** (20 role-plays, 5 per stage) — see below.
+- **AI Conversations** (20 role-plays, 5 per IELTS stage) — see below.
 - **AI practice drills** (24 extra Writing/Speaking prompts) to fill daily minutes on longer plans.
 - **No-guilt catch-up**: if you fall behind, one tap re-paces the plan so today is a fresh start.
 - Celebrations (confetti, XP, band) after lessons and checkpoints.
 
 ## AI Conversations — learn first, then talk with ChatGPT
 
-20 speaking role-plays (5 per stage, from "Meeting a New Classmate" to full mock speaking tests and C1 discussions) in `content/conversations/`. Each one has five steps:
+20 speaking role-plays (5 per IELTS stage, Stages 4–7, from "Meeting a New Classmate" to full mock speaking tests and C1 discussions) in `content/conversations/`. Each one has five steps:
 
 1. **Learn** — goals, 5 key phrases with examples, a grammar focus, vocabulary flip-cards.
 2. **Listen** — a model dialogue played with two voices, with transcript.
@@ -77,7 +91,8 @@ app/                    pages (landing, auth, onboarding, dashboard, journey, le
 app/actions/            server actions (auth, onboarding, lessons/checkpoints, vocab & plan)
 app/api/evaluate/       AI grading endpoint
 components/             UI, journey map, charts, lesson player, task views (reading/listening/writing/speaking)
-content/                the curriculum: 4 stages, 48 lessons, 4 checkpoints, placement test, practice prompts
+content/                the curriculum: 7 stages, 84 lessons, 7 checkpoints, placement test, practice prompts
+content/stageList.ts    client-safe stage summary, target-stage and placement rules
 content/conversations/  20 AI-conversation role-plays (learn-first material + role-play setup)
 lib/plan/scheduler.ts   plan pacing, review days, catch-up, plan recommendation
 lib/scoring.ts          answer checking, IELTS band rounding, band estimates

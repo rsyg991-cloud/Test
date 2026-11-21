@@ -4,7 +4,7 @@ import { stage4Groups } from "./official/stage4";
 
 
 export const stage4: Stage = {
-  id: 4,
+  id: 7,
   slug: "mastery",
   name: "Exam Mastery",
   camp: "The Summit",
@@ -23,14 +23,14 @@ export const stage4: Stage = {
   units: [
     {
       id: "s4-u1",
-      stage: 4,
+      stage: 7,
       index: 1,
       title: "Precision Under Pressure",
       theme: "Timed performance",
       lessons: [
         {
           id: "s4-u1-reading",
-          stage: 4,
+          stage: 7,
           unit: 1,
           skill: "reading",
           title: "Timed Passage: The Science of Sleep",
@@ -70,7 +70,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u1-listening",
-          stage: 4,
+          stage: 7,
           unit: 1,
           skill: "listening",
           title: "Part 4: The History of Map-Making",
@@ -106,7 +106,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u1-writing",
-          stage: 4,
+          stage: 7,
           unit: 1,
           skill: "writing",
           title: "Task 1: Band 8 Data Language",
@@ -154,7 +154,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u1-speaking",
-          stage: 4,
+          stage: 7,
           unit: 1,
           skill: "speaking",
           title: "Mini Mock: Parts 1, 2 and 3",
@@ -196,14 +196,14 @@ export const stage4: Stage = {
     },
     {
       id: "s4-u2",
-      stage: 4,
+      stage: 7,
       index: 2,
       title: "Band 8 Language",
       theme: "Distractors, nuance and sophistication",
       lessons: [
         {
           id: "s4-u2-reading",
-          stage: 4,
+          stage: 7,
           unit: 2,
           skill: "reading",
           title: "Distractor Defence: AI in Medicine",
@@ -241,7 +241,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u2-listening",
-          stage: 4,
+          stage: 7,
           unit: 2,
           skill: "listening",
           title: "Parts 1–2: Trap Detection",
@@ -281,7 +281,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u2-writing",
-          stage: 4,
+          stage: 7,
           unit: 2,
           skill: "writing",
           title: "Task 2: Timed Band 8 Essay",
@@ -318,7 +318,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u2-speaking",
-          stage: 4,
+          stage: 7,
           unit: 2,
           skill: "speaking",
           title: "Part 2: A Challenge You Overcame",
@@ -355,14 +355,14 @@ export const stage4: Stage = {
     },
     {
       id: "s4-u3",
-      stage: 4,
+      stage: 7,
       index: 3,
       title: "Exam Day",
       theme: "Final polish and strategy",
       lessons: [
         {
           id: "s4-u3-reading",
-          stage: 4,
+          stage: 7,
           unit: 3,
           skill: "reading",
           title: "Final Passage: Urban Rewilding",
@@ -400,7 +400,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u3-listening",
-          stage: 4,
+          stage: 7,
           unit: 3,
           skill: "listening",
           title: "Part 3: Research Methods Discussion",
@@ -438,7 +438,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u3-writing",
-          stage: 4,
+          stage: 7,
           unit: 3,
           skill: "writing",
           title: "Task 2: Agree or Disagree — Final Rehearsal",
@@ -475,7 +475,7 @@ export const stage4: Stage = {
         },
         {
           id: "s4-u3-speaking",
-          stage: 4,
+          stage: 7,
           unit: 3,
           skill: "speaking",
           title: "Part 3: Final Rehearsal",
@@ -513,7 +513,7 @@ export const stage4: Stage = {
   ],
   checkpoint: {
     id: "s4-checkpoint",
-    stage: 4,
+    stage: 7,
     title: "Summit Mock Test",
     reading: {
       title: "The Economics of Attention",

@@ -52,7 +52,7 @@ export function VocabReview({ cards }: { cards: Card[] }) {
     return (
       <div className="card animate-pop mx-auto max-w-md p-8 text-center">
         {done && <Confetti count={50} />}
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl text-white" style={{ background: "linear-gradient(135deg, var(--brand), var(--gold))" }}>
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-[10px] " style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
           <Icon name="check" size={30} strokeWidth={3} />
         </div>
         <h2 className="mt-4 font-display text-2xl font-bold">{done ? "Deck cleared!" : "Nothing to review"}</h2>
@@ -97,7 +97,7 @@ export function VocabReview({ cards }: { cards: Card[] }) {
       {revealed ? (
         <div className="mt-5 grid grid-cols-4 gap-2">
           {GRADES.map((g) => (
-            <button key={g.grade} type="button" disabled={pending} onClick={() => grade(g.grade)} className="rounded-2xl border-2 p-3 text-center transition-transform active:scale-95" style={{ borderColor: g.color }}>
+            <button key={g.grade} type="button" disabled={pending} onClick={() => grade(g.grade)} className="rounded-[10px] border-2 p-3 text-center transition-transform active:scale-95" style={{ borderColor: g.color }}>
               <div className="font-bold" style={{ color: g.color }}>
                 {g.label}
               </div>

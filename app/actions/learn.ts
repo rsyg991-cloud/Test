@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { curriculumFrom, getConversation, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
+import { curriculumFrom, FINAL_STAGE, getConversation, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
 import { getCurrentUser } from "@/lib/auth";
 import { loadOwnedAttempt } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
-import { addBandSnapshot, addVocab, recordActivity, type ActivityResult } from "@/lib/progress";
+import { addBandSnapshot, addVocab, learnerPath, recordActivity, type ActivityResult } from "@/lib/progress";
 import { bandFromScore, gradeQuestions, overallBand, roundBand, type Answers, type QuestionResult } from "@/lib/scoring";
 import { academicReadingBand, listeningBand, writingBand } from "@/lib/mock/bands";
 import { gradeGroups, type MockAnswers, type MockResult, type SectionGrade } from "@/lib/mock/grade";
@@ -19,7 +19,7 @@ export interface CompletionResult {
   correct?: number;
   total?: number;
   results?: QuestionResult[];
-  /** Results for official IELTS question groups (Stages 3–4). */
+  /** Results for official IELTS question groups (Stages 6–7). */
   groupResults?: MockResult[];
   activity: ActivityResult;
   vocabAdded: number;
@@ -33,8 +33,10 @@ export interface CompletionError {
   error: string;
 }
 
-async function nextStep(userId: string, startStage: number, unlockedStage: number) {
-  const items = curriculumFrom(startStage);
+async function nextStep(userId: string, user: { startStage: number; targetBand: number | null; unlockedStage: number }) {
+  const unlockedStage = user.unlockedStage;
+  // The learner's own path first; once it is finished, carry on into the stages beyond it.
+  const items = [...learnerPath(user), ...curriculumFrom(user.startStage)];
   const [lessons, cps] = await Promise.all([
     prisma.lessonProgress.findMany({ where: { userId }, select: { lessonId: true } }),
     prisma.attempt.findMany({ where: { userId, kind: "checkpoint", skill: "overall", score: 1 }, select: { refId: true } }),
@@ -114,7 +116,7 @@ export async function completeLesson(
     activity,
     vocabAdded,
     firstTime,
-    ...(await nextStep(user.id, user.startStage, user.unlockedStage)),
+    ...(await nextStep(user.id, user)),
   };
 }
 
@@ -172,7 +174,7 @@ export async function completeCheckpoint(
   });
 
   let unlockedStage: number | null = null;
-  if (passed && stage.id === user.unlockedStage && stage.id < 4) {
+  if (passed && stage.id === user.unlockedStage && stage.id < FINAL_STAGE) {
     unlockedStage = stage.id + 1;
     await prisma.user.update({ where: { id: user.id }, data: { unlockedStage } });
   }

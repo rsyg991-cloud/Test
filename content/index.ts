@@ -1,3 +1,6 @@
+import { foundation1 } from "./foundation1";
+import { foundation2 } from "./foundation2";
+import { foundation3 } from "./foundation3";
 import { stage1 } from "./stage1";
 import { stage2 } from "./stage2";
 import { stage3 } from "./stage3";
@@ -8,7 +11,14 @@ import type { Checkpoint, Lesson, PracticePrompt, Stage } from "./types";
 export * from "./types";
 export { conversations, getConversation } from "./conversations";
 
-export const stages: Stage[] = [stage1, stage2, stage3, stage4];
+/**
+ * Seven stages from absolute beginner to exam mastery. Stages 1–3 are the foundation
+ * (A0 → B1, "f1-…" lesson ids, Arabic support); Stages 4–7 are the IELTS stages. Their lesson
+ * ids keep their original "s1-…"–"s4-…" prefixes so learners' saved progress stays valid.
+ */
+export const stages: Stage[] = [foundation1, foundation2, foundation3, stage1, stage2, stage3, stage4];
+export { endStageFor, FINAL_STAGE, stageForBand, STAGE_LIST, TARGET_BANDS, pathItemCount } from "./stageList";
+import { FINAL_STAGE } from "./stageList";
 
 export const allLessons: Lesson[] = stages.flatMap((s) => s.units.flatMap((u) => u.lessons));
 
@@ -35,11 +45,12 @@ export type PathItem =
   | { kind: "lesson"; id: string; stage: number; lesson: Lesson }
   | { kind: "checkpoint"; id: string; stage: number; checkpoint: Checkpoint };
 
-/** The ordered curriculum from a given stage onwards. */
-export function curriculumFrom(startStage = 1): PathItem[] {
+/** The ordered curriculum from a given stage up to (and including) the end stage. */
+export function curriculumFrom(startStage = 1, endStage: number = FINAL_STAGE): PathItem[] {
   const items: PathItem[] = [];
+  const last = Math.max(startStage, endStage);
   for (const s of stages) {
-    if (s.id < startStage) continue;
+    if (s.id < startStage || s.id > last) continue;
     for (const u of s.units) {
       for (const l of u.lessons) items.push({ kind: "lesson", id: l.id, stage: s.id, lesson: l });
     }

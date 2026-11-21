@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { placement } from "@/content/placement";
+import { FINAL_STAGE, stageForBand } from "@/content/stageList";
+import { PLAN_MONTHS } from "@/lib/plan/scheduler";
 import { getCurrentUser } from "@/lib/auth";
 import { loadOwnedAttempt } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
@@ -42,7 +44,7 @@ export async function submitPlacement(input: {
 
   const bands = { reading, listening, writing, speaking };
   const overall = overallBand(bands) ?? 5;
-  const recommendedStage = overall < 5.5 ? 1 : overall < 6.5 ? 2 : overall < 7.5 ? 3 : 4;
+  const recommendedStage = stageForBand(overall);
 
   // Retaking the placement replaces the previous placement snapshots.
   await prisma.bandSnapshot.deleteMany({ where: { userId: user.id, source: "placement" } });
@@ -73,9 +75,9 @@ export async function savePlan(input: {
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  const months = [1, 2, 3, 4, 6].includes(input.months) ? input.months : 3;
-  const startStage = Math.min(4, Math.max(1, Math.round(input.startStage)));
-  const targetBand = roundBand(Math.min(9, Math.max(5, input.targetBand)));
+  const months = PLAN_MONTHS.includes(input.months) ? input.months : 3;
+  const startStage = Math.min(FINAL_STAGE, Math.max(1, Math.round(input.startStage)));
+  const targetBand = roundBand(Math.min(9, Math.max(4, input.targetBand)));
   const examDate = input.examDate ? new Date(input.examDate) : null;
   await prisma.user.update({
     where: { id: user.id },

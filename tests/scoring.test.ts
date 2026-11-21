@@ -50,10 +50,18 @@ describe("answer checking", () => {
 });
 
 describe("curriculum integrity", () => {
-  it("has 4 stages × 3 units × 4 skills with unique ids and valid answers", () => {
-    expect(stages).toHaveLength(4);
-    expect(allLessons).toHaveLength(48);
-    expect(new Set(allLessons.map((l) => l.id)).size).toBe(48);
+  it("has 7 stages × 3 units × 4 skills with unique ids and valid answers", () => {
+    expect(stages).toHaveLength(7);
+    expect(stages.map((s) => s.id)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(allLessons).toHaveLength(84);
+    expect(new Set(allLessons.map((l) => l.id)).size).toBe(84);
+    for (const s of stages) {
+      for (const u of s.units) {
+        expect(u.stage, u.id).toBe(s.id);
+        for (const l of u.lessons) expect(l.stage, l.id).toBe(s.id);
+      }
+      expect(s.checkpoint.stage).toBe(s.id);
+    }
     for (const l of allLessons) {
       const task = l.reading ?? l.listening ?? l.writing ?? l.speaking;
       expect(task, l.id).toBeTruthy();

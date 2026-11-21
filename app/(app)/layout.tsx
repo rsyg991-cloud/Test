@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Logo href="/dashboard" />
         <SideNav vocabDue={vocabDue} />
         <div className="mt-auto space-y-3">
-          <div className="rounded-2xl p-4" style={{ background: "var(--surface-2)" }}>
+          <div className="rounded-[10px] p-4" style={{ background: "var(--surface-2)" }}>
             <div className="text-sm font-bold">{user.name}</div>
             <div className="mt-2 flex items-center gap-4 text-sm" style={{ color: "var(--muted)" }}>
               <span className="inline-flex items-center gap-1">

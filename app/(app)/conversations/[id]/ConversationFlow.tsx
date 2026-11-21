@@ -17,7 +17,7 @@ import { gradeQuestions, type Answers } from "@/lib/scoring";
 
 const STEPS = ["Learn", "Listen", "Check", "Talk", "Reflect"] as const;
 const ACCENT = "var(--speaking)";
-const accentBtn = { background: ACCENT, boxShadow: `0 4px 0 color-mix(in srgb, ${ACCENT} 60%, #000)` };
+
 
 export function ConversationFlow({
   scenario: s,
@@ -117,7 +117,7 @@ export function ConversationFlow({
       </div>
 
       <div className="mb-8 flex items-start gap-4">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-white" style={{ background: ACCENT }}>
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[10px] text-[var(--on-skill)]" style={{ background: ACCENT }}>
           <Icon name="mic" size={26} />
         </span>
         <div>
@@ -140,7 +140,7 @@ export function ConversationFlow({
             </div>
             <ul className="grid gap-2 sm:grid-cols-3">
               {s.goals.map((g) => (
-                <li key={g} className="flex gap-2 rounded-xl p-3 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>
+                <li key={g} className="flex gap-2 rounded-md p-3 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>
                   <Icon name="target" size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} /> {g}
                 </li>
               ))}
@@ -151,7 +151,7 @@ export function ConversationFlow({
             <h2 className="mb-4 font-display text-xl font-bold">Key phrases</h2>
             <ul className="space-y-3">
               {s.keyPhrases.map((p) => (
-                <li key={p.phrase} className="rounded-2xl border p-4" style={{ borderColor: "var(--line)" }}>
+                <li key={p.phrase} className="rounded-[10px] border p-4" style={{ borderColor: "var(--line)" }}>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <span className="text-lg font-bold" style={{ color: ACCENT }}>
                       {p.phrase}
@@ -194,7 +194,7 @@ export function ConversationFlow({
                     type="button"
                     onClick={() => setFlipped((f) => ({ ...f, [i]: !f[i] }))}
                     aria-expanded={!!flipped[i]}
-                    className="rounded-xl border p-3 text-left"
+                    className="rounded-md border p-3 text-left"
                     style={{ borderColor: "var(--line)", background: flipped[i] ? "color-mix(in srgb, var(--speaking) 10%, transparent)" : "var(--surface)" }}
                   >
                     <div className="font-bold">{v.word}</div>
@@ -213,7 +213,7 @@ export function ConversationFlow({
             </section>
           </div>
           <div className="flex justify-end">
-            <button type="button" className="btn btn-primary" style={accentBtn} onClick={() => go(1)}>
+            <button type="button" className="btn btn-primary" onClick={() => go(1)}>
               Next: hear a model conversation <Icon name="arrow" size={18} />
             </button>
           </div>
@@ -229,7 +229,7 @@ export function ConversationFlow({
             <button type="button" className="btn btn-ghost" onClick={() => go(0)}>
               <Icon name="back" size={16} /> Back
             </button>
-            <button type="button" className="btn btn-primary" style={accentBtn} onClick={() => go(2)}>
+            <button type="button" className="btn btn-primary" onClick={() => go(2)}>
               Next: quick check <Icon name="arrow" size={18} />
             </button>
           </div>
@@ -264,12 +264,12 @@ export function ConversationFlow({
               </>
             )}
             {!checkResult && (
-              <button type="button" className="btn btn-primary" style={accentBtn} disabled={Object.keys(answers).length < s.quickCheck.length} onClick={() => setCheckResult(gradeQuestions(s.quickCheck, answers))}>
+              <button type="button" className="btn btn-primary" disabled={Object.keys(answers).length < s.quickCheck.length} onClick={() => setCheckResult(gradeQuestions(s.quickCheck, answers))}>
                 Check answers
               </button>
             )}
             {passed && (
-              <button type="button" className="btn btn-primary" style={accentBtn} onClick={() => go(3)}>
+              <button type="button" className="btn btn-primary" onClick={() => go(3)}>
                 {checkResult!.correct}/3 — you&apos;re ready to talk! <Icon name="arrow" size={18} />
               </button>
             )}
@@ -297,7 +297,7 @@ export function ConversationFlow({
                 ["4", "Copy the conversation and come back", "Select the whole chat (or use the copy button on each message) — you'll paste it here for your BandUp feedback."],
               ].map(([n, t, b]) => (
                 <li key={n} className="flex gap-3">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold text-white" style={{ background: ACCENT }}>
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold text-[var(--on-skill)]" style={{ background: ACCENT }}>
                     {n}
                   </span>
                   <div>
@@ -310,7 +310,7 @@ export function ConversationFlow({
               ))}
             </ol>
             <div className="flex flex-wrap gap-3 border-t p-6" style={{ borderColor: "var(--line)" }}>
-              <button type="button" className="btn btn-primary" style={accentBtn} onClick={copyPrompt} aria-live="polite">
+              <button type="button" className="btn btn-primary" onClick={copyPrompt} aria-live="polite">
                 <Icon name={copied ? "check" : "cards"} size={18} /> {copied ? "Prompt copied!" : "Copy prompt"}
               </button>
               <a href={CHATGPT_URL} target="_blank" rel="noopener noreferrer" className="btn btn-dark">
@@ -321,7 +321,7 @@ export function ConversationFlow({
               </button>
             </div>
             {showPrompt && (
-              <pre className="mx-6 mb-6 max-h-80 overflow-auto whitespace-pre-wrap rounded-xl p-4 text-xs leading-relaxed" style={{ background: "var(--surface-2)" }}>
+              <pre className="mx-6 mb-6 max-h-80 overflow-auto whitespace-pre-wrap rounded-md p-4 text-xs leading-relaxed" style={{ background: "var(--surface-2)" }}>
                 {prompt}
               </pre>
             )}
@@ -348,7 +348,7 @@ export function ConversationFlow({
                 ))}
               </ul>
             </section>
-            <button type="button" className="btn btn-primary w-full" style={accentBtn} onClick={() => go(4)}>
+            <button type="button" className="btn btn-primary w-full" onClick={() => go(4)}>
               I&apos;ve finished my conversation <Icon name="arrow" size={18} />
             </button>
           </aside>
@@ -363,7 +363,7 @@ export function ConversationFlow({
             <ul className="space-y-2">
               {s.selfCheck.map((c, i) => (
                 <li key={c}>
-                  <label className="flex cursor-pointer items-center gap-3 rounded-xl p-3" style={{ background: checked[i] ? "color-mix(in srgb, var(--success) 10%, transparent)" : "var(--surface-2)" }}>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-md p-3" style={{ background: checked[i] ? "color-mix(in srgb, var(--success) 10%, transparent)" : "var(--surface-2)" }}>
                     <input type="checkbox" className="h-5 w-5" checked={!!checked[i]} onChange={(e) => setChecked((x) => ({ ...x, [i]: e.target.checked }))} disabled={!!result} />
                     <span className="font-semibold">{c}</span>
                   </label>
@@ -389,7 +389,7 @@ export function ConversationFlow({
                 <span className="text-xs" style={{ color: "var(--muted)" }}>
                   {wordCount(transcript)} words
                 </span>
-                <button type="button" className="btn btn-primary" style={accentBtn} onClick={getFeedback} disabled={busy || wordCount(transcript) < 30}>
+                <button type="button" className="btn btn-primary" onClick={getFeedback} disabled={busy || wordCount(transcript) < 30}>
                   {busy ? (
                     <>
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> Reviewing your conversation…
@@ -414,7 +414,7 @@ export function ConversationFlow({
 
           <div className="flex flex-wrap items-center justify-end gap-3">
             {result ? (
-              <Link href={result.nextHref} className="btn btn-primary" style={accentBtn}>
+              <Link href={result.nextHref} className="btn btn-primary">
                 {result.nextTitle} <Icon name="arrow" size={18} />
               </Link>
             ) : (
@@ -425,7 +425,7 @@ export function ConversationFlow({
                   </button>
                 )}
                 {evaluation && (
-                  <button type="button" className="btn btn-primary" style={accentBtn} onClick={finish} disabled={pending}>
+                  <button type="button" className="btn btn-primary" onClick={finish} disabled={pending}>
                     {pending ? "Saving…" : "Complete conversation"} <Icon name="check" size={18} />
                   </button>
                 )}

@@ -5,7 +5,7 @@ import { dialogue, kp } from "./helpers";
 export const stage3Conversations: ConversationScenario[] = [
   {
     id: "c3-four-day-week",
-    stage: 3,
+    stage: 6,
     title: "Debate: The Four-Day Week",
     situation: "A structured debate. The AI argues FOR a four-day working week; you argue AGAINST it (or for a modified version). Build arguments and rebut theirs.",
     ieltsPart: "Part 3",
@@ -52,7 +52,7 @@ export const stage3Conversations: ConversationScenario[] = [
   },
   {
     id: "c3-seminar",
-    stage: 3,
+    stage: 6,
     title: "University Seminar Discussion",
     situation: "A seminar on 'Should university education be free?'. The AI is the tutor; take part like a strong postgraduate student — contribute, build on ideas and ask questions.",
     ieltsPart: "Real life",
@@ -99,7 +99,7 @@ export const stage3Conversations: ConversationScenario[] = [
   },
   {
     id: "c3-complaint",
-    stage: 3,
+    stage: 6,
     title: "Making a Complaint & Solving a Problem",
     situation: "Your new laptop stopped working after two weeks and the shop wants to send it away for a month. Negotiate a better solution — firmly but politely.",
     ieltsPart: "Real life",
@@ -146,7 +146,7 @@ export const stage3Conversations: ConversationScenario[] = [
   },
   {
     id: "c3-part3-education-ai",
-    stage: 3,
+    stage: 6,
     title: "Part 3: Education in the Age of AI",
     situation: "Abstract Part 3 questions about education and artificial intelligence. Go beyond simple opinions: analyse, compare and speculate.",
     ieltsPart: "Part 3",
@@ -189,7 +189,7 @@ export const stage3Conversations: ConversationScenario[] = [
   },
   {
     id: "c3-part2-3-full",
-    stage: 3,
+    stage: 6,
     title: "Part 2 + 3: A Person Who Inspires You",
     situation: "A full Part 2 long turn about an inspiring person, followed by Part 3 questions about role models and success.",
     ieltsPart: "Part 2",

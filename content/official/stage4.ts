@@ -1,7 +1,7 @@
 import type { QuestionGroup } from "@/lib/mock/schema";
 import { G, letters, ONE_WORD, ONE_WORD_OR_NUMBER, romans } from "./helpers";
 
-/** Official IELTS question groups for Stage 4 lessons and checkpoint, keyed by lesson / checkpoint task id. */
+/** Official IELTS question groups for Stage 7 lessons (ids s4-…) and checkpoint, keyed by lesson / checkpoint task id. */
 export const stage4Groups: Record<string, QuestionGroup[]> = {
   // ---------- Unit 1 · Reading: Why We Sleep (timed passage) ----------
   "s4-u1-reading": [

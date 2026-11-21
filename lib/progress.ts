@@ -1,5 +1,5 @@
 import "server-only";
-import { curriculumFrom, SKILLS, stages, type Skill, type VocabItem } from "@/content";
+import { curriculumFrom, endStageFor, SKILLS, stages, type Skill, type VocabItem } from "@/content";
 import { prisma } from "@/lib/db";
 import { addDays, dayKey } from "@/lib/dates";
 import { computeToday } from "@/lib/plan/scheduler";
@@ -98,8 +98,13 @@ export async function getCompletedIds(userId: string) {
   return { ids, lessons };
 }
 
+/** The learner's own path: from their start stage to the stage that reaches their target band. */
+export function learnerPath(user: { startStage: number; targetBand: number | null }) {
+  return curriculumFrom(user.startStage, endStageFor(user.targetBand));
+}
+
 export async function getTodayPlan(user: CurrentUser) {
-  const items = curriculumFrom(user.startStage);
+  const items = learnerPath(user);
   const { ids } = await getCompletedIds(user.id);
   const completed = items.map((i) => ids.has(i.id));
   const today = computeToday({
@@ -112,7 +117,13 @@ export async function getTodayPlan(user: CurrentUser) {
   return { items, completed, today, completedIds: ids };
 }
 
-export function stageProgress(completedIds: Set<string>, unlockedStage: number) {
+export function stageProgress(
+  completedIds: Set<string>,
+  unlockedStage: number,
+  path?: { startStage: number; targetBand: number | null },
+) {
+  const start = path?.startStage ?? 1;
+  const end = path ? endStageFor(path.targetBand) : stages[stages.length - 1].id;
   return stages.map((s) => {
     const lessons = s.units.flatMap((u) => u.lessons);
     const done = lessons.filter((l) => completedIds.has(l.id)).length;
@@ -126,6 +137,10 @@ export function stageProgress(completedIds: Set<string>, unlockedStage: number) 
       total: lessons.length,
       passed: completedIds.has(s.checkpoint.id),
       locked: s.id > unlockedStage,
+      /** Below the learner's start stage (placed higher). */
+      skipped: s.id < start && !completedIds.has(s.checkpoint.id),
+      /** Inside the learner's path to their target band. */
+      inPlan: s.id >= start && s.id <= Math.max(start, end),
     };
   });
 }

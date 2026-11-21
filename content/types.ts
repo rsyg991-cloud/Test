@@ -3,7 +3,11 @@ import type { QuestionGroup } from "@/lib/mock/schema";
 export type Skill = "reading" | "listening" | "writing" | "speaking";
 export const SKILLS: Skill[] = ["reading", "listening", "writing", "speaking"];
 
-export type Question =
+/** Arabic support text for foundation stages (Stages 1–3). Rendered right-to-left. */
+type WithArabic = { ar?: string };
+
+export type Question = WithArabic &
+  (
   | {
       id: string;
       type: "mcq";
@@ -25,12 +29,15 @@ export type Question =
       prompt: string; // contains ___ where the answer goes
       answer: string[]; // accepted answers (case-insensitive)
       explanation: string;
-    };
+    }
+  );
 
 export interface VocabItem {
   word: string;
   definition: string;
   example: string;
+  /** Arabic meaning (foundation stages). */
+  ar?: string;
 }
 
 export interface ChartData {
@@ -51,6 +58,8 @@ export interface ReadingTask {
 }
 
 export interface ListeningTask {
+  /** Default playback speed. Foundation stages start slower (0.8–0.9). */
+  rate?: number;
   context: string;
   script: { speaker: string; voice: "female" | "male"; text: string }[];
   questions: Question[];
@@ -88,6 +97,8 @@ export interface Lesson {
   minutes: number;
   xp: number;
   strategy: { title: string; points: string[] };
+  /** The strategy explained in Arabic (foundation stages): shrinks stage by stage. */
+  arabic?: { title: string; points: string[] };
   vocab: VocabItem[];
   reading?: ReadingTask;
   listening?: ListeningTask;
@@ -125,6 +136,10 @@ export interface Stage {
   tagline: string;
   description: string;
   goals: Record<Skill, string>;
+  /** Arabic name and tagline (foundation stages). */
+  arabic?: { name: string; tagline: string };
+  /** Foundation stages teach general English before IELTS question types. */
+  foundation?: boolean;
   units: Unit[];
   checkpoint: Checkpoint;
 }

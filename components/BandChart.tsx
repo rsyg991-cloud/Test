@@ -17,7 +17,7 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
 
   if (sorted.length < 2) {
     return (
-      <div className="grid place-items-center rounded-2xl p-8 text-center text-sm" style={{ background: "var(--surface-2)", color: "var(--muted)", minHeight: 160 }}>
+      <div className="grid place-items-center rounded-[10px] p-8 text-center text-sm" style={{ background: "var(--surface-2)", color: "var(--muted)", minHeight: 160 }}>
         Complete a few lessons and your band trend will appear here.
       </div>
     );

@@ -1,10 +1,14 @@
 import type { ConversationScenario } from "@/content/types";
 
+// Keyed by stage. Conversations start in Stage 4 (B1); Stages 1–3 are the foundation stages.
 const LEVEL: Record<number, string> = {
-  1: "B1 (intermediate). Use simple, clear everyday English, short sentences and common words. Speak a little slower than normal.",
-  2: "B1+ to B2 (upper-intermediate). Use natural everyday English with some less common words, at a normal pace.",
-  3: "B2 to C1 (advanced). Use natural, fluent English with academic and idiomatic language where it fits.",
-  4: "C1 (proficient). Speak exactly like a fluent native speaker or a real IELTS examiner, at natural speed.",
+  1: "A1 (beginner). Use very simple, short sentences and the most common words. Speak slowly and repeat if I don't understand.",
+  2: "A2 (elementary). Use simple everyday English and short sentences. Speak slowly and clearly.",
+  3: "A2 to B1 (pre-intermediate). Use simple, clear English and common words. Speak a little slower than normal.",
+  4: "B1 (intermediate). Use simple, clear everyday English, short sentences and common words. Speak a little slower than normal.",
+  5: "B1+ to B2 (upper-intermediate). Use natural everyday English with some less common words, at a normal pace.",
+  6: "B2 to C1 (advanced). Use natural, fluent English with academic and idiomatic language where it fits.",
+  7: "C1 (proficient). Speak exactly like a fluent native speaker or a real IELTS examiner, at natural speed.",
 };
 
 /**
@@ -22,7 +26,7 @@ ROLES
 - Situation: ${s.situation}
 
 MY LEVEL
-My English level is ${LEVEL[s.stage] ?? LEVEL[2]}
+My English level is ${LEVEL[s.stage] ?? LEVEL[5]}
 
 HOW TO RUN THE CONVERSATION
 1. Stay in your role the whole time. Start immediately by saying: "${s.opener}"

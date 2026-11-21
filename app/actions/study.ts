@@ -1,12 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { curriculumFrom } from "@/content";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { addDays, startOfUTCDay } from "@/lib/dates";
-import { catchUpStart, scheduleItems } from "@/lib/plan/scheduler";
-import { getCompletedIds, recordActivity } from "@/lib/progress";
+import { catchUpStart, PLAN_MONTHS, scheduleItems } from "@/lib/plan/scheduler";
+import { getCompletedIds, learnerPath, recordActivity } from "@/lib/progress";
 import { review } from "@/lib/srs";
 
 export async function reviewVocab(cardId: string, grade: 0 | 3 | 4 | 5) {
@@ -30,8 +29,8 @@ export async function finishVocabSession(reviewed: number) {
   return activity;
 }
 
-async function firstIncompleteIndex(userId: string, startStage: number) {
-  const items = curriculumFrom(startStage);
+async function firstIncompleteIndex(userId: string, user: { startStage: number; targetBand: number | null }) {
+  const items = learnerPath(user);
   const { ids } = await getCompletedIds(userId);
   const idx = items.findIndex((i) => !ids.has(i.id));
   return { items, idx: idx === -1 ? items.length - 1 : idx };
@@ -41,7 +40,7 @@ async function firstIncompleteIndex(userId: string, startStage: number) {
 export async function catchUp() {
   const user = await getCurrentUser();
   if (!user?.planMonths || !user.planStart) return;
-  const { items, idx } = await firstIncompleteIndex(user.id, user.startStage);
+  const { items, idx } = await firstIncompleteIndex(user.id, user);
   const planStart = catchUpStart({
     months: user.planMonths,
     planStart: user.planStart,
@@ -58,8 +57,8 @@ export async function catchUp() {
 export async function changePlan(months: number, targetBand?: number, examDate?: string | null) {
   const user = await getCurrentUser();
   if (!user) return;
-  const m = [1, 2, 3, 4, 6].includes(months) ? months : 3;
-  const { items, idx } = await firstIncompleteIndex(user.id, user.startStage);
+  const m = PLAN_MONTHS.includes(months) ? months : 3;
+  const { items, idx } = await firstIncompleteIndex(user.id, user);
   const schedule = scheduleItems(m, items.length);
   const planStart = addDays(startOfUTCDay(new Date()), -(schedule[idx] ?? 0));
   const exam = examDate ? new Date(examDate) : examDate === null ? null : user.examDate;

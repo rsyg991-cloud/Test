@@ -67,7 +67,7 @@ export default async function ProgressPage() {
           ["cards", `${words}`, "words in your deck"],
         ].map(([icon, v, l]) => (
           <div key={l} className="card flex items-center gap-4 p-5">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl" style={{ background: "var(--brand-soft)", color: "var(--brand)" }}>
+            <span className="grid h-12 w-12 place-items-center rounded-[10px]" style={{ background: "var(--brand-soft)", color: "var(--brand)" }}>
               <Icon name={icon} size={22} />
             </span>
             <div>
@@ -129,7 +129,7 @@ export default async function ProgressPage() {
               const fb = a.feedbackJson ? (JSON.parse(a.feedbackJson) as { summary?: string; improvements?: string[] }) : null;
               return (
                 <li key={a.id} className="flex flex-wrap items-start gap-4 py-4" style={{ borderColor: "var(--line)" }}>
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl font-display text-lg font-bold text-white" style={{ background: SKILL_META[a.skill === "conversation" ? "speaking" : (a.skill as "writing")].color }}>
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[10px] font-display text-lg font-bold text-[var(--on-skill)]" style={{ background: SKILL_META[a.skill === "conversation" ? "speaking" : (a.skill as "writing")].color }}>
                     {a.band?.toFixed(1)}
                   </span>
                   <div className="min-w-0 flex-1">

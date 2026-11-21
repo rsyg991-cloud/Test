@@ -26,7 +26,7 @@ export function SideNav({ vocabDue }: { vocabDue: number }) {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 font-semibold transition-colors"
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 font-semibold transition-colors"
             style={{
               background: active ? "var(--brand-soft)" : "transparent",
               color: active ? "var(--brand)" : "var(--muted)",
@@ -35,7 +35,7 @@ export function SideNav({ vocabDue }: { vocabDue: number }) {
             <Icon name={l.icon} size={20} />
             <span className="flex-1">{l.label}</span>
             {l.href === "/vocab" && vocabDue > 0 && (
-              <span className="chip" style={{ background: "var(--brand)", color: "#fff" }}>
+              <span className="chip" style={{ background: "var(--brand)", color: "var(--brand-ink)" }}>
                 {vocabDue}
               </span>
             )}

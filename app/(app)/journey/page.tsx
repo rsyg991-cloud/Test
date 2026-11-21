@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { passBandFor, stages } from "@/content";
+import { FINAL_STAGE, passBandFor, stages } from "@/content";
 import { Icon } from "@/components/icons";
 import { JourneyMap } from "@/components/JourneyMap";
 import { PageHeader, ProgressBar, SKILL_META, SkillIcon } from "@/components/ui";
@@ -12,13 +12,13 @@ export const metadata: Metadata = { title: "Journey" };
 export default async function JourneyPage() {
   const user = await requireUser();
   const { ids, lessons } = await getCompletedIds(user.id);
-  const sp = stageProgress(ids, user.unlockedStage);
+  const sp = stageProgress(ids, user.unlockedStage, user);
   const bandOf = (id: string) => lessons.find((l) => l.lessonId === id)?.band ?? null;
 
   return (
     <div>
-      <PageHeader eyebrow="The climb" title="Your journey" subtitle="Four stages from B1 to Band 7+. Pass each camp's checkpoint to unlock the next stage." />
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,380px)_1fr]">
+      <PageHeader eyebrow="The climb" title="Your journey" subtitle="Seven stages from your first words to exam mastery. Pass each checkpoint to unlock the next stage." />
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
         <div className="lg:sticky lg:top-8 lg:self-start">
           <div className="card p-3">
             <JourneyMap stages={sp} />
@@ -38,7 +38,12 @@ export default async function JourneyPage() {
                         <div className="eyebrow">
                           Stage {s.id} · {s.camp} · {s.cefr}
                         </div>
-                        <h2 className="mt-1 font-display text-2xl font-bold">{s.name}</h2>
+                        <h2 className="mt-1 font-display text-2xl">{s.name}</h2>
+                        {s.arabic && (
+                          <div className="ar text-sm font-bold" lang="ar" dir="rtl" style={{ color: "var(--muted)" }}>
+                            {s.arabic.name}: {s.arabic.tagline}
+                          </div>
+                        )}
                         <p className="mt-1 max-w-xl text-sm" style={{ color: "var(--muted)" }}>
                           {s.tagline} {s.description}
                         </p>
@@ -48,7 +53,7 @@ export default async function JourneyPage() {
                           <Icon name="lock" size={13} /> Pass Stage {s.id - 1} to unlock
                         </span>
                       ) : p.passed ? (
-                        <span className="chip" style={{ background: "var(--success)", color: "#fff" }}>
+                        <span className="chip" style={{ background: "var(--success)", color: "var(--on-skill)" }}>
                           <Icon name="check" size={13} strokeWidth={3} /> Camp reached
                         </span>
                       ) : null}
@@ -71,7 +76,7 @@ export default async function JourneyPage() {
                           {u.theme}
                         </span>
                       </div>
-                      <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
                         {u.lessons.map((l) => {
                           const done = ids.has(l.id);
                           const band = bandOf(l.id);
@@ -94,11 +99,11 @@ export default async function JourneyPage() {
                             </>
                           );
                           return locked ? (
-                            <div key={l.id} className="flex items-center gap-3 rounded-xl p-2.5" style={{ background: "var(--surface-2)" }}>
+                            <div key={l.id} className="flex items-center gap-3 rounded-md p-2.5" style={{ background: "var(--surface-2)" }}>
                               {inner}
                             </div>
                           ) : (
-                            <Link key={l.id} href={`/learn/${l.id}`} className="flex items-center gap-3 rounded-xl border p-2.5 transition-colors hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--line)" }}>
+                            <Link key={l.id} href={`/learn/${l.id}`} className="flex items-center gap-3 rounded-md border p-2.5 transition-colors hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--line)" }}>
                               {inner}
                             </Link>
                           );
@@ -108,13 +113,13 @@ export default async function JourneyPage() {
                   ))}
 
                   <div className="flex flex-wrap items-center gap-4 border-t px-5 py-4 sm:px-6" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }}>
-                    <span className="grid h-10 w-10 place-items-center rounded-xl text-white" style={{ background: "var(--navy)" }}>
+                    <span className="grid h-10 w-10 place-items-center rounded-md text-white" style={{ background: "var(--navy)" }}>
                       <Icon name="trophy" size={18} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="font-bold">{s.checkpoint.title}</div>
                       <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                        All four skills · reach Band {passBandFor(s.id).toFixed(1)} overall {s.id < 4 ? "to unlock the next stage" : "to reach the summit"}
+                        All four skills · reach Band {passBandFor(s.id).toFixed(1)} overall {s.id < FINAL_STAGE ? "to unlock the next stage" : "to reach the summit"}
                       </div>
                     </div>
                     {!locked && (
@@ -123,9 +128,9 @@ export default async function JourneyPage() {
                       </Link>
                     )}
                   </div>
-                  {s.id === 4 && (
+                  {s.id === FINAL_STAGE && (
                     <div className="flex flex-wrap items-center gap-4 border-t px-5 py-4 sm:px-6" style={{ borderColor: "var(--line)" }}>
-                      <span className="grid h-10 w-10 place-items-center rounded-xl text-white" style={{ background: "var(--brand)" }}>
+                      <span className="grid h-10 w-10 place-items-center rounded-md " style={{ background: "var(--brand)", color: "var(--brand-ink)" }}>
                         <Icon name="target" size={18} />
                       </span>
                       <div className="min-w-0 flex-1">

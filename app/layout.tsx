@@ -1,27 +1,32 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { Archivo_Black, JetBrains_Mono, Noto_Kufi_Arabic, Public_Sans } from "next/font/google";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz"] });
+const publicSans = Public_Sans({ subsets: ["latin"], variable: "--font-public", display: "swap", weight: ["400", "600", "700", "800"] });
+const archivo = Archivo_Black({ subsets: ["latin"], variable: "--font-archivo", display: "swap", weight: "400" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["500", "700"] });
+const kufi = Noto_Kufi_Arabic({ subsets: ["arabic"], variable: "--font-kufi", display: "swap", weight: ["500", "700"], preload: false });
+
+const siteHost = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
 
 export const metadata: Metadata = {
-  title: { default: "BandUp — Climb from B1 to Band 7+", template: "%s · BandUp" },
+  metadataBase: new URL(siteHost ? `https://${siteHost}` : "http://localhost:3000"),
+  title: { default: "BandUp — From any level to the IELTS band you need", template: "%s · BandUp" },
   description:
-    "A guided IELTS journey in four stages. Reading, Listening, Writing and Speaking, with AI examiner feedback and a plan that fits your exam date.",
+    "A guided IELTS journey from absolute beginner to Band 7+. Reading, Listening, Writing and Speaking in seven stages, with examiner-style feedback and a plan that fits your exam date.",
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbf8f3" },
-    { media: "(prefers-color-scheme: dark)", color: "#0c1220" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f7f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#111214" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${publicSans.variable} ${archivo.variable} ${jetbrains.variable} ${kufi.variable}`}>
       <body className="min-h-dvh">
         {children}
         <Analytics />

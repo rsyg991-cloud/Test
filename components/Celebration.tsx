@@ -74,8 +74,8 @@ export function Celebration(p: CelebrationProps) {
       <div className="absolute inset-0" style={{ background: "rgb(12 18 32 / 0.55)" }} onClick={p.onClose} />
       <Confetti count={p.big ? 140 : 70} />
       <div className="card animate-pop relative w-full max-w-md overflow-hidden text-center">
-        <div className="px-6 pb-6 pt-8" style={{ background: "linear-gradient(160deg, var(--brand-soft), var(--surface) 70%)" }}>
-          <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-2xl text-white" style={{ background: "linear-gradient(135deg, var(--brand), var(--gold))" }}>
+        <div className="px-6 pb-6 pt-8" style={{ background: "var(--brand-soft)" }}>
+          <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-[10px] " style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
             <Icon name={p.big ? "trophy" : "star"} size={30} />
           </div>
           <h2 id="celebration-title" className="font-display text-3xl font-bold">
@@ -93,7 +93,7 @@ export function Celebration(p: CelebrationProps) {
           <Stat icon="target" color="var(--listening)" value={p.band != null ? p.band.toFixed(1) : "—"} label="Band" />
         </div>
         {(p.vocabAdded || p.freezeEarned) ? (
-          <div className="mx-6 mb-4 space-y-1 rounded-xl p-3 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>
+          <div className="mx-6 mb-4 space-y-1 rounded-md p-3 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>
             {!!p.vocabAdded && <p>📚 {p.vocabAdded} new words added to your review deck</p>}
             {p.freezeEarned && <p>🧊 7-day streak! You earned a streak freeze.</p>}
           </div>
@@ -115,7 +115,7 @@ export function Celebration(p: CelebrationProps) {
 
 function Stat({ icon, color, value, label }: { icon: string; color: string; value: string; label: string }) {
   return (
-    <div className="rounded-2xl p-3" style={{ background: "var(--surface-2)" }}>
+    <div className="rounded-[10px] p-3" style={{ background: "var(--surface-2)" }}>
       <Icon name={icon} size={20} style={{ color, margin: "0 auto" }} />
       <div className="mt-1 font-display text-2xl font-bold">{value}</div>
       <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>

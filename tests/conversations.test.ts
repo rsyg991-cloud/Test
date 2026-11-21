@@ -5,7 +5,7 @@ import { buildChatGPTPrompt } from "@/lib/conversation/prompt";
 describe("conversation content", () => {
   it("has 5 scenarios per stage with unique ids", () => {
     expect(conversations).toHaveLength(20);
-    for (const stage of [1, 2, 3, 4]) expect(conversations.filter((c) => c.stage === stage)).toHaveLength(5);
+    for (const stage of [4, 5, 6, 7]) expect(conversations.filter((c) => c.stage === stage)).toHaveLength(5);
     expect(new Set(conversations.map((c) => c.id)).size).toBe(20);
   });
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { stages } from "@/content";
+import { allLessons, stages } from "@/content";
 import { Icon } from "@/components/icons";
 import { JourneyMap } from "@/components/JourneyMap";
 import { Logo, SKILL_META } from "@/components/ui";
@@ -8,32 +8,60 @@ import { PLANS } from "@/lib/plan/scheduler";
 import type { Skill } from "@/content/types";
 
 const SKILL_COPY: Record<Skill, { title: string; body: string }> = {
-  reading: { title: "Read faster, miss less", body: "Skimming, scanning, T/F/NG, headings and inference — with an explanation for every answer." },
-  listening: { title: "Hear every detail", body: "Conversations and lectures in different voices, adjustable speed, and an exam mode that plays once." },
-  writing: { title: "An examiner on demand", body: "Get a band for each criterion, line-by-line corrections and your own essay rewritten one band higher." },
+  reading: { title: "Read faster, miss less", body: "From your first short texts to True/False/Not Given and headings, with an explanation for every answer." },
+  listening: { title: "Hear every detail", body: "Slow, clear audio for beginners, then real exam speed: conversations, talks and lectures, with an exam mode that plays once." },
+  writing: { title: "An examiner on demand", body: "From your first five sentences to a Task 2 essay: a band for each criterion, corrections and your text rewritten one band higher." },
   speaking: { title: "Speak with confidence", body: "Record your answers, see a live transcript and get fluency, vocabulary and grammar feedback in seconds." },
 };
 
+const ENTRY_POINTS = [
+  {
+    level: "A0",
+    title: "Starting from zero",
+    body: "Never studied English, or forgot it all? Stage 1 starts with the alphabet, numbers and your first sentences, with every step explained in Arabic.",
+    ar: "تبدأ من الصفر؟ نشرح لك كل خطوة بالعربي.",
+    start: "Stage 1",
+  },
+  {
+    level: "A1–A2",
+    title: "You know the basics",
+    body: "You can introduce yourself and get by slowly. Stages 2–3 build everyday English, then take you into the real IELTS question types.",
+    ar: "تعرف الأساسيات؟ نبني عليها حتى تدخل الاختبار.",
+    start: "Stage 2 or 3",
+  },
+  {
+    level: "B1+",
+    title: "Ready for the exam",
+    body: "Take the 15-minute placement test. We place you in the right IELTS stage and plan every day up to your exam date.",
+    ar: "مستواك متوسط أو أعلى؟ ابدأ باختبار تحديد المستوى.",
+    start: "Stage 4–7",
+  },
+];
+
 export default async function Home() {
   const user = await getCurrentUser();
-  const demoStages = stages.map((s, i) => ({
+  const demoStages = stages.map((s) => ({
     id: s.id,
     name: s.name,
     camp: s.camp,
     cefr: s.cefr,
-    pct: i === 0 ? 1 : i === 1 ? 0.55 : 0,
-    passed: i === 0,
-    locked: i > 1,
+    pct: s.id <= 2 ? 1 : s.id === 3 ? 0.55 : 0,
+    passed: s.id <= 2,
+    locked: s.id > 3,
+    inPlan: s.id <= 6,
   }));
+  const foundation = stages.filter((s) => s.foundation);
+  const ielts = stages.filter((s) => !s.foundation);
+  const cta = user ? "/dashboard" : "/register";
 
   return (
     <div className="overflow-x-hidden">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+      <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
         <Logo />
         <nav className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <Link href="/dashboard" className="btn btn-primary">
-              Continue learning <Icon name="arrow" size={18} />
+              Continue <Icon name="arrow" size={18} />
             </Link>
           ) : (
             <>
@@ -49,39 +77,36 @@ export default async function Home() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-8 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:pt-16">
-        <div className="animate-rise">
-          <span className="chip mb-5" style={{ background: "var(--brand-soft)", color: "var(--brand)" }}>
-            <Icon name="mountain" size={14} /> The IELTS climb, B1 → Band 7+
-          </span>
-          <h1 className="font-display text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
-            Your English,
-            <br />
-            <span style={{ color: "var(--brand)" }}>one camp</span> higher
-            <br />
-            every week.
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-8 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-14">
+        <div className="animate-rise min-w-0">
+          <div className="eyebrow mb-4">IELTS preparation · from any level</div>
+          <h1 className="font-display text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-[4.1rem]">
+            From your first words to <span className="hl">Band&nbsp;7</span>.
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed" style={{ color: "var(--muted)" }}>
-            BandUp turns IELTS preparation into a guided climb: four stages, four skills, a plan that fits your exam date, and an AI
-            examiner that tells you exactly how to reach the next band.
+          <p className="ar mt-4 text-xl font-bold" lang="ar" dir="rtl">
+            من الصفر إلى الدرجة اللي تحتاجها.
+          </p>
+          <p className="mt-4 max-w-xl text-lg leading-relaxed" style={{ color: "var(--muted)" }}>
+            BandUp takes you from wherever you are, even absolute beginner, to the IELTS band you need. Seven stages, four skills, a plan
+            that fits your exam date, and an AI examiner that shows you exactly how to reach the next band.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href={user ? "/dashboard" : "/register"} className="btn btn-primary px-6 py-3.5 text-base">
-              Take the free placement test <Icon name="arrow" size={18} />
+            <Link href={cta} className="btn btn-primary px-6 py-3.5 text-base">
+              Find my starting point <Icon name="arrow" size={18} />
             </Link>
             <span className="text-sm font-semibold" style={{ color: "var(--muted)" }}>
-              15 minutes · instant band estimate
+              Free · 2 minutes, or a 15-minute placement test
             </span>
           </div>
           <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
             {[
-              ["4", "stages"],
-              ["48", "guided lessons"],
+              [String(stages.length), "stages, A0 to C1"],
+              [String(allLessons.length), "guided lessons"],
               ["24/7", "AI feedback"],
             ].map(([n, l]) => (
-              <div key={l}>
+              <div key={l} className="border-l-2 pl-3" style={{ borderColor: "var(--line)" }}>
                 <dt className="sr-only">{l}</dt>
-                <dd className="font-display text-3xl font-bold">{n}</dd>
+                <dd className="num text-3xl font-bold">{n}</dd>
                 <dd className="text-sm font-semibold" style={{ color: "var(--muted)" }}>
                   {l}
                 </dd>
@@ -91,113 +116,137 @@ export default async function Home() {
         </div>
 
         <div className="relative mx-auto w-full max-w-md">
-          <div className="card p-3">
-            <JourneyMap stages={demoStages} />
-          </div>
-          <div className="card animate-rise absolute -left-4 top-10 hidden w-52 p-4 sm:block" style={{ animationDelay: ".2s" }}>
-            <div className="eyebrow">Writing · Task 2</div>
+          <JourneyMap stages={demoStages} compact />
+          <div className="card animate-rise absolute -right-3 top-6 hidden w-56 p-4 sm:block" style={{ animationDelay: ".2s", boxShadow: "var(--shadow)" }}>
+            <div className="eyebrow">Estimated overall</div>
             <div className="mt-1 flex items-baseline gap-2">
-              <span className="font-display text-3xl font-bold" style={{ color: "var(--writing)" }}>
-                6.5
-              </span>
-              <span className="text-sm font-semibold" style={{ color: "var(--success)" }}>
-                ▲ +1.0 in 6 weeks
+              <span className="num text-4xl font-bold">4.5</span>
+              <span className="text-sm font-bold" style={{ color: "var(--success)" }}>
+                ▲ +2.0 from zero
               </span>
             </div>
           </div>
-          <div className="card animate-rise absolute -right-3 bottom-16 hidden items-center gap-3 p-3.5 sm:flex" style={{ animationDelay: ".35s" }}>
-            <span className="animate-flame grid h-10 w-10 place-items-center rounded-xl text-white" style={{ background: "var(--brand)" }}>
-              <Icon name="flame" size={22} />
-            </span>
-            <div>
-              <div className="font-display text-xl font-bold leading-none">23 days</div>
-              <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                study streak
-              </div>
-            </div>
+        </div>
+      </section>
+
+      {/* Start where you are */}
+      <section className="ruled border-y py-20" style={{ borderColor: "var(--line)" }}>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="eyebrow mb-2">Start where you are</div>
+          <h2 className="max-w-2xl font-display text-3xl sm:text-4xl">You don&apos;t need to be B1 to begin.</h2>
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {ENTRY_POINTS.map((e) => (
+              <article key={e.level} className="card flex flex-col p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="num rounded-md px-2.5 py-1 text-sm font-bold" style={{ background: "var(--surface-2)" }}>
+                    {e.level}
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                    Starts at {e.start}
+                  </span>
+                </div>
+                <h3 className="mt-4 text-xl font-bold">{e.title}</h3>
+                <p className="mt-2 flex-1 text-[15px] leading-relaxed" style={{ color: "var(--muted)" }}>
+                  {e.body}
+                </p>
+                <p className="ar mt-3 text-sm" lang="ar" dir="rtl">
+                  {e.ar}
+                </p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="py-20" style={{ background: "var(--surface)" }}>
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="eyebrow mb-2">How it works</div>
-          <h2 className="font-display text-4xl font-bold tracking-tight">A clear path, every single day.</h2>
-          <ol className="mt-10 grid gap-5 md:grid-cols-4">
-            {[
-              ["target", "Find your level", "A 15-minute placement test gives you a starting band for all four skills."],
-              ["calendar", "Pick your pace", "1, 2, 3, 4 or 6 months. We build a day-by-day plan around your exam date."],
-              ["mountain", "Climb 4 stages", "Short daily sessions: a strategy, key words, then a real IELTS-style task."],
-              ["trophy", "Arrive exam-ready", "Checkpoint tests and a full mock prove you're ready before test day."],
-            ].map(([icon, t, b], i) => (
-              <li key={t} className="rounded-3xl p-6" style={{ background: "var(--bg)" }}>
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="grid h-12 w-12 place-items-center rounded-2xl" style={{ background: "var(--brand-soft)", color: "var(--brand)" }}>
-                    <Icon name={icon} size={22} />
-                  </span>
-                  <span className="font-display text-4xl font-bold" style={{ color: "var(--line)" }}>
-                    0{i + 1}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold">{t}</h3>
-                <p className="mt-1 text-[15px]" style={{ color: "var(--muted)" }}>
-                  {b}
-                </p>
-              </li>
-            ))}
-          </ol>
-        </div>
+      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <div className="eyebrow mb-2">How it works</div>
+        <h2 className="font-display text-3xl sm:text-4xl">A clear path, every single day.</h2>
+        <ol className="mt-10 grid gap-4 md:grid-cols-4">
+          {[
+            ["target", "Find your level", "Tell us what you know, or take a 15-minute placement test for a band in all four skills."],
+            ["calendar", "Pick your pace", "1 to 12 months. We build a day-by-day plan to your target band, and tell you honestly if it's too tight."],
+            ["book", "Learn, then do", "Short daily sessions: a strategy, key words, then a real task with instant feedback."],
+            ["trophy", "Arrive exam-ready", "Checkpoint tests and a full mock prove you're ready before test day."],
+          ].map(([icon, t, b], i) => (
+            <li key={t} className="card p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="grid h-11 w-11 place-items-center rounded-md" style={{ background: "var(--brand-soft)", color: "var(--ink)" }}>
+                  <Icon name={icon} size={22} />
+                </span>
+                <span className="num text-2xl font-bold" style={{ color: "var(--muted)" }}>
+                  0{i + 1}
+                </span>
+              </div>
+              <h3 className="text-lg font-bold">{t}</h3>
+              <p className="mt-1 text-[15px]" style={{ color: "var(--muted)" }}>
+                {b}
+              </p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* Stages */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <div className="eyebrow mb-2">The four stages</div>
-        <h2 className="max-w-2xl font-display text-4xl font-bold tracking-tight">From Base Camp to the Summit.</h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {stages.map((s) => (
-            <article key={s.id} className="card relative overflow-hidden p-6">
-              <div className="absolute -right-4 -top-6 font-display text-[120px] font-bold leading-none" style={{ color: "var(--surface-2)" }} aria-hidden="true">
-                {s.id}
+      <section className="border-t py-20" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="eyebrow mb-2">Seven stages</div>
+          <h2 className="max-w-2xl font-display text-3xl sm:text-4xl">From the Trailhead to the Summit.</h2>
+          {[
+            { label: "Foundation · with Arabic explanations", list: foundation },
+            { label: "IELTS", list: ielts },
+          ].map((g) => (
+            <div key={g.label} className="mt-10">
+              <h3 className="eyebrow mb-3">{g.label}</h3>
+              <div className={`grid gap-4 sm:grid-cols-2 ${g.list.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
+                {g.list.map((s) => (
+                  <article key={s.id} className="flex flex-col rounded-[10px] border p-5" style={{ borderColor: "var(--line)", background: "var(--bg)" }}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="num grid h-9 w-9 place-items-center rounded-full text-sm font-bold" style={{ background: "var(--ink)", color: "var(--bg)" }}>
+                        {s.id}
+                      </span>
+                      <span className="num text-xs font-bold" style={{ color: "var(--muted)" }}>
+                        {s.cefr}
+                      </span>
+                    </div>
+                    <div className="eyebrow mt-4">{s.camp}</div>
+                    <h4 className="mt-0.5 font-display text-xl">{s.name}</h4>
+                    {s.arabic && (
+                      <div className="ar text-sm font-bold" lang="ar" dir="rtl" style={{ color: "var(--muted)" }}>
+                        {s.arabic.name}
+                      </div>
+                    )}
+                    <p className="mt-3 flex-1 text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                      {s.tagline}
+                    </p>
+                    <div className="num mt-4 text-sm font-bold">
+                      Band {s.bandFrom.toFixed(1)} → {s.bandTo.toFixed(1)}
+                    </div>
+                  </article>
+                ))}
               </div>
-              <div className="relative">
-                <div className="eyebrow">{s.camp}</div>
-                <h3 className="mt-1 font-display text-2xl font-bold">{s.name}</h3>
-                <div className="mt-2 flex gap-2">
-                  <span className="chip" style={{ background: "var(--surface-2)" }}>
-                    {s.cefr}
-                  </span>
-                  <span className="chip" style={{ background: "var(--brand-soft)", color: "var(--brand)" }}>
-                    Band {s.bandFrom}–{s.bandTo}
-                  </span>
-                </div>
-                <p className="mt-4 text-[15px] leading-relaxed" style={{ color: "var(--muted)" }}>
-                  {s.description}
-                </p>
-              </div>
-            </article>
+            </div>
           ))}
         </div>
       </section>
 
       {/* Skills */}
-      <section className="py-20" style={{ background: "var(--navy)", color: "#fff" }}>
+      <section className="py-20" style={{ background: "#111316", color: "#f2f2ef" }}>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="eyebrow mb-2" style={{ color: "#aab3c8" }}>
+          <div className="eyebrow mb-2" style={{ color: "#a6abb2" }}>
             Four skills, one system
           </div>
-          <h2 className="max-w-2xl font-display text-4xl font-bold tracking-tight">Practice that feels like the real test — feedback that doesn&apos;t.</h2>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
+          <h2 className="max-w-2xl font-display text-3xl sm:text-4xl">
+            Practice that feels like the real test. Feedback that <span style={{ color: "#ffe14d" }}>doesn&apos;t</span>.
+          </h2>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {(Object.keys(SKILL_COPY) as Skill[]).map((k) => (
-              <div key={k} className="rounded-3xl p-6" style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}>
-                <span className="grid h-12 w-12 place-items-center rounded-2xl" style={{ background: SKILL_META[k].color }}>
-                  <Icon name={SKILL_META[k].icon} size={22} />
+              <div key={k} className="rounded-[10px] p-6" style={{ background: "#1b1d20", border: "1px solid #33363b" }}>
+                <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest" style={{ color: SKILL_DARK[k] }}>
+                  <Icon name={SKILL_META[k].icon} size={18} /> {SKILL_META[k].label}
                 </span>
-                <div className="mt-4 text-sm font-bold uppercase tracking-widest" style={{ color: "#aab3c8" }}>
-                  {SKILL_META[k].label}
-                </div>
-                <h3 className="mt-1 text-xl font-bold">{SKILL_COPY[k].title}</h3>
-                <p className="mt-2 leading-relaxed" style={{ color: "#c9d0de" }}>
+                <h3 className="mt-3 text-xl font-bold">{SKILL_COPY[k].title}</h3>
+                <p className="mt-2 leading-relaxed" style={{ color: "#a6abb2" }}>
                   {SKILL_COPY[k].body}
                 </p>
               </div>
@@ -209,37 +258,34 @@ export default async function Home() {
       {/* Plans */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <div className="eyebrow mb-2">Choose your pace</div>
-        <h2 className="max-w-2xl font-display text-4xl font-bold tracking-tight">How fast do you want to climb?</h2>
+        <h2 className="max-w-2xl font-display text-3xl sm:text-4xl">How fast do you want to climb?</h2>
         <p className="mt-3 max-w-2xl" style={{ color: "var(--muted)" }}>
-          Every plan covers the full journey. The difference is how much you do each day. Fall behind? One tap builds a catch-up plan — no guilt.
+          Every plan covers your path to your target band. The difference is how much you do each day. Starting from zero? Choose 9 or 12 months:
+          we&apos;ll be honest if a plan is too tight. Fall behind? One tap builds a catch-up plan.
         </p>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((p) => {
-            const rec = p.months === 3;
+            const tag = p.months === 3 ? "Most popular" : p.months === 12 ? "From zero" : null;
             return (
-              <div
-                key={p.months}
-                className="card relative flex flex-col p-5"
-                style={rec ? { borderColor: "var(--brand)", borderWidth: 2, transform: "translateY(-6px)" } : undefined}
-              >
-                {rec && (
-                  <span className="chip absolute -top-3 left-5" style={{ background: "var(--brand)", color: "#fff" }}>
-                    Most popular
+              <div key={p.months} className="card relative flex flex-col p-5" style={tag ? { borderColor: "var(--ink)", borderWidth: 1.5 } : undefined}>
+                {tag && (
+                  <span className="chip absolute -top-3 left-5" style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
+                    {tag}
                   </span>
                 )}
-                <div className="font-display text-4xl font-bold">
+                <div className="num text-4xl font-bold">
                   {p.months}
-                  <span className="ml-1 text-base font-sans font-bold" style={{ color: "var(--muted)" }}>
+                  <span className="ml-1.5 font-sans text-base font-bold" style={{ color: "var(--muted)" }}>
                     {p.months === 1 ? "month" : "months"}
                   </span>
                 </div>
                 <div className="mt-1 font-bold">{p.name}</div>
                 <div className="mt-4 space-y-1.5 text-sm">
                   <div className="flex items-center gap-2">
-                    <Icon name="calendar" size={15} style={{ color: "var(--brand)" }} /> ~{p.dailyMinutes >= 60 ? `${p.dailyMinutes / 60}h` : `${p.dailyMinutes} min`} a day
+                    <Icon name="calendar" size={15} /> <span className="num">~{p.dailyMinutes >= 60 ? `${p.dailyMinutes / 60}h` : `${p.dailyMinutes} min`}</span> a day
                   </div>
                   <div className="flex items-center gap-2">
-                    <Icon name="chart" size={15} style={{ color: "var(--brand)" }} /> {p.expectedGain}
+                    <Icon name="chart" size={15} /> {p.expectedGain}
                   </div>
                 </div>
                 <p className="mt-4 text-sm" style={{ color: "var(--muted)" }}>
@@ -253,11 +299,13 @@ export default async function Home() {
 
       {/* Final CTA */}
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-[2rem] p-10 text-center sm:p-16" style={{ background: "linear-gradient(135deg, var(--brand), var(--gold))", color: "#fff" }}>
-          <h2 className="mx-auto max-w-2xl font-display text-4xl font-bold tracking-tight sm:text-5xl">The summit is closer than you think.</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg opacity-90">Start with a 15-minute placement test and see your personalised plan today.</p>
-          <Link href={user ? "/dashboard" : "/register"} className="btn mt-8 px-7 py-4 text-base" style={{ background: "#fff", color: "var(--navy)" }}>
-            Start my climb <Icon name="arrow" size={18} />
+        <div className="relative overflow-hidden rounded-[16px] p-8 text-center sm:p-16" style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
+          <h2 className="mx-auto max-w-2xl font-display text-3xl sm:text-5xl">Start where you are. Finish at the band you need.</h2>
+          <p className="ar mx-auto mt-4 max-w-xl text-lg font-bold" lang="ar" dir="rtl">
+            ابدأ من مستواك، ووصل للدرجة اللي تبيها.
+          </p>
+          <Link href={cta} className="btn mt-8 px-7 py-4 text-base" style={{ background: "#111316", color: "#ffe14d" }}>
+            Find my starting point <Icon name="arrow" size={18} />
           </Link>
         </div>
       </section>
@@ -268,3 +316,6 @@ export default async function Home() {
     </div>
   );
 }
+
+/** Skill colours for the always-dark skills panel (the dark-theme values). */
+const SKILL_DARK: Record<Skill, string> = { reading: "#4fd1bf", listening: "#a99cff", writing: "#f5b544", speaking: "#ff8fa8" };

@@ -43,10 +43,10 @@ export default async function PracticePage() {
           The complete IELTS Academic test with official timing: 40 listening + 40 reading questions, two writing tasks and three speaking parts.{" "}
           <Link href="/resources" className="font-bold underline">Official resources</Link>
         </p>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
           {tests.map((t) => (
             <Link key={t.id} href={`/mock/${t.id}`} className="card flex items-center gap-4 p-5 transition-transform hover:-translate-y-0.5">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white" style={{ background: "var(--navy)" }}>
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[10px] text-white" style={{ background: "var(--navy)" }}>
                 <Icon name="trophy" size={22} />
               </span>
               <div className="min-w-0 flex-1">
@@ -67,8 +67,8 @@ export default async function PracticePage() {
 
       <section id="conversations" className="mb-12 scroll-mt-24">
         <div className="card mb-5 overflow-hidden">
-          <div className="flex flex-wrap items-center gap-5 p-5 sm:p-6" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--speaking) 14%, var(--surface)), var(--surface) 70%)" }}>
-            <span className="hidden h-14 w-14 place-items-center rounded-2xl text-white sm:grid" style={{ background: "var(--speaking)" }}>
+          <div className="flex flex-wrap items-center gap-5 p-5 sm:p-6" style={{ background: "color-mix(in srgb, var(--speaking) 10%, var(--surface))" }}>
+            <span className="hidden h-14 w-14 place-items-center rounded-[10px] text-[var(--on-skill)] sm:grid" style={{ background: "var(--speaking)" }}>
               <Icon name="mic" size={26} />
             </span>
             <div className="w-full min-w-0 sm:w-auto sm:flex-1">
@@ -83,7 +83,7 @@ export default async function PracticePage() {
           </div>
         </div>
         <div className="space-y-6">
-          {stages.map((s) => {
+          {stages.filter((s) => conversations.some((c) => c.stage === s.id)).map((s) => {
             const list = conversations.filter((c) => c.stage === s.id);
             const locked = s.id > user.unlockedStage;
             return (
@@ -140,7 +140,7 @@ export default async function PracticePage() {
         Extra Writing Task 2 and Speaking prompts with instant examiner feedback.
       </p>
       <div className="space-y-8">
-        {stages.map((s) => {
+        {stages.filter((s) => practicePrompts.some((p) => p.stage === s.id)).map((s) => {
           const prompts = practicePrompts.filter((p) => p.stage === s.id);
           const locked = s.id > user.unlockedStage;
           return (

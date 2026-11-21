@@ -25,7 +25,7 @@ export function QuestionList({
       {questions.map((q, idx) => {
         const r = resultFor(q.id);
         return (
-          <li key={q.id} className="rounded-2xl border p-4" style={{ borderColor: r ? (r.correct ? "var(--success)" : "var(--danger)") : "var(--line)", background: "var(--surface)" }}>
+          <li key={q.id} className="rounded-[10px] border p-4" style={{ borderColor: r ? (r.correct ? "var(--success)" : "var(--danger)") : "var(--line)", background: "var(--surface)" }}>
             <div className="mb-3 flex gap-3">
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold" style={{ background: "var(--surface-2)" }}>
                 {idx + 1}
@@ -47,7 +47,7 @@ export function QuestionList({
                       aria-checked={selected}
                       disabled={locked}
                       onClick={() => onChange(q.id, i)}
-                      className="flex items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left text-[15px] transition-colors"
+                      className="flex items-center gap-3 rounded-md border-2 px-3 py-2.5 text-left text-[15px] transition-colors"
                       style={{
                         borderColor: isAnswer ? "var(--success)" : selected ? accent : "var(--line)",
                         background: isAnswer ? "color-mix(in srgb, var(--success) 10%, transparent)" : selected ? `color-mix(in srgb, ${accent} 10%, transparent)` : "transparent",
@@ -76,11 +76,11 @@ export function QuestionList({
                       aria-checked={selected}
                       disabled={locked}
                       onClick={() => onChange(q.id, opt)}
-                      className="rounded-full border-2 px-4 py-1.5 text-sm font-bold tracking-wide"
+                      className="rounded-md border-[1.5px] px-3.5 py-1.5 text-xs font-bold tracking-wider"
                       style={{
                         borderColor: isAnswer ? "var(--success)" : selected ? accent : "var(--line)",
                         background: isAnswer ? "var(--success)" : selected ? accent : "transparent",
-                        color: isAnswer || selected ? "#fff" : "var(--ink)",
+                        color: isAnswer || selected ? "var(--on-skill)" : "var(--ink)",
                       }}
                     >
                       {opt}
@@ -91,7 +91,7 @@ export function QuestionList({
             )}
 
             {r && (
-              <div className="mt-3 flex gap-2 rounded-xl p-3 text-sm" style={{ background: "var(--surface-2)" }}>
+              <div className="mt-3 flex gap-2 rounded-md p-3 text-sm" style={{ background: "var(--surface-2)" }}>
                 <Icon name={r.correct ? "check" : "x"} size={18} style={{ color: r.correct ? "var(--success)" : "var(--danger)", flexShrink: 0, marginTop: 1 }} />
                 <div>
                   {!r.correct && (
@@ -106,6 +106,11 @@ export function QuestionList({
                     </div>
                   )}
                   <div style={{ color: "var(--muted)" }}>{r.explanation}</div>
+                  {r.ar && (
+                    <p className="ar mt-1 text-sm" lang="ar" dir="rtl" style={{ color: "var(--ink)" }}>
+                      {r.ar}
+                    </p>
+                  )}
                 </div>
               </div>
             )}

@@ -12,15 +12,18 @@ import { SpeakingTaskView } from "@/components/task/SpeakingTaskView";
 import { WritingTaskView } from "@/components/task/WritingTaskView";
 import { Logo, Ring, SKILL_META } from "@/components/ui";
 import { addDays, formatDate } from "@/lib/dates";
-import { PLANS, planDays, recommendPlan } from "@/lib/plan/scheduler";
+import { endStageFor, FINAL_STAGE, pathItemCount, SELF_LEVELS, STAGE_LIST, TARGET_BANDS } from "@/content/stageList";
+import { paceWarning, PLANS, planDays, recommendPlan } from "@/lib/plan/scheduler";
 import { cefrForBand, type Answers } from "@/lib/scoring";
 
 const STEPS = ["Goal", "Grammar", "Reading", "Listening", "Writing", "Speaking", "Results", "Plan"] as const;
-const STAGE_NAMES = ["Foundation", "Development", "Advanced", "Exam Mastery"];
+const stageName = (id: number) => STAGE_LIST.find((s) => s.id === id)?.name ?? `Stage ${id}`;
+type SelfLevel = (typeof SELF_LEVELS)[number]["id"];
 
 export function OnboardingFlow({ name, initialResult }: { name: string; initialResult: PlacementResult | null }) {
   const [step, setStep] = useState(initialResult ? 6 : 0);
-  const [target, setTarget] = useState(7);
+  const [target, setTarget] = useState(6.5);
+  const [level, setLevel] = useState<SelfLevel | null>(initialResult ? "b1" : null);
   const [examDate, setExamDate] = useState<string>("");
   const [grammar, setGrammar] = useState<Answers>({});
   const [reading, setReading] = useState<Answers>({});
@@ -33,12 +36,24 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
+  const self = SELF_LEVELS.find((l) => l.id === level);
+  const selfPlaced = !!self && self.stage !== null && !result;
+  const currentBand = result?.overall ?? self?.band ?? null;
+  const recommendedStage = result?.recommendedStage ?? self?.stage ?? 1;
   const recommended = useMemo(
-    () => (result ? recommendPlan(result.overall, target, examDate ? new Date(examDate) : null) : 3),
-    [result, target, examDate],
+    () => recommendPlan(currentBand, target, examDate ? new Date(examDate) : null),
+    [currentBand, target, examDate],
   );
   const chosenMonths = months ?? recommended;
-  const chosenStage = startStage ?? result?.recommendedStage ?? 1;
+  const chosenStage = startStage ?? recommendedStage;
+  const endStage = Math.max(chosenStage, endStageFor(target));
+  const pathItems = pathItemCount(chosenStage, endStage);
+  const stageChoices = [...new Set([1, recommendedStage - 1, recommendedStage, recommendedStage + 1])].filter((s) => s >= 1 && s <= FINAL_STAGE).sort((a, b) => a - b);
+
+  function skipToPlan() {
+    setStep(7);
+    window.scrollTo({ top: 0 });
+  }
 
   const next = () => {
     setStep((s) => s + 1);
@@ -83,22 +98,49 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
 
       {step === 0 && (
         <section className="animate-rise">
-          <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">Hi {name}, let&apos;s plan your climb.</h1>
+          <h1 className="font-display text-4xl sm:text-5xl">
+            Hi {name}, let&apos;s plan your <span className="hl">climb</span>.
+          </h1>
           <p className="mt-3 text-lg" style={{ color: "var(--muted)" }}>
-            Two quick questions, then a 15-minute placement test to find your starting band.
+            Three quick questions. Starting from zero is fine: BandUp begins with your first words.
           </p>
           <div className="card mt-8 p-6">
-            <h2 className="font-bold">What band do you need?</h2>
+            <h2 className="font-bold">How much English do you know right now?</h2>
+            <p className="ar mt-1 text-sm" lang="ar" dir="rtl" style={{ color: "var(--muted)" }}>
+              كم تعرف من الإنجليزي الآن؟ اختر الأقرب لك، ولا تقلق إذا كنت مبتدئاً تماماً.
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Your English now">
+              {SELF_LEVELS.map((l) => (
+                <button
+                  key={l.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={level === l.id}
+                  onClick={() => setLevel(l.id)}
+                  className="rounded-md border-[1.5px] px-4 py-3 text-left transition-colors"
+                  style={{ borderColor: level === l.id ? "var(--brand)" : "var(--line)", background: level === l.id ? "var(--brand-soft)" : "transparent" }}
+                >
+                  <span className="block font-bold">{l.label}</span>
+                  <span className="block text-sm" style={{ color: "var(--muted)" }}>
+                    {l.detail}
+                  </span>
+                  <span className="ar mt-0.5 block text-sm" lang="ar" dir="rtl" style={{ color: "var(--muted)" }}>
+                    {l.ar}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <h2 className="mt-8 font-bold">What band do you need?</h2>
             <div className="mt-4 flex flex-wrap gap-2" role="radiogroup" aria-label="Target band">
-              {[5.5, 6, 6.5, 7, 7.5, 8, 8.5].map((b) => (
+              {TARGET_BANDS.map((b) => (
                 <button
                   key={b}
                   type="button"
                   role="radio"
                   aria-checked={target === b}
                   onClick={() => setTarget(b)}
-                  className="rounded-2xl border-2 px-4 py-2.5 font-display text-xl font-bold transition-colors"
-                  style={{ borderColor: target === b ? "var(--brand)" : "var(--line)", background: target === b ? "var(--brand)" : "transparent", color: target === b ? "#fff" : "var(--ink)" }}
+                  className="num rounded-md border-[1.5px] px-3.5 py-2 text-lg font-bold transition-colors"
+                  style={{ borderColor: target === b ? "var(--brand)" : "var(--line)", background: target === b ? "var(--brand)" : "transparent", color: target === b ? "var(--brand-ink)" : "var(--ink)" }}
                 >
                   {b.toFixed(1)}
                 </button>
@@ -119,6 +161,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
               )}
             </div>
           </div>
+          {level === "b1" && (
           <div className="card mt-5 flex flex-wrap items-center gap-4 p-5">
             {(["reading", "listening", "writing", "speaking"] as Skill[]).map((s) => (
               <span key={s} className="inline-flex items-center gap-2 text-sm font-semibold">
@@ -129,9 +172,15 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
               + grammar · about 15 minutes · you can skip Writing and Speaking
             </span>
           </div>
-          <div className="mt-8 flex justify-end">
-            <button type="button" className="btn btn-primary px-6 py-3" onClick={next}>
-              Start the placement test <Icon name="arrow" size={18} />
+          )}
+          <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
+            {selfPlaced && (
+              <button type="button" className="btn btn-ghost px-5 py-3" onClick={next}>
+                Take the placement test instead
+              </button>
+            )}
+            <button type="button" className="btn btn-primary px-6 py-3" onClick={selfPlaced ? skipToPlan : next} disabled={!level}>
+              {!level ? "Choose your level" : selfPlaced ? "Build my plan" : "Start the placement test"} <Icon name="arrow" size={18} />
             </button>
           </div>
         </section>
@@ -147,7 +196,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
       {step === 2 && (
         <Section title="Reading" subtitle="Read the short text and answer the questions.">
           <article className="card prose-reading mb-6 p-6 text-[16px]">
-            <h2 className="mb-3 font-display text-2xl font-bold">{placement.reading.title}</h2>
+            <h2 className="mb-3 font-display text-2xl">{placement.reading.title}</h2>
             {placement.reading.paragraphs.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -195,19 +244,23 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
           <Confetti count={60} />
           <div className="text-center">
             <div className="eyebrow">Your starting point</div>
-            <h1 className="mt-2 font-display text-4xl font-bold tracking-tight sm:text-5xl">
-              Band {result.overall.toFixed(1)} <span style={{ color: "var(--muted)" }}>·</span> {cefrForBand(result.overall)}
+            <h1 className="mt-2 font-display text-4xl sm:text-5xl">
+              Band <span className="num">{result.overall.toFixed(1)}</span> <span style={{ color: "var(--muted)" }}>·</span> {cefrForBand(result.overall)}
             </h1>
             <p className="mx-auto mt-3 max-w-lg" style={{ color: "var(--muted)" }}>
               Your target is <strong style={{ color: "var(--ink)" }}>Band {target.toFixed(1)}</strong>.{" "}
-              {target > result.overall ? `That's a ${(target - result.overall).toFixed(1)}-band climb — very achievable with a clear plan.` : "You're already there — let's make it secure and push higher."}
+              {target > result.overall
+                ? target - result.overall > 2
+                  ? `That's a ${(target - result.overall).toFixed(1)}-band climb. It's a long road, and we'll take it one stage at a time.`
+                  : `That's a ${(target - result.overall).toFixed(1)}-band climb. Very achievable with a clear plan.`
+                : "You're already there. Let's make it secure and push higher."}
             </p>
           </div>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {(["reading", "listening", "writing", "speaking"] as Skill[]).map((s, i) => (
               <div key={s} className="card animate-rise flex flex-col items-center p-5" style={{ animationDelay: `${i * 0.1}s` }}>
                 <Ring value={result.bands[s] / 9} size={96} stroke={9} color={SKILL_META[s].color} label={`${SKILL_META[s].label} band ${result.bands[s]}`}>
-                  <span className="font-display text-2xl font-bold">{result.bands[s].toFixed(1)}</span>
+                  <span className="num text-2xl font-bold">{result.bands[s].toFixed(1)}</span>
                 </Ring>
                 <div className="mt-3 font-bold">{SKILL_META[s].label}</div>
                 {(s === "writing" || s === "speaking") && !result.aiUsed[s] && (
@@ -222,7 +275,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
             <div className="flex items-start gap-3">
               <Icon name="sparkle" size={20} style={{ color: "var(--brand)", flexShrink: 0, marginTop: 2 }} />
               <p>
-                We recommend starting at <strong>Stage {result.recommendedStage}: {STAGE_NAMES[result.recommendedStage - 1]}</strong>. Your weakest skill is{" "}
+                We recommend starting at <strong>Stage {result.recommendedStage}: {stageName(result.recommendedStage)}</strong>. Your weakest skill is{" "}
                 <strong>{SKILL_META[(Object.entries(result.bands).sort((a, b) => a[1] - b[1])[0][0]) as Skill].label}</strong> — your daily sessions will give it extra attention.
               </p>
             </div>
@@ -237,15 +290,23 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
 
       {step === 7 && (
         <section className="animate-rise">
-          <h1 className="font-display text-4xl font-bold tracking-tight">How fast do you want to climb?</h1>
+          <h1 className="font-display text-4xl">How fast do you want to climb?</h1>
           <p className="mt-2" style={{ color: "var(--muted)" }}>
-            All plans cover the full journey. You can change your plan at any time without losing progress.
+            Your path runs from <strong style={{ color: "var(--ink)" }}>Stage {chosenStage}: {stageName(chosenStage)}</strong> to{" "}
+            <strong style={{ color: "var(--ink)" }}>Stage {endStage}: {stageName(endStage)}</strong> for Band {target.toFixed(1)}:{" "}
+            <span className="num">{pathItems}</span> lessons and checkpoints. Every plan covers it; you can change your plan any time without losing progress.
           </p>
+          {selfPlaced && (
+            <p className="ar mt-3 text-sm" lang="ar" dir="rtl" style={{ color: "var(--muted)" }}>
+              المراحل الأولى فيها شرح بالعربي لكل درس، ويقلّ الشرح العربي تدريجياً كلما تقدّمت.
+            </p>
+          )}
           <div className="mt-8 grid gap-3" role="radiogroup" aria-label="Study plan">
             {PLANS.map((p) => {
               const selected = chosenMonths === p.months;
               const end = addDays(new Date(), planDays(p.months) - 1);
               const tooLate = examDate ? end > new Date(examDate) : false;
+              const pace = paceWarning(p.months, pathItems);
               return (
                 <button
                   key={p.months}
@@ -256,7 +317,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
                   className="card flex flex-wrap items-center gap-4 p-4 text-left transition-transform sm:flex-nowrap"
                   style={{ borderColor: selected ? "var(--brand)" : undefined, borderWidth: 2, transform: selected ? "scale(1.01)" : undefined }}
                 >
-                  <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl font-display text-2xl font-bold" style={{ background: selected ? "var(--brand)" : "var(--surface-2)", color: selected ? "#fff" : "var(--ink)" }}>
+                  <span className="num grid h-14 w-14 shrink-0 place-items-center rounded-md text-2xl font-bold" style={{ background: selected ? "var(--brand)" : "var(--surface-2)", color: selected ? "var(--brand-ink)" : "var(--ink)" }}>
                     {p.months}
                     <span className="-mt-2 text-[10px] font-sans">{p.months === 1 ? "month" : "months"}</span>
                   </span>
@@ -266,6 +327,11 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
                       {p.months === recommended && (
                         <span className="chip" style={{ background: "var(--brand-soft)", color: "var(--brand)" }}>
                           Recommended for you
+                        </span>
+                      )}
+                      {pace && !tooLate && (
+                        <span className="chip" style={{ background: "var(--surface-2)", color: "var(--ink)" }}>
+                          {pace.startsWith("Very") ? "Very tight for your path" : "Busy pace"}
                         </span>
                       )}
                       {tooLate && (
@@ -289,19 +355,25 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
             })}
           </div>
 
-          {result && result.recommendedStage > 1 && (
+          {paceWarning(chosenMonths, pathItems) && (
+            <p className="mt-4 rounded-md px-4 py-3 text-sm font-semibold" role="status" style={{ background: "var(--brand-soft)", color: "var(--ink)" }}>
+              {paceWarning(chosenMonths, pathItems)}
+            </p>
+          )}
+
+          {stageChoices.length > 1 && (
             <div className="card mt-6 p-5">
               <h2 className="font-bold">Where do you want to start?</h2>
               <div className="mt-3 flex flex-wrap gap-2">
-                {[1, result.recommendedStage].map((s) => (
+                {stageChoices.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setStartStage(s)}
-                    className="rounded-xl border-2 px-4 py-2 text-sm font-bold"
+                    className="rounded-md border-2 px-4 py-2 text-sm font-bold"
                     style={{ borderColor: chosenStage === s ? "var(--brand)" : "var(--line)", background: chosenStage === s ? "var(--brand-soft)" : "transparent" }}
                   >
-                    Stage {s}: {STAGE_NAMES[s - 1]} {s === result.recommendedStage ? "(recommended)" : "(from the beginning)"}
+                    Stage {s}: {stageName(s)} {s === recommendedStage ? "(recommended)" : s === 1 ? "(from the very beginning)" : s > recommendedStage ? "(a bigger challenge)" : "(a gentler start)"}
                   </button>
                 ))}
               </div>
@@ -310,7 +382,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
 
           <div className="mt-8 flex justify-end">
             <button type="button" className="btn btn-primary px-6 py-3" onClick={confirmPlan} disabled={pending}>
-              {pending ? "Building your plan…" : "Start my journey"} <Icon name="mountain" size={18} />
+              {pending ? "Building your plan…" : "Start my journey"} <Icon name="arrow" size={18} />
             </button>
           </div>
         </section>
@@ -322,7 +394,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
 function Section({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <section className="animate-rise">
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
+      <h1 className="font-display text-3xl sm:text-4xl">{title}</h1>
       <p className="mb-8 mt-2" style={{ color: "var(--muted)" }}>
         {subtitle}
       </p>

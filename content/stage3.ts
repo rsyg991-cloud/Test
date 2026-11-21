@@ -4,7 +4,7 @@ import { stage3Groups } from "./official/stage3";
 
 
 export const stage3: Stage = {
-  id: 3,
+  id: 6,
   slug: "advanced",
   name: "Advanced",
   camp: "High Camp",
@@ -23,14 +23,14 @@ export const stage3: Stage = {
   units: [
     {
       id: "s3-u1",
-      stage: 3,
+      stage: 6,
       index: 1,
       title: "Science & Society",
       theme: "Inference and academic lectures",
       lessons: [
         {
           id: "s3-u1-reading",
-          stage: 3,
+          stage: 6,
           unit: 1,
           skill: "reading",
           title: "Inference: The Placebo Paradox",
@@ -69,7 +69,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u1-listening",
-          stage: 3,
+          stage: 6,
           unit: 1,
           skill: "listening",
           title: "Part 4: Urban Heat Islands",
@@ -105,7 +105,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u1-writing",
-          stage: 3,
+          stage: 6,
           unit: 1,
           skill: "writing",
           title: "Task 2: Advantages Outweigh Disadvantages?",
@@ -142,7 +142,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u1-speaking",
-          stage: 3,
+          stage: 6,
           unit: 1,
           skill: "speaking",
           title: "Part 3: Science, Ethics and Progress",
@@ -179,14 +179,14 @@ export const stage3: Stage = {
     },
     {
       id: "s3-u2",
-      stage: 3,
+      stage: 6,
       index: 2,
       title: "Economy & Work",
       theme: "Writer's views and complex data",
       lessons: [
         {
           id: "s3-u2-reading",
-          stage: 3,
+          stage: 6,
           unit: 2,
           skill: "reading",
           title: "Writer's Views: The Four-Day Week",
@@ -224,7 +224,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u2-listening",
-          stage: 3,
+          stage: 6,
           unit: 2,
           skill: "listening",
           title: "Part 4: Nudges and Behavioural Economics",
@@ -261,7 +261,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u2-writing",
-          stage: 3,
+          stage: 6,
           unit: 2,
           skill: "writing",
           title: "Task 1: Multi-Line Graph with Precision",
@@ -309,7 +309,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u2-speaking",
-          stage: 3,
+          stage: 6,
           unit: 2,
           skill: "speaking",
           title: "Part 2 + 3: A Successful Business",
@@ -350,14 +350,14 @@ export const stage3: Stage = {
     },
     {
       id: "s3-u3",
-      stage: 3,
+      stage: 6,
       index: 3,
       title: "Culture & Globalisation",
       theme: "Complex arguments and two-part questions",
       lessons: [
         {
           id: "s3-u3-reading",
-          stage: 3,
+          stage: 6,
           unit: 3,
           skill: "reading",
           title: "Speed & Accuracy: The Death of Languages",
@@ -395,7 +395,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u3-listening",
-          stage: 3,
+          stage: 6,
           unit: 3,
           skill: "listening",
           title: "Part 3: Seminar on Museums",
@@ -435,7 +435,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u3-writing",
-          stage: 3,
+          stage: 6,
           unit: 3,
           skill: "writing",
           title: "Task 2: Two-Part Questions",
@@ -472,7 +472,7 @@ export const stage3: Stage = {
         },
         {
           id: "s3-u3-speaking",
-          stage: 3,
+          stage: 6,
           unit: 3,
           skill: "speaking",
           title: "Part 3: Traditions in a Changing World",
@@ -510,7 +510,7 @@ export const stage3: Stage = {
   ],
   checkpoint: {
     id: "s3-checkpoint",
-    stage: 3,
+    stage: 6,
     title: "High Camp Checkpoint",
     reading: {
       title: "The Myth of Multitasking",

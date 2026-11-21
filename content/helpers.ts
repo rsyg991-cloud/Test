@@ -6,30 +6,35 @@ export const mcq = (
   options: string[],
   answer: number,
   explanation: string,
-): Question => ({ id, type: "mcq", prompt, options, answer, explanation });
+  ar?: string,
+): Question => ({ id, type: "mcq", prompt, options, answer, explanation, ...(ar ? { ar } : {}) });
 
 export const tf = (
   id: string,
   prompt: string,
   answer: "TRUE" | "FALSE" | "NOT GIVEN",
   explanation: string,
-): Question => ({ id, type: "tfng", prompt, answer, explanation });
+  ar?: string,
+): Question => ({ id, type: "tfng", prompt, answer, explanation, ...(ar ? { ar } : {}) });
 
 export const gap = (
   id: string,
   prompt: string,
   answer: string | string[],
   explanation: string,
+  ar?: string,
 ): Question => ({
   id,
   type: "gap",
   prompt,
   answer: Array.isArray(answer) ? answer : [answer],
   explanation,
+  ...(ar ? { ar } : {}),
 });
 
-export const v = (word: string, definition: string, example: string) => ({
+export const v = (word: string, definition: string, example: string, ar?: string) => ({
   word,
   definition,
   example,
+  ...(ar ? { ar } : {}),
 });

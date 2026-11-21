@@ -14,7 +14,7 @@ const snap = async (name) => shots && page.screenshot({ path: `${shots}/${name}.
 const step = (m) => console.log("✓", m);
 
 await page.goto(BASE);
-await page.getByRole("heading", { name: /one camp/i }).waitFor();
+await page.getByRole("heading", { level: 1, name: /first words/i }).waitFor();
 await snap("01-landing");
 step("landing page");
 
@@ -28,6 +28,7 @@ await page.waitForURL("**/onboarding");
 step("registered");
 
 // Goal
+await page.getByRole("radio", { name: /Quite well/ }).click();
 await page.getByRole("radio", { name: "7.0" }).click();
 await snap("02-onboarding-goal");
 await page.getByRole("button", { name: /Start the placement test/ }).click();
@@ -61,6 +62,9 @@ await snap("04-placement-results");
 step("placement results");
 await page.getByRole("button", { name: /Choose my plan/ }).click();
 await page.getByRole("radio", { name: /3\s*months/ }).click();
+// The IELTS lesson and conversation below are in Stage 4: start there whatever the placement says.
+const stage4 = page.getByRole("button", { name: /^Stage 4:/ });
+if (await stage4.count()) await stage4.click();
 await snap("05-plan-picker");
 await page.getByRole("button", { name: /Start my journey/ }).click();
 await page.waitForURL("**/dashboard**");
@@ -191,6 +195,37 @@ const overflow = await m.evaluate(() => document.documentElement.scrollWidth - w
 if (overflow > 1) throw new Error(`Landing page scrolls horizontally on mobile by ${overflow}px`);
 if (shots) await m.screenshot({ path: `${shots}/11-mobile-landing.png`, fullPage: false });
 step("mobile landing has no horizontal scroll");
+
+// Absolute beginner: self-assessment instead of the placement test → 12-month plan → Stage 1 with Arabic help.
+const ctx2 = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+const b = await ctx2.newPage();
+b.on("pageerror", (e) => errors.push(e.message));
+await b.goto(`${BASE}/register`);
+await b.getByLabel("First name").fill("Zero");
+await b.getByLabel("Email").fill(`zero-${Date.now()}@example.com`);
+await b.getByLabel("Password").fill("password123");
+await b.getByRole("button", { name: "Create my account" }).click();
+await b.waitForURL("**/onboarding");
+await b.getByRole("radio", { name: /None, or almost none/ }).click();
+await b.getByRole("radio", { name: "6.5" }).click();
+await b.getByRole("button", { name: /Build my plan/ }).click();
+await b.getByText(/Stage 1: First Words/).first().waitFor();
+const rec = b.getByRole("radio", { name: /Recommended for you/ });
+if (!/12\s*months/.test(await rec.innerText())) throw new Error("Expected the 12-month plan to be recommended for a beginner");
+await b.getByRole("radio", { name: /1\s*month/ }).first().click();
+await b.getByText(/Very tight/).first().waitFor();
+await rec.click();
+if (shots) await b.screenshot({ path: `${shots}/18-beginner-plan.png`, fullPage: true });
+await b.getByRole("button", { name: /Start my journey/ }).click();
+await b.waitForURL("**/dashboard**");
+await b.goto(`${BASE}/learn/f1-u1-reading`);
+await b.getByText("الشرح بالعربي").waitFor();
+await b.getByText("ابحث عن الكلمة المفتاحية").waitFor();
+if (shots) await b.screenshot({ path: `${shots}/19-beginner-lesson.png`, fullPage: true });
+await b.goto(`${BASE}/learn/s1-u1-reading`);
+if (!b.url().includes("/journey") && !(await b.getByText(/locked/i).count())) throw new Error("Stage 4 lesson should be locked for a Stage 1 learner");
+await ctx2.close();
+step("beginner: self-assessed A0, 12-month plan recommended, tight plan warned, Arabic lesson shown, later stages locked");
 
 if (errors.length) throw new Error("Page errors:\n" + errors.join("\n"));
 await browser.close();

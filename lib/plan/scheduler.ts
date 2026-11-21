@@ -1,7 +1,7 @@
 import { addDays, daysBetween } from "@/lib/dates";
 
 export interface PlanOption {
-  months: 1 | 2 | 3 | 4 | 6;
+  months: 1 | 2 | 3 | 4 | 6 | 9 | 12;
   name: string;
   dailyMinutes: number;
   intensity: string;
@@ -15,7 +15,11 @@ export const PLANS: PlanOption[] = [
   { months: 3, name: "Balanced", dailyMinutes: 60, intensity: "Moderate", expectedGain: "+1 band", bestFor: "Most learners. Enough time to build real skill." },
   { months: 4, name: "Steady Climb", dailyMinutes: 45, intensity: "Comfortable", expectedGain: "+1 to +1.5 bands", bestFor: "Working or studying full-time." },
   { months: 6, name: "Deep Growth", dailyMinutes: 30, intensity: "Light", expectedGain: "+1.5 bands", bestFor: "Building long-lasting English, not just a score." },
+  { months: 9, name: "Foundation Builder", dailyMinutes: 45, intensity: "Steady", expectedGain: "+2 to +2.5 bands", bestFor: "Starting from basic English (A1–A2) and aiming for an IELTS score." },
+  { months: 12, name: "Zero to IELTS", dailyMinutes: 60, intensity: "Steady", expectedGain: "+3 bands or more", bestFor: "Absolute beginners. The whole journey, from your first words to the exam." },
 ];
+
+export const PLAN_MONTHS: number[] = PLANS.map((p) => p.months);
 
 export function getPlan(months: number | null | undefined): PlanOption {
   return PLANS.find((p) => p.months === months) ?? PLANS[2];
@@ -120,10 +124,30 @@ export function catchUpStart(opts: {
   return addDays(opts.planStart, shift);
 }
 
+/** Lessons per study day if the path is spread over the plan (6 study days a week, 2 buffer days). */
+export function lessonsPerDay(months: number, itemCount: number): number {
+  const studyDays = Math.round((planDays(months) * 6) / 7) - 2;
+  return itemCount / Math.max(1, studyDays);
+}
+
+/** An honest note when a plan is too short for the learner's path. Null when the pace is comfortable. */
+export function paceWarning(months: number, itemCount: number): string | null {
+  const perDay = lessonsPerDay(months, itemCount);
+  const n = perDay >= 1.95 ? Math.round(perDay) : Math.round(perDay * 10) / 10;
+  if (perDay > 2) return `Very tight: about ${n} lessons every day for your path. Choose a longer plan if you can.`;
+  if (perDay > 1.2) return `Busy pace: about ${n} lessons a day. Doable with real daily commitment.`;
+  return null;
+}
+
+/** Roughly how many months the band gap needs at a realistic pace. */
+export function monthsForGap(gap: number): number {
+  return gap <= 0.5 ? 2 : gap <= 1 ? 3 : gap <= 1.5 ? 4 : gap <= 2 ? 6 : gap <= 3 ? 9 : 12;
+}
+
 /** Recommend a plan from the band gap and the exam date. */
 export function recommendPlan(currentBand: number | null, targetBand: number, examDate: Date | null, today = new Date()): number {
   const gap = Math.max(0, targetBand - (currentBand ?? 5));
-  let months: number = gap <= 0.5 ? 2 : gap <= 1 ? 3 : gap <= 1.5 ? 4 : 6;
+  let months: number = monthsForGap(gap);
   if (examDate) {
     const daysLeft = daysBetween(today, examDate);
     const fits = PLANS.filter((p) => planDays(p.months) <= daysLeft + 3).map((p) => p.months as number);

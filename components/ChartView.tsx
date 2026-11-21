@@ -6,7 +6,7 @@ const SERIES_COLORS = ["var(--listening)", "var(--brand)", "var(--reading)", "va
 export function ChartView({ chart }: { chart: ChartData }) {
   if (chart.kind === "table") {
     return (
-      <figure className="overflow-x-auto rounded-2xl border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
+      <figure className="overflow-x-auto rounded-[10px] border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
         <table className="w-full min-w-[320px] border-collapse text-sm">
           <caption className="mb-3 text-center font-bold">{chart.title}</caption>
           <thead>
@@ -53,7 +53,7 @@ export function ChartView({ chart }: { chart: ChartData }) {
   const group = iw / n;
 
   return (
-    <figure className="rounded-2xl border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
+    <figure className="rounded-[10px] border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
       <figcaption className="mb-2 text-center text-sm font-bold">{chart.title}</figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={chart.title}>
         {ticks.map((t) => (

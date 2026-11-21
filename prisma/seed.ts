@@ -27,6 +27,9 @@ async function main() {
       examDate: new Date(today.getTime() + 75 * DAY),
       planMonths: 3,
       planStart,
+      // Placed at B1 (overall 5.0–5.5): the first IELTS stage.
+      startStage: 4,
+      unlockedStage: 4,
       placementDone: true,
       xp: 1240,
       streak: 9,
@@ -43,7 +46,7 @@ async function main() {
   }
 
   // First 9 lessons completed with gradually improving bands.
-  const items = curriculumFrom(1).filter((i) => i.kind === "lesson").slice(0, 9);
+  const items = curriculumFrom(4).filter((i) => i.kind === "lesson").slice(0, 9);
   const bandFor: Record<string, number[]> = {
     reading: [5.5, 6, 6],
     listening: [5.5, 6, 6],

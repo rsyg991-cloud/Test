@@ -85,7 +85,7 @@ export function WritingTaskView({
           </div>
         )}
         {!compact && task.tips.length > 0 && (
-          <details className="mt-4 rounded-xl p-3 text-sm" style={{ background: "var(--surface-2)" }}>
+          <details className="mt-4 rounded-md p-3 text-sm" style={{ background: "var(--surface-2)" }}>
             <summary className="cursor-pointer font-bold">Planning tips</summary>
             <ul className="mt-2 list-disc space-y-1 pl-5" style={{ color: "var(--muted)" }}>
               {task.tips.map((t, i) => (

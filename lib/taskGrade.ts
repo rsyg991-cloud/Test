@@ -3,7 +3,7 @@ import { answeredNumbers, gradeGroups, type MockAnswers, type MockResult } from 
 import type { QuestionGroup } from "@/lib/mock/schema";
 import { gradeQuestions, type Answers, type QuestionResult } from "@/lib/scoring";
 
-/** A lesson/checkpoint task: either simple questions (Stages 1–2) or official IELTS groups (Stages 3–4). */
+/** A lesson/checkpoint task: either simple questions (Stages 1–5) or official IELTS groups (Stages 6–7). */
 export interface QuestionTask {
   questions: Question[];
   groups?: QuestionGroup[];

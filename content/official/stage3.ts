@@ -1,7 +1,7 @@
 import type { QuestionGroup } from "@/lib/mock/schema";
 import { G, letters, ONE_WORD, ONE_WORD_OR_NUMBER } from "./helpers";
 
-/** Official IELTS question groups for Stage 3 lessons and checkpoint, keyed by lesson / checkpoint task id. */
+/** Official IELTS question groups for Stage 6 lessons (ids s3-…) and checkpoint, keyed by lesson / checkpoint task id. */
 export const stage3Groups: Record<string, QuestionGroup[]> = {
   // ---------- Unit 1 · Reading: The Placebo Paradox (inference) ----------
   "s3-u1-reading": [

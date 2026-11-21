@@ -5,7 +5,7 @@ import { dialogue, kp } from "./helpers";
 export const stage1Conversations: ConversationScenario[] = [
   {
     id: "c1-meet-classmate",
-    stage: 1,
+    stage: 4,
     title: "Meeting a New Classmate",
     situation: "It's the first day of an English course. You meet a classmate during the break and get to know each other.",
     ieltsPart: "Real life",
@@ -53,7 +53,7 @@ export const stage1Conversations: ConversationScenario[] = [
   },
   {
     id: "c1-cafe-order",
-    stage: 1,
+    stage: 4,
     title: "Ordering at a Café",
     situation: "You're at a busy café in London. Order food and a drink, ask about the menu, and deal with a small problem.",
     ieltsPart: "Real life",
@@ -101,7 +101,7 @@ export const stage1Conversations: ConversationScenario[] = [
   },
   {
     id: "c1-directions",
-    stage: 1,
+    stage: 4,
     title: "Asking for Directions",
     situation: "You're a visitor in a new city looking for the train station and a pharmacy. Ask a local for help.",
     ieltsPart: "Real life",
@@ -149,7 +149,7 @@ export const stage1Conversations: ConversationScenario[] = [
   },
   {
     id: "c1-phone-booking",
-    stage: 1,
+    stage: 4,
     title: "Booking by Phone",
     situation: "Call a sports centre to book a swimming course. Give your details and ask questions — exactly like IELTS Listening Part 1, but now you're the speaker.",
     ieltsPart: "Real life",
@@ -198,7 +198,7 @@ export const stage1Conversations: ConversationScenario[] = [
   },
   {
     id: "c1-part1-examiner",
-    stage: 1,
+    stage: 4,
     title: "Speaking Part 1 with an Examiner",
     situation: "A realistic IELTS Speaking Part 1: the examiner asks about your hometown, work or studies, and hobbies.",
     ieltsPart: "Part 1",

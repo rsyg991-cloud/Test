@@ -41,7 +41,7 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
     });
   }
 
-  const accentBtn = { background: meta.color, boxShadow: `0 4px 0 color-mix(in srgb, ${meta.color} 60%, #000)` };
+
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -65,7 +65,7 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
       <div className="mb-8 flex items-start gap-4">
         <SkillIcon skill={lesson.skill} size={56} />
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{lesson.title}</h1>
+          <h1 className="font-display text-2xl sm:text-3xl">{lesson.title}</h1>
           <p className="mt-1" style={{ color: "var(--muted)" }}>
             {lesson.focus} · ~{lesson.minutes} min · {lesson.xp} XP
             {previousBest !== null && ` · Best so far: ${Math.round(previousBest * 100)}%`}
@@ -79,17 +79,32 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
             <div className="eyebrow mb-2" style={{ color: meta.color }}>
               Skill builder
             </div>
-            <h2 className="mb-4 font-display text-xl font-bold">{lesson.strategy.title}</h2>
+            <h2 className="mb-4 font-display text-xl">{lesson.strategy.title}</h2>
             <ol className="space-y-3">
               {lesson.strategy.points.map((p, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold text-white" style={{ background: meta.color }}>
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold text-[var(--on-skill)]" style={{ background: meta.color }}>
                     {i + 1}
                   </span>
                   <span className="pt-0.5 leading-relaxed">{p}</span>
                 </li>
               ))}
             </ol>
+            {lesson.arabic && (
+              <details className="mt-5 rounded-md p-4" style={{ background: "var(--surface-2)" }} open={lesson.stage <= 2}>
+                <summary className="cursor-pointer text-sm font-bold">
+                  Explain in Arabic <span className="ar font-bold" lang="ar">· الشرح بالعربي</span>
+                </summary>
+                <div lang="ar" dir="rtl" className="ar mt-3">
+                  <h3 className="text-lg font-bold">{lesson.arabic.title}</h3>
+                  <ol className="mt-2 list-decimal space-y-1.5 pr-5">
+                    {lesson.arabic.points.map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ol>
+                </div>
+              </details>
+            )}
           </section>
           <section className="card p-6">
             <div className="eyebrow mb-2" style={{ color: meta.color }}>
@@ -101,7 +116,7 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
                   key={v.word}
                   type="button"
                   onClick={() => setFlipped((f) => ({ ...f, [i]: !f[i] }))}
-                  className="rounded-xl border p-3 text-left transition-colors"
+                  className="rounded-md border p-3 text-left transition-colors"
                   style={{ borderColor: "var(--line)", background: flipped[i] ? meta.soft : "var(--surface)" }}
                   aria-expanded={!!flipped[i]}
                 >
@@ -109,6 +124,11 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
                   {flipped[i] ? (
                     <div className="mt-1 text-sm">
                       <div>{v.definition}</div>
+                      {v.ar && (
+                        <div className="ar mt-0.5 font-bold" lang="ar" dir="rtl">
+                          {v.ar}
+                        </div>
+                      )}
                       <div className="mt-1 italic" style={{ color: "var(--muted)" }}>
                         “{v.example}”
                       </div>
@@ -123,7 +143,7 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
             </div>
           </section>
           <div className="flex justify-end lg:col-span-2">
-            <button type="button" className="btn btn-primary" style={accentBtn} onClick={() => { setStep("task"); window.scrollTo({ top: 0 }); }}>
+            <button type="button" className="btn btn-primary" onClick={() => { setStep("task"); window.scrollTo({ top: 0 }); }}>
               I&apos;m ready — start the task <Icon name="arrow" size={18} />
             </button>
           </div>
@@ -216,12 +236,12 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
         <div className="mt-6 flex flex-wrap justify-end gap-3">
           {result ? (
             <>
-              <Link href={result.nextHref} className="btn btn-primary" style={accentBtn}>
+              <Link href={result.nextHref} className="btn btn-primary">
                 Continue <Icon name="arrow" size={18} />
               </Link>
             </>
           ) : (
-            <button type="button" className="btn btn-primary" style={accentBtn} disabled={pending || answered === 0} onClick={() => finish({ answers })}>
+            <button type="button" className="btn btn-primary" disabled={pending || answered === 0} onClick={() => finish({ answers })}>
               {pending ? "Checking…" : answered < totalQuestions ? `Check answers (${totalQuestions - answered} blank)` : "Check answers"}
             </button>
           )}
@@ -240,11 +260,11 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
           </p>
         )}
         {result ? (
-          <Link href={result.nextHref} className="btn btn-primary" style={accentBtn}>
+          <Link href={result.nextHref} className="btn btn-primary">
             Continue <Icon name="arrow" size={18} />
           </Link>
         ) : (
-          <button type="button" className="btn btn-primary" style={accentBtn} disabled={pending} onClick={() => finish({ attemptId: attemptId ?? undefined })}>
+          <button type="button" className="btn btn-primary" disabled={pending} onClick={() => finish({ attemptId: attemptId ?? undefined })}>
             {pending ? "Saving…" : "Complete lesson"} <Icon name="check" size={18} />
           </button>
         )}

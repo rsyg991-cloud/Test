@@ -15,14 +15,14 @@ const perfect = (groups: QuestionGroup[]): MockAnswers => {
 };
 
 const tasks = [
-  ...allLessons.filter((l) => l.stage >= 3 && (l.reading || l.listening)).map((l) => ({ id: l.id, task: (l.reading ?? l.listening)! })),
-  ...stages.filter((s) => s.id >= 3).flatMap((s) => [
+  ...allLessons.filter((l) => l.stage >= 6 && (l.reading || l.listening)).map((l) => ({ id: l.id, task: (l.reading ?? l.listening)! })),
+  ...stages.filter((s) => s.id >= 6).flatMap((s) => [
     { id: `${s.checkpoint.id}-reading`, task: s.checkpoint.reading },
     { id: `${s.checkpoint.id}-listening`, task: s.checkpoint.listening },
   ]),
 ];
 
-describe("Stage 3–4 lessons use official IELTS question groups", () => {
+describe("Stage 6–7 lessons use official IELTS question groups", () => {
   it("covers all 12 lessons and both checkpoints", () => expect(tasks).toHaveLength(16));
 
   it.each(tasks.map((t) => [t.id, t.task] as const))("%s is valid and gradable", (_, task) => {

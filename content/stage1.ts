@@ -2,7 +2,7 @@ import type { Stage } from "./types";
 import { gap, mcq, tf, v } from "./helpers";
 
 export const stage1: Stage = {
-  id: 1,
+  id: 4,
   slug: "foundation",
   name: "Foundation",
   camp: "Base Camp",
@@ -21,14 +21,14 @@ export const stage1: Stage = {
   units: [
     {
       id: "s1-u1",
-      stage: 1,
+      stage: 4,
       index: 1,
       title: "City Life",
       theme: "Getting to know the IELTS format",
       lessons: [
         {
           id: "s1-u1-reading",
-          stage: 1,
+          stage: 4,
           unit: 1,
           skill: "reading",
           title: "Skimming & Scanning: The City Bicycle",
@@ -88,7 +88,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u1-listening",
-          stage: 1,
+          stage: 4,
           unit: 1,
           skill: "listening",
           title: "Part 1: Joining a Sports Centre",
@@ -137,7 +137,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u1-writing",
-          stage: 1,
+          stage: 4,
           unit: 1,
           skill: "writing",
           title: "Task 1: Describing a Bar Chart",
@@ -184,7 +184,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u1-speaking",
-          stage: 1,
+          stage: 4,
           unit: 1,
           skill: "speaking",
           title: "Part 1: Your Home and Hometown",
@@ -222,14 +222,14 @@ export const stage1: Stage = {
     },
     {
       id: "s1-u2",
-      stage: 1,
+      stage: 4,
       index: 2,
       title: "Work & Study",
       theme: "Understanding questions and planning answers",
       lessons: [
         {
           id: "s1-u2-reading",
-          stage: 1,
+          stage: 4,
           unit: 2,
           skill: "reading",
           title: "Finding Information: Learning at Any Age",
@@ -279,7 +279,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u2-listening",
-          stage: 1,
+          stage: 4,
           unit: 2,
           skill: "listening",
           title: "Part 2: A Library Tour",
@@ -322,7 +322,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u2-writing",
-          stage: 1,
+          stage: 4,
           unit: 2,
           skill: "writing",
           title: "Task 2: Planning an Opinion Essay",
@@ -359,7 +359,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u2-speaking",
-          stage: 1,
+          stage: 4,
           unit: 2,
           skill: "speaking",
           title: "Part 1: Work, Study and Free Time",
@@ -397,14 +397,14 @@ export const stage1: Stage = {
     },
     {
       id: "s1-u3",
-      stage: 1,
+      stage: 4,
       index: 3,
       title: "Health & Food",
       theme: "True / False / Not Given and describing trends",
       lessons: [
         {
           id: "s1-u3-reading",
-          stage: 1,
+          stage: 4,
           unit: 3,
           skill: "reading",
           title: "True, False or Not Given: Why We Snack",
@@ -448,7 +448,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u3-listening",
-          stage: 1,
+          stage: 4,
           unit: 3,
           skill: "listening",
           title: "Part 1: Registering at a Clinic",
@@ -499,7 +499,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u3-writing",
-          stage: 1,
+          stage: 4,
           unit: 3,
           skill: "writing",
           title: "Task 1: Describing a Line Graph",
@@ -547,7 +547,7 @@ export const stage1: Stage = {
         },
         {
           id: "s1-u3-speaking",
-          stage: 1,
+          stage: 4,
           unit: 3,
           skill: "speaking",
           title: "Part 2: Describe a Meal You Enjoyed",
@@ -585,7 +585,7 @@ export const stage1: Stage = {
   ],
   checkpoint: {
     id: "s1-checkpoint",
-    stage: 1,
+    stage: 4,
     title: "Base Camp Checkpoint",
     reading: {
       title: "Community Gardens",

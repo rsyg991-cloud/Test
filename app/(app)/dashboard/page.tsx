@@ -36,7 +36,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const minutesToday = todayAct?.minutes ?? 0;
   const goalPct = Math.min(1, minutesToday / plan.dailyMinutes);
   const due = today.dueIndices.map((i) => items[i]);
-  const stagesP = stageProgress(completedIds, user.unlockedStage);
+  const stagesP = stageProgress(completedIds, user.unlockedStage, user);
   const overallProgress = items.filter((i) => completedIds.has(i.id)).length / items.length;
   const target = user.targetBand ?? 7;
   const weakest = (SKILLS.filter((s) => bands[s] !== null) as Skill[]).sort((a, b) => (bands[a] ?? 9) - (bands[b] ?? 9))[0];
@@ -54,7 +54,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <div className="space-y-6">
       {welcome && (
-        <div className="animate-rise rounded-3xl p-5 text-white" style={{ background: "linear-gradient(135deg, var(--brand), var(--gold))" }}>
+        <div className="animate-rise rounded-[16px] p-5 " style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
           <div className="flex items-center gap-3">
             <Icon name="mountain" size={26} />
             <div>
@@ -84,7 +84,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
       {examDays !== null && examDays >= 0 && examDays <= 30 && (
         <Link href="/practice#mock-tests" className="card flex flex-wrap items-center gap-4 p-4 transition-transform hover:-translate-y-0.5">
-          <span className="grid h-10 w-10 place-items-center rounded-xl text-white" style={{ background: "var(--navy)" }}>
+          <span className="grid h-10 w-10 place-items-center rounded-md text-white" style={{ background: "var(--navy)" }}>
             <Icon name="trophy" size={20} />
           </span>
           <div className="min-w-0 flex-1">
@@ -97,7 +97,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
       {today.behind >= 2 && (
         <div className="card flex flex-wrap items-center gap-4 p-4" style={{ borderColor: "var(--gold)" }}>
-          <span className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: "color-mix(in srgb, var(--gold) 20%, transparent)", color: "var(--writing)" }}>
+          <span className="grid h-10 w-10 place-items-center rounded-md" style={{ background: "color-mix(in srgb, var(--gold) 20%, transparent)", color: "var(--writing)" }}>
             <Icon name="refresh" size={20} />
           </span>
           <div className="min-w-0 flex-1">
@@ -115,7 +115,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <div className="grid gap-6 lg:grid-cols-[1.45fr_1fr]">
         {/* Today's session */}
         <section className="card overflow-hidden">
-          <div className="flex items-center justify-between gap-4 p-5 sm:p-6" style={{ background: "linear-gradient(135deg, var(--brand-soft), var(--surface) 75%)" }}>
+          <div className="flex items-center justify-between gap-4 p-5 sm:p-6" style={{ background: "var(--brand-soft)" }}>
             <div>
               <div className="eyebrow" style={{ color: "var(--brand)" }}>
                 {today.finished ? "Journey complete" : today.reviewDay ? "Review day" : today.aheadMode ? "You're on track" : "Today's session"}
@@ -153,7 +153,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                     {item.kind === "lesson" ? (
                       <SkillIcon skill={item.lesson.skill} />
                     ) : (
-                      <span className="grid h-11 w-11 place-items-center rounded-2xl text-white" style={{ background: "var(--navy)" }}>
+                      <span className="grid h-11 w-11 place-items-center rounded-[10px] text-white" style={{ background: "var(--navy)" }}>
                         <Icon name="trophy" size={20} />
                       </span>
                     )}
@@ -183,7 +183,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             {vocabDue > 0 && (
               <li style={{ borderColor: "var(--line)" }}>
                 <Link href="/vocab" className="flex items-center gap-4 p-4 transition-colors hover:bg-[var(--surface-2)] sm:px-6">
-                  <span className="grid h-11 w-11 place-items-center rounded-2xl" style={{ background: "color-mix(in srgb, var(--gold) 18%, transparent)", color: "var(--writing)" }}>
+                  <span className="grid h-11 w-11 place-items-center rounded-[10px]" style={{ background: "color-mix(in srgb, var(--gold) 18%, transparent)", color: "var(--writing)" }}>
                     <Icon name="cards" size={20} />
                   </span>
                   <div className="flex-1">
@@ -199,7 +199,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             {conversation && (
               <li style={{ borderColor: "var(--line)" }}>
                 <Link href={`/conversations/${conversation.id}`} className="flex items-center gap-4 p-4 transition-colors hover:bg-[var(--surface-2)] sm:px-6">
-                  <span className="grid h-11 w-11 place-items-center rounded-2xl text-white" style={{ background: "var(--speaking)" }}>
+                  <span className="grid h-11 w-11 place-items-center rounded-[10px] text-[var(--on-skill)]" style={{ background: "var(--speaking)" }}>
                     <Icon name="mic" size={20} />
                   </span>
                   <div className="flex-1">
@@ -233,7 +233,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="grid gap-6">
           <section className="card p-5">
             <div className="flex items-center gap-4">
-              <span className={`grid h-14 w-14 place-items-center rounded-2xl text-white ${user.streak > 0 ? "animate-flame" : ""}`} style={{ background: user.streak > 0 ? "linear-gradient(135deg, var(--brand), var(--gold))" : "var(--surface-2)", color: user.streak > 0 ? "#fff" : "var(--muted)" }}>
+              <span className={`grid h-14 w-14 place-items-center rounded-[10px] ${user.streak > 0 ? "animate-flame" : ""}`} style={{ background: user.streak > 0 ? "var(--brand)" : "var(--surface-2)", color: user.streak > 0 ? "var(--brand-ink)" : "var(--muted)" }}>
                 <Icon name="flame" size={28} />
               </span>
               <div className="flex-1">
@@ -259,7 +259,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                     </div>
                     <div
                       className="mx-auto mt-1 grid h-8 w-8 place-items-center rounded-full"
-                      style={{ background: a ? "var(--brand)" : "var(--surface-2)", color: "#fff", outline: isToday ? "2px solid var(--brand)" : undefined, outlineOffset: 2 }}
+                      style={{ background: a ? "var(--brand)" : "var(--surface-2)", color: "var(--brand-ink)", outline: isToday ? "2px solid var(--brand)" : undefined, outlineOffset: 2 }}
                       title={a ? `${a.minutes} min · ${a.xp} XP` : "No activity"}
                     >
                       {a && <Icon name="check" size={14} strokeWidth={3} />}

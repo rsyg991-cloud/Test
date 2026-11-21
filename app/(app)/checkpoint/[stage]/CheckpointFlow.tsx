@@ -63,7 +63,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
 
       {idx === -1 && (
         <section className="animate-rise card p-6 sm:p-8">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl text-white" style={{ background: "var(--navy)" }}>
+          <span className="grid h-14 w-14 place-items-center rounded-[10px] text-white" style={{ background: "var(--navy)" }}>
             <Icon name="trophy" size={26} />
           </span>
           <h1 className="mt-4 font-display text-3xl font-bold">{checkpoint.title}</h1>
@@ -72,7 +72,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
           </p>
           <ol className="mt-6 grid gap-2 sm:grid-cols-2">
             {ORDER.map((s, i) => (
-              <li key={s} className="flex items-center gap-3 rounded-xl p-3" style={{ background: "var(--surface-2)" }}>
+              <li key={s} className="flex items-center gap-3 rounded-md p-3" style={{ background: "var(--surface-2)" }}>
                 <span className="font-display font-bold" style={{ color: SKILL_META[s].color }}>
                   {i + 1}
                 </span>

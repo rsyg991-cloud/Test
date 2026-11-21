@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { PlacementResult } from "@/app/actions/onboarding";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { stageForBand } from "@/content/stageList";
 import { overallBand } from "@/lib/scoring";
 import { OnboardingFlow } from "./OnboardingFlow";
 
@@ -22,7 +23,7 @@ export default async function OnboardingPage() {
     initial = {
       bands,
       overall,
-      recommendedStage: overall < 5.5 ? 1 : overall < 6.5 ? 2 : overall < 7.5 ? 3 : 4,
+      recommendedStage: stageForBand(overall),
       grammarPct: 0,
       aiUsed: { writing: true, speaking: true },
     };

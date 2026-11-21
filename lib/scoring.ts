@@ -8,6 +8,8 @@ export interface QuestionResult {
   given: string;
   expected: string;
   explanation: string;
+  /** Arabic explanation (foundation stages). */
+  ar?: string;
 }
 
 export function normalise(s: string): string {
@@ -47,6 +49,7 @@ export function gradeQuestions(questions: Question[], answers: Answers) {
           : String(given ?? ""),
       expected: expectedText(q),
       explanation: q.explanation,
+      ...(q.ar ? { ar: q.ar } : {}),
     };
   });
   const correct = results.filter((r) => r.correct).length;
@@ -69,11 +72,16 @@ export function overallBand(bands: Partial<Record<Skill, number | null>>): numbe
 
 /** Difficulty window used to translate an auto-scored percentage into a band, per stage. */
 const STAGE_WINDOWS: Record<number, [number, number]> = {
-  0: [3.5, 7.0], // placement
-  1: [3.5, 6.0],
-  2: [4.5, 7.0],
-  3: [5.5, 8.0],
-  4: [6.0, 9.0],
+  0: [2.5, 7.0], // placement (wide enough to place beginners)
+  // Foundation stages (A0 → B1)
+  1: [1.0, 3.5],
+  2: [2.5, 4.5],
+  3: [3.5, 5.5],
+  // IELTS stages
+  4: [3.5, 6.0],
+  5: [4.5, 7.0],
+  6: [5.5, 8.0],
+  7: [6.0, 9.0],
 };
 
 export function bandFromScore(pct: number, stage: number): number {
@@ -110,5 +118,7 @@ export function cefrForBand(b: number | null): string {
   if (b >= 7) return "C1";
   if (b >= 5.5) return "B2";
   if (b >= 4) return "B1";
-  return "A2";
+  if (b >= 3) return "A2";
+  if (b >= 2) return "A1";
+  return "A0";
 }

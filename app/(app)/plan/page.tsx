@@ -84,9 +84,9 @@ export default async function PlanPage() {
 
       <section className="card p-5 sm:p-6">
         <h2 className="mb-4 font-display text-xl font-bold">Next two weeks</h2>
-        <ol className="grid gap-2 sm:grid-cols-2">
+        <ol className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
           {upcoming.map((d, k) => (
-            <li key={d.dayIndex} className="flex gap-3 rounded-2xl p-3" style={{ background: k === 0 ? "var(--brand-soft)" : "var(--surface-2)" }}>
+            <li key={d.dayIndex} className="flex gap-3 rounded-[10px] p-3" style={{ background: k === 0 ? "var(--brand-soft)" : "var(--surface-2)" }}>
               <div className="w-14 shrink-0 text-center">
                 <div className="text-[11px] font-bold uppercase" style={{ color: "var(--muted)" }}>
                   {d.date.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" })}
@@ -121,7 +121,7 @@ export default async function PlanPage() {
         </ol>
       </section>
 
-      <PlanEditor months={plan.months} target={user.targetBand ?? 7} examDate={user.examDate ? user.examDate.toISOString().slice(0, 10) : null} />
+      <PlanEditor startStage={user.startStage} months={plan.months} target={user.targetBand ?? 7} examDate={user.examDate ? user.examDate.toISOString().slice(0, 10) : null} />
     </div>
   );
 }

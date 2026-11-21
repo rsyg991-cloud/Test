@@ -5,7 +5,7 @@ import { dialogue, kp } from "./helpers";
 export const stage4Conversations: ConversationScenario[] = [
   {
     id: "c4-full-mock-a",
-    stage: 4,
+    stage: 7,
     title: "Full Speaking Mock Test A",
     situation: "A complete IELTS Speaking test (Parts 1, 2 and 3, about 12–14 minutes) on work, a skill you learned, and learning in society.",
     ieltsPart: "Full test",
@@ -52,7 +52,7 @@ export const stage4Conversations: ConversationScenario[] = [
   },
   {
     id: "c4-full-mock-b",
-    stage: 4,
+    stage: 7,
     title: "Full Speaking Mock Test B",
     situation: "A second full mock test with different topics: your neighbourhood, an important decision, and decision-making in society.",
     ieltsPart: "Full test",
@@ -97,7 +97,7 @@ export const stage4Conversations: ConversationScenario[] = [
   },
   {
     id: "c4-unexpected",
-    stage: 4,
+    stage: 7,
     title: "The Tough Examiner: Unexpected Questions",
     situation: "The examiner asks unusual, abstract or surprising questions. Train yourself to stay calm, buy time naturally and still give developed answers.",
     ieltsPart: "Part 3",
@@ -140,7 +140,7 @@ export const stage4Conversations: ConversationScenario[] = [
   },
   {
     id: "c4-explain-chart",
-    stage: 4,
+    stage: 7,
     title: "Explain the Data Out Loud",
     situation: "A colleague asks you to explain a chart in a meeting. Describe trends precisely in speech — great practice for Writing Task 1 language too.",
     ieltsPart: "Real life",
@@ -186,7 +186,7 @@ export const stage4Conversations: ConversationScenario[] = [
   },
   {
     id: "c4-c1-discussion",
-    stage: 4,
+    stage: 7,
     title: "C1 Discussion: Cities of the Future",
     situation: "An open, high-level conversation about how cities will change. Focus on sounding natural: idioms, collocations, intonation and flexible ideas.",
     ieltsPart: "Part 3",

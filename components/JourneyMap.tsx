@@ -9,104 +9,92 @@ export interface StageProgress {
   pct: number; // 0..1 lessons completed in the stage
   passed: boolean;
   locked: boolean;
+  /** Below the learner's start stage. */
+  skipped?: boolean;
+  /** Inside the learner's path to their target band (default true). */
+  inPlan?: boolean;
 }
 
-// Camp positions on the trail (in % of the map), and their fraction along the trail path.
-const CAMPS = [
-  { x: 22, y: 82, along: 0.17 },
-  { x: 72, y: 60, along: 0.44 },
-  { x: 28, y: 38, along: 0.7 },
-  { x: 55, y: 9, along: 1 },
-];
-const TRAIL = "M60 492 C 30 450, 60 420, 88 410 S 300 350, 288 300 S 250 220, 112 190 S 90 110, 220 45";
-
+/**
+ * The journey as an answer sheet read from the bottom up: one bubble per stage on ruled lines,
+ * a track that fills as stages are passed, and the learner's current stage filled in.
+ * Works for any number of stages (the curriculum ends at the learner's target stage).
+ */
 export function JourneyMap({ stages, compact = false }: { stages: StageProgress[]; compact?: boolean }) {
+  const n = Math.max(1, stages.length);
   // Overall position: passed stages count fully, the current stage by its lesson completion.
   let v = 0;
   for (const s of stages) {
-    if (s.passed) v += 1;
+    if (s.passed || s.skipped) v += 1;
     else {
       v += s.locked ? 0 : Math.min(0.95, s.pct);
       break;
     }
   }
-  const anchors = [0, ...CAMPS.map((c) => c.along)];
-  const k = Math.min(3, Math.floor(v));
-  const along = v >= 4 ? 1 : anchors[k] + (v - k) * (anchors[k + 1] - anchors[k]);
-  const currentIdx = stages.findIndex((s) => !s.passed && !s.locked);
+  const currentIdx = stages.findIndex((s) => !s.passed && !s.locked && !s.skipped);
+  const goalIdx = stages.reduce((g, s, i) => (s.inPlan !== false ? i : g), n - 1);
+  const row = compact ? 52 : 64;
+  const bubble = compact ? 36 : 44;
+  // The track runs between the centres of the first and last bubbles.
+  const fill = n === 1 ? (v >= 1 ? 1 : 0) : Math.min(1, v / (n - 1));
 
   return (
-    <div
-      className="relative w-full overflow-hidden rounded-3xl"
-      style={{
-        aspectRatio: compact ? "4 / 4.2" : "4 / 5",
-        background: "linear-gradient(180deg, color-mix(in srgb, var(--listening) 18%, var(--surface)) 0%, var(--surface) 70%)",
-      }}
-    >
-      <svg viewBox="0 0 400 500" className="absolute inset-0 h-full w-full" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="mtn" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--navy)" stopOpacity="0.85" />
-            <stop offset="1" stopColor="var(--navy)" stopOpacity="0.35" />
-          </linearGradient>
-          <linearGradient id="trail" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor="var(--brand)" />
-            <stop offset="1" stopColor="var(--gold)" />
-          </linearGradient>
-        </defs>
-        <circle cx="330" cy="70" r="34" fill="var(--gold)" opacity="0.35" />
-        <polygon points="-20,500 90,300 140,340 220,40 300,210 340,180 430,500" fill="url(#mtn)" opacity="0.18" />
-        <polygon points="-20,500 60,380 120,420 200,260 280,360 330,300 430,500" fill="var(--navy)" opacity="0.1" />
-        <polygon points="220,40 246,92 232,86 220,100 206,88 194,96" fill="var(--surface)" opacity="0.9" />
-        <path d={TRAIL} fill="none" stroke="var(--line)" strokeWidth="6" strokeDasharray="2 10" strokeLinecap="round" />
-        <path
-          d={TRAIL}
-          fill="none"
-          stroke="url(#trail)"
-          strokeWidth="7"
-          strokeLinecap="round"
-          pathLength={1}
-          strokeDasharray="1 1"
-          strokeDashoffset={1 - along}
+    <div className="ruled relative w-full overflow-hidden rounded-[16px] border px-4 py-4 sm:px-5" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
+      <ol className="relative flex flex-col-reverse" aria-label="Your stages, from first to last">
+        <span
+          aria-hidden="true"
+          className="absolute rounded-full"
+          style={{ left: bubble / 2 - 2, width: 4, bottom: row / 2, height: (n - 1) * row, background: "var(--surface-2)" }}
         />
-      </svg>
-
-      {stages.map((s, i) => {
-        const c = CAMPS[i];
-        const isCurrent = i === currentIdx;
-        const bg = s.passed ? "var(--success)" : isCurrent ? "var(--brand)" : s.locked ? "var(--surface-2)" : "var(--surface)";
-        const fg = s.passed || isCurrent ? "#fff" : "var(--muted)";
-        return (
-          <Link
-            key={s.id}
-            href={`/journey#stage-${s.id}`}
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${c.x}%`, top: `${c.y}%` }}
-            aria-label={`${s.camp}: Stage ${s.id}, ${s.name}${s.passed ? " (completed)" : s.locked ? " (locked)" : ""}`}
-          >
-            <span
-              className={`grid place-items-center rounded-full border-4 ${isCurrent ? "animate-pulse-ring" : ""}`}
-              style={{ width: compact ? 40 : 48, height: compact ? 40 : 48, background: bg, color: fg, borderColor: "var(--surface)" }}
-            >
-              {s.passed ? <Icon name="check" size={20} strokeWidth={3} /> : s.locked ? <Icon name="lock" size={17} /> : i === 3 ? <Icon name="trophy" size={19} /> : <span className="font-display text-lg font-bold">{s.id}</span>}
-            </span>
-            <span
-              className="absolute top-1/2 w-max max-w-[9.5rem] -translate-y-1/2 rounded-xl px-2.5 py-1 shadow-sm"
-              style={{ background: "var(--surface)", ...(c.x > 50 ? { right: "calc(100% + 8px)", textAlign: "right" } : { left: "calc(100% + 8px)" }) }}
-            >
-              <span className="block text-[10px] font-extrabold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
-                {s.camp}
-              </span>
-              <span className="block text-sm font-bold leading-tight">{s.name}</span>
-              {!compact && (
-                <span className="block text-[11px] font-semibold" style={{ color: "var(--muted)" }}>
-                  {s.cefr} · {Math.round(s.pct * 100)}%
+        <span
+          aria-hidden="true"
+          className="absolute rounded-full transition-all duration-700"
+          style={{ left: bubble / 2 - 2, width: 4, bottom: row / 2, height: (n - 1) * row * fill, background: "var(--brand)" }}
+        />
+        {stages.map((s, i) => {
+          const isCurrent = i === currentIdx;
+          const isGoal = i === goalIdx;
+          const outside = s.inPlan === false;
+          const bg = s.passed ? "var(--success)" : isCurrent ? "var(--brand)" : s.locked || s.skipped ? "var(--surface-2)" : "var(--surface)";
+          const fg = s.passed ? "var(--on-skill)" : isCurrent ? "var(--brand-ink)" : "var(--muted)";
+          return (
+            <li key={s.id} className="relative flex items-center gap-3" style={{ height: row, opacity: outside && !s.passed && !s.skipped ? 0.6 : 1 }}>
+              <Link
+                href={`/journey#stage-${s.id}`}
+                className="flex min-w-0 flex-1 items-center gap-3"
+                aria-label={`Stage ${s.id}, ${s.name} (${s.cefr})${s.passed ? ", completed" : s.skipped ? ", skipped" : s.locked ? ", locked" : isCurrent ? ", you are here" : ""}${isGoal ? ", your goal" : ""}`}
+              >
+                <span
+                  className={`num relative grid shrink-0 place-items-center rounded-full border-2 text-base font-bold ${isCurrent ? "animate-pulse-ring" : ""}`}
+                  style={{ width: bubble, height: bubble, background: bg, color: fg, borderColor: s.passed || isCurrent ? bg : "var(--line)" }}
+                >
+                  {s.passed ? <Icon name="check" size={18} strokeWidth={3} /> : isGoal && !isCurrent ? <Icon name="trophy" size={17} /> : s.locked ? <Icon name="lock" size={15} /> : s.id}
                 </span>
-              )}
-            </span>
-          </Link>
-        );
-      })}
+                <span className="min-w-0">
+                  <span className="flex items-center gap-2">
+                    <span className="truncate text-sm font-bold leading-tight">{s.name}</span>
+                    {isCurrent && (
+                      <span className="chip shrink-0" style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
+                        You are here
+                      </span>
+                    )}
+                    {isGoal && !isCurrent && (
+                      <span className="chip shrink-0" style={{ background: "var(--surface-2)", color: "var(--ink)" }}>
+                        Your goal
+                      </span>
+                    )}
+                  </span>
+                  <span className="block truncate text-[11px] font-semibold" style={{ color: "var(--muted)" }}>
+                    <span className="num">{s.cefr}</span>
+                    {s.skipped ? " · Skipped (placed higher)" : outside && !s.passed ? " · Beyond your goal" : !compact ? ` · ${s.camp} · ` : ""}
+                    {!compact && !s.skipped && !(outside && !s.passed) && <span className="num">{Math.round(s.pct * 100)}%</span>}
+                  </span>
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

@@ -55,9 +55,9 @@ export function AudioOnce({ part, autoStart, onEnded, timeScale = 1 }: { part: L
   }, [autoStart]);
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl p-4" style={{ background: "color-mix(in srgb, var(--listening) 10%, var(--surface))" }}>
+    <div className="flex flex-wrap items-center gap-3 rounded-[10px] p-4" style={{ background: "color-mix(in srgb, var(--listening) 10%, var(--surface))" }}>
       {part.audioUrl && <audio ref={audioRef} src={part.audioUrl} preload="auto" onEnded={finish} onError={finish} />}
-      <span className="grid h-11 w-11 place-items-center rounded-full text-white" style={{ background: "var(--listening)" }}>
+      <span className="grid h-11 w-11 place-items-center rounded-full text-[var(--on-skill)]" style={{ background: "var(--listening)" }}>
         <Icon name={state === "playing" ? "volume" : state === "ended" ? "check" : "headphones"} size={20} />
       </span>
       <div className="min-w-0 flex-1">
@@ -69,7 +69,7 @@ export function AudioOnce({ part, autoStart, onEnded, timeScale = 1 }: { part: L
         </div>
       </div>
       {state === "ready" && !autoStart && (
-        <button type="button" className="btn btn-primary" style={{ background: "var(--listening)" }} onClick={play}>
+        <button type="button" className="btn btn-primary" onClick={play}>
           <Icon name="play" size={16} /> Play
         </button>
       )}

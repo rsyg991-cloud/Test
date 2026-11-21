@@ -10,7 +10,7 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
   const [playing, setPlaying] = useState(false);
   const [line, setLine] = useState(-1);
   const [plays, setPlays] = useState(0);
-  const [rate, setRate] = useState(1);
+  const [rate, setRate] = useState(task.rate ?? 1);
   const [examMode, setExamMode] = useState(false);
   const [showText, setShowText] = useState(false);
   const cancelled = useRef(false);
@@ -55,7 +55,7 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
   const progress = line < 0 ? (plays > 0 && !playing ? 1 : 0) : (line + 1) / task.script.length;
 
   return (
-    <div className="rounded-2xl p-5" style={{ background: "color-mix(in srgb, var(--listening) 10%, var(--surface))", border: "1px solid var(--line)" }}>
+    <div className="rounded-[10px] p-5" style={{ background: "color-mix(in srgb, var(--listening) 10%, var(--surface))", border: "1px solid var(--line)" }}>
       <div className="eyebrow mb-1" style={{ color: "var(--listening)" }}>
         Audio
       </div>
@@ -73,14 +73,15 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
                 <Icon name="stop" size={18} /> Stop
               </button>
             ) : (
-              <button type="button" onClick={play} disabled={blocked} className="btn btn-primary" style={{ background: "var(--listening)", boxShadow: "0 4px 0 color-mix(in srgb, var(--listening) 60%, #000)" }}>
+              <button type="button" onClick={play} disabled={blocked} className="btn btn-primary">
                 <Icon name="play" size={18} /> {plays === 0 ? "Play recording" : blocked ? "Played once (exam mode)" : "Play again"}
               </button>
             )}
             <label className="flex items-center gap-2 text-sm font-semibold">
               Speed
               <select className="input w-auto py-1.5" value={rate} onChange={(e) => setRate(Number(e.target.value))} disabled={playing}>
-                <option value={0.85}>Slower</option>
+                <option value={0.8}>Slow</option>
+                <option value={0.9}>Slower</option>
                 <option value={1}>Normal</option>
                 <option value={1.15}>Exam+</option>
               </select>
@@ -117,7 +118,7 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
             {showText ? "Hide transcript" : "Show transcript"}
           </button>
           {showText && (
-            <div className="mt-3 space-y-2 rounded-xl p-4 text-[15px] leading-relaxed" style={{ background: "var(--surface)" }}>
+            <div className="mt-3 space-y-2 rounded-md p-4 text-[15px] leading-relaxed" style={{ background: "var(--surface)" }}>
               {task.script.map((l, i) => (
                 <p key={i}>
                   <span className="font-bold" style={{ color: l.voice === "female" ? "var(--listening)" : "var(--reading)" }}>

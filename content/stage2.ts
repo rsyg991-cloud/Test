@@ -2,7 +2,7 @@ import type { Stage } from "./types";
 import { gap, mcq, tf, v } from "./helpers";
 
 export const stage2: Stage = {
-  id: 2,
+  id: 5,
   slug: "development",
   name: "Development",
   camp: "The Ridge",
@@ -21,14 +21,14 @@ export const stage2: Stage = {
   units: [
     {
       id: "s2-u1",
-      stage: 2,
+      stage: 5,
       index: 1,
       title: "Environment",
       theme: "Opinions, evidence and both sides of an argument",
       lessons: [
         {
           id: "s2-u1-reading",
-          stage: 2,
+          stage: 5,
           unit: 1,
           skill: "reading",
           title: "T/F/NG Mastery: Plastic and the Ocean",
@@ -78,7 +78,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u1-listening",
-          stage: 2,
+          stage: 5,
           unit: 1,
           skill: "listening",
           title: "Part 3: Planning a Recycling Project",
@@ -123,7 +123,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u1-writing",
-          stage: 2,
+          stage: 5,
           unit: 1,
           skill: "writing",
           title: "Task 2: Discuss Both Views",
@@ -160,7 +160,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u1-speaking",
-          stage: 2,
+          stage: 5,
           unit: 1,
           skill: "speaking",
           title: "Part 2: A Beautiful Place in Nature",
@@ -197,14 +197,14 @@ export const stage2: Stage = {
     },
     {
       id: "s2-u2",
-      stage: 2,
+      stage: 5,
       index: 2,
       title: "Technology",
       theme: "Main ideas, data and comparisons",
       lessons: [
         {
           id: "s2-u2-reading",
-          stage: 2,
+          stage: 5,
           unit: 2,
           skill: "reading",
           title: "Matching Headings: The Remote Work Revolution",
@@ -247,7 +247,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u2-listening",
-          stage: 2,
+          stage: 5,
           unit: 2,
           skill: "listening",
           title: "Part 2: A New Transport App",
@@ -289,7 +289,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u2-writing",
-          stage: 2,
+          stage: 5,
           unit: 2,
           skill: "writing",
           title: "Task 1: Comparing Groups",
@@ -337,7 +337,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u2-speaking",
-          stage: 2,
+          stage: 5,
           unit: 2,
           skill: "speaking",
           title: "Part 3: Technology and Society",
@@ -374,14 +374,14 @@ export const stage2: Stage = {
     },
     {
       id: "s2-u3",
-      stage: 2,
+      stage: 5,
       index: 3,
       title: "Education",
       theme: "Problems, solutions and academic discussions",
       lessons: [
         {
           id: "s2-u3-reading",
-          stage: 2,
+          stage: 5,
           unit: 3,
           skill: "reading",
           title: "Summary Completion: The Homework Debate",
@@ -424,7 +424,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u3-listening",
-          stage: 2,
+          stage: 5,
           unit: 3,
           skill: "listening",
           title: "Part 3: Tutorial Feedback",
@@ -468,7 +468,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u3-writing",
-          stage: 2,
+          stage: 5,
           unit: 3,
           skill: "writing",
           title: "Task 2: Problem & Solution",
@@ -505,7 +505,7 @@ export const stage2: Stage = {
         },
         {
           id: "s2-u3-speaking",
-          stage: 2,
+          stage: 5,
           unit: 3,
           skill: "speaking",
           title: "Part 2 + 3: An Influential Teacher",
@@ -547,7 +547,7 @@ export const stage2: Stage = {
   ],
   checkpoint: {
     id: "s2-checkpoint",
-    stage: 2,
+    stage: 5,
     title: "Ridge Checkpoint",
     reading: {
       title: "The Return of Wolves",

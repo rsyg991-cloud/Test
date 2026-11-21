@@ -25,7 +25,7 @@ export function QuestionGroupView({ section, group, answers, onChange, flagged, 
   const showOptionsBox = ["matching", "completion-box"].includes(group.type) && group.options;
 
   return (
-    <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: "var(--line)", background: "var(--surface)" }} aria-label={`Questions ${first}–${last}`}>
+    <section className="rounded-[10px] border p-4 sm:p-5" style={{ borderColor: "var(--line)", background: "var(--surface)" }} aria-label={`Questions ${first}–${last}`}>
       <div className="mb-1 text-sm font-extrabold">Questions {first === last ? first : `${first}–${last}`}</div>
       <p className="mb-4 text-sm" style={{ color: "var(--muted)" }}>
         {group.instructions.replace(/^Questions? [\d–-]+\.\s*/, "")}
@@ -34,11 +34,11 @@ export function QuestionGroupView({ section, group, answers, onChange, flagged, 
 
       {group.image && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={group.image.src} alt={group.image.alt} className="mx-auto mb-4 w-full max-w-xl rounded-xl border" style={{ borderColor: "var(--line)" }} />
+        <img src={group.image.src} alt={group.image.alt} className="mx-auto mb-4 w-full max-w-xl rounded-md border" style={{ borderColor: "var(--line)" }} />
       )}
 
       {showOptionsBox && (
-        <div className="mb-4 rounded-xl border p-3 text-sm" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }}>
+        <div className="mb-4 rounded-md border p-3 text-sm" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }}>
           {group.type === "completion-box" ? (
             <div className="flex flex-wrap gap-x-5 gap-y-1">
               {group.options!.map((o) => (
@@ -99,7 +99,7 @@ function QuestionRow({
   const border = result ? (result.correct ? "var(--success)" : "var(--danger)") : "transparent";
 
   return (
-    <li id={questionAnchor(section, q.n)} className="scroll-mt-28 rounded-xl border-2 p-2.5" style={{ borderColor: border }}>
+    <li id={questionAnchor(section, q.n)} className="scroll-mt-28 rounded-md border-2 p-2.5" style={{ borderColor: border }}>
       {q.section && <div className="mb-2 mt-1 text-sm font-bold uppercase tracking-wide" style={{ color: "var(--muted)" }}>{q.section}</div>}
       <div className="flex items-start gap-3">
         <span className="grid h-7 min-w-7 shrink-0 place-items-center rounded-md px-1 text-sm font-bold" style={{ background: value ? "var(--ink)" : "var(--surface-2)", color: value ? "var(--bg)" : "var(--ink)" }}>

@@ -11,7 +11,7 @@ export function FeedbackCard({ evaluation, accent = "var(--brand)" }: { evaluati
   return (
     <section className="card animate-rise overflow-hidden" aria-label="Examiner feedback">
       <div className="flex flex-wrap items-center gap-5 p-5 sm:p-6" style={{ background: `color-mix(in srgb, ${accent} 10%, var(--surface))` }}>
-        <div className="animate-pop grid h-24 w-24 shrink-0 place-items-center rounded-3xl text-white" style={{ background: accent }}>
+        <div className="animate-pop grid h-24 w-24 shrink-0 place-items-center rounded-[16px] text-[var(--on-skill)]" style={{ background: accent }}>
           <div className="text-center">
             <div className="text-[10px] font-extrabold uppercase tracking-widest opacity-90">Band</div>
             <div className="font-display text-4xl font-bold leading-none">{e.overall_band.toFixed(1)}</div>
@@ -60,7 +60,7 @@ export function FeedbackCard({ evaluation, accent = "var(--brand)" }: { evaluati
             <ol className="space-y-2 text-sm">
               {e.improvements.map((s, i) => (
                 <li key={i} className="flex gap-2.5">
-                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white" style={{ background: accent }}>
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold text-[var(--on-skill)]" style={{ background: accent }}>
                     {i + 1}
                   </span>
                   {s}
@@ -76,7 +76,7 @@ export function FeedbackCard({ evaluation, accent = "var(--brand)" }: { evaluati
           <h3 className="mb-3 font-bold">Language corrections</h3>
           <ul className="space-y-3">
             {e.corrections.map((c, i) => (
-              <li key={i} className="rounded-xl p-3 text-sm" style={{ background: "var(--surface-2)" }}>
+              <li key={i} className="rounded-md p-3 text-sm" style={{ background: "var(--surface-2)" }}>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="line-through" style={{ color: "var(--danger)" }}>
                     {c.original}
@@ -103,7 +103,7 @@ export function FeedbackCard({ evaluation, accent = "var(--brand)" }: { evaluati
           <Icon name="arrow" size={18} style={{ transform: showUpgrade ? "rotate(90deg)" : undefined, transition: "transform .2s" }} />
         </button>
         {showUpgrade && (
-          <p className="mt-3 whitespace-pre-line rounded-xl p-4 text-[15px] leading-relaxed" style={{ background: "var(--surface-2)" }}>
+          <p className="mt-3 whitespace-pre-line rounded-md p-4 text-[15px] leading-relaxed" style={{ background: "var(--surface-2)" }}>
             {e.upgraded_version}
           </p>
         )}

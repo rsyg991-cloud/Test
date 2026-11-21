@@ -200,7 +200,7 @@ export function MockTestFlow({ test, storageKey, timeScale }: { test: FullTest; 
           <Icon name="back" size={16} /> Back
         </Link>
         <div className="card overflow-hidden">
-          <div className="p-6 sm:p-8" style={{ background: "linear-gradient(135deg, var(--brand-soft), var(--surface) 70%)" }}>
+          <div className="p-6 sm:p-8" style={{ background: "var(--brand-soft)" }}>
             <div className="eyebrow">Full IELTS Academic test · about 2 h 45 min</div>
             <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{test.title}</h1>
             {test.description && <p className="mt-2" style={{ color: "var(--muted)" }}>{test.description}</p>}
@@ -213,7 +213,7 @@ export function MockTestFlow({ test, storageKey, timeScale }: { test: FullTest; 
               ["writing", "Writing", "2 tasks · 60 min", "Task 1 ≈ 20 min (150+ words), Task 2 ≈ 40 min (250+ words). Task 2 counts double."],
               ["speaking", "Speaking", "3 parts · 11–14 min", "Recorded answers, AI-estimated band."],
             ].map(([k, t, meta, note], i) => (
-              <li key={k} className="rounded-2xl p-4" style={{ background: "var(--surface-2)" }}>
+              <li key={k} className="rounded-[10px] p-4" style={{ background: "var(--surface-2)" }}>
                 <div className="flex items-center gap-2">
                   <span className="font-display text-xl font-bold" style={{ color: SKILL_META[k as "reading"].color }}>
                     {i + 1}
@@ -253,10 +253,10 @@ export function MockTestFlow({ test, storageKey, timeScale }: { test: FullTest; 
         {header(`Listening · Part ${part.part} of 4`, <QuestionNavigator section="listening" numbers={numbers} answered={lAnswered} flagged={flagged} />)}
         <p className="mb-4 font-semibold">{part.context}</p>
         {st.partStage === "preview" && (
-          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl p-4" style={{ background: "var(--surface-2)" }}>
+          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-[10px] p-4" style={{ background: "var(--surface-2)" }}>
             <Icon name="eye" size={20} />
             <p className="flex-1 text-sm font-semibold">Take a moment to read Questions {partGroups[0].questions[0].n}–{partGroups.at(-1)!.questions.at(-1)!.n}. The recording plays once.</p>
-            <button type="button" className="btn btn-primary" style={{ background: "var(--listening)" }} onClick={() => update({ partStage: "playing" })}>
+            <button type="button" className="btn btn-primary" onClick={() => update({ partStage: "playing" })}>
               <Icon name="play" size={16} /> Start Part {part.part}
             </button>
           </div>
@@ -378,7 +378,7 @@ export function MockTestFlow({ test, storageKey, timeScale }: { test: FullTest; 
           {task.chart && <div className="mt-4"><ChartView chart={task.chart} /></div>}
           {task.image && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={task.image.src} alt={task.image.alt} className="mx-auto mt-4 w-full max-w-xl rounded-xl" />
+            <img src={task.image.src} alt={task.image.alt} className="mx-auto mt-4 w-full max-w-xl rounded-md" />
           )}
         </div>
         <div className="card overflow-hidden">
@@ -414,7 +414,7 @@ export function MockTestFlow({ test, storageKey, timeScale }: { test: FullTest; 
     return (
       <div className="mx-auto max-w-3xl">
         {header(`Speaking · Part ${idx + 1} of 3`)}
-        {error && <p role="alert" className="mb-4 rounded-xl p-3 text-sm font-semibold" style={{ background: "color-mix(in srgb, var(--danger) 10%, transparent)", color: "var(--danger)" }}>{error}</p>}
+        {error && <p role="alert" className="mb-4 rounded-md p-3 text-sm font-semibold" style={{ background: "color-mix(in srgb, var(--danger) 10%, transparent)", color: "var(--danger)" }}>{error}</p>}
         <SpeakingTaskView key={idx} task={speakingTasks[idx]} source="mock" refId={`${test.id}:speaking-${idx + 1}`} onEvaluated={(id) => update((s) => ({ speakingIds: { ...s.speakingIds, [key]: id } }))} />
         <div className="mt-6 flex flex-wrap justify-end gap-3">
           {idx < 2 ? (
@@ -480,7 +480,7 @@ export function MockTestFlow({ test, storageKey, timeScale }: { test: FullTest; 
           ))}
         </ul>
         {types[0] && types[0].pct < 0.75 && (
-          <p className="mt-4 rounded-xl p-3 text-sm" style={{ background: "var(--surface-2)" }}>
+          <p className="mt-4 rounded-md p-3 text-sm" style={{ background: "var(--surface-2)" }}>
             <b>Focus next:</b> {TYPE_LABELS[types[0].t as keyof typeof TYPE_LABELS]} — your lowest accuracy in this test.
           </p>
         )}

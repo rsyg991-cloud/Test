@@ -1,5 +1,4 @@
 import { Logo } from "@/components/ui";
-import { Icon } from "@/components/icons";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,17 +9,21 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
       <div
         className="relative hidden flex-col justify-end overflow-hidden p-12 text-white lg:flex"
-        style={{ background: "linear-gradient(160deg, var(--navy), #2b3a67 60%, var(--brand))" }}
+        style={{ background: "#111316" }}
       >
-        <svg viewBox="0 0 400 300" className="absolute inset-x-0 top-16 w-full opacity-30" aria-hidden="true">
-          <polygon points="0,300 120,120 170,170 250,40 330,160 400,110 400,300" fill="#fff" />
+        <svg viewBox="0 0 240 288" className="absolute right-12 top-12 w-60" aria-hidden="true">
+          {[1, 3, 0, 2, 1, 3, 2].map((a, r) =>
+            [0, 1, 2, 3].map((c) => (
+              <circle key={`${r}-${c}`} cx={48 + c * 48} cy={48 + r * 32} r="10" fill={c === a ? "#ffe14d" : "none"} stroke={c === a ? "none" : "#f7f7f5"} strokeOpacity="0.5" strokeWidth="2" />
+            )),
+          )}
         </svg>
         <blockquote className="relative max-w-md">
-          <Icon name="sparkle" size={28} />
-          <p className="mt-4 font-display text-3xl font-bold leading-tight">
-            “Small steps every day beat big plans once a month.”
+          <span className="block h-1.5 w-12 rounded-full" style={{ background: "#ffe14d" }} />
+          <p className="mt-4 font-display text-3xl leading-tight">
+            Small steps every day beat <span style={{ color: "#ffe14d" }}>big plans</span> once a month.
           </p>
-          <p className="mt-4 opacity-80">Twenty focused minutes a day is enough to change your band. We&apos;ll show you exactly what to do with them.</p>
+          <p className="mt-4 opacity-80">Start from any level, even zero. Twenty focused minutes a day is enough to move your band, and we show you exactly what to do with them.</p>
         </blockquote>
       </div>
     </div>

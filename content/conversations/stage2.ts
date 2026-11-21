@@ -5,7 +5,7 @@ import { dialogue, kp } from "./helpers";
 export const stage2Conversations: ConversationScenario[] = [
   {
     id: "c2-weekend-plans",
-    stage: 2,
+    stage: 5,
     title: "Making Weekend Plans",
     situation: "You and a friend are planning what to do this weekend. You have different ideas — suggest, agree, disagree and decide together.",
     ieltsPart: "Real life",
@@ -51,7 +51,7 @@ export const stage2Conversations: ConversationScenario[] = [
   },
   {
     id: "c2-trip-story",
-    stage: 2,
+    stage: 5,
     title: "Tell Me About a Trip (Part 2)",
     situation: "The examiner gives you a cue card: 'Describe a memorable trip you took.' Speak for two minutes, then answer follow-up questions.",
     ieltsPart: "Part 2",
@@ -97,7 +97,7 @@ export const stage2Conversations: ConversationScenario[] = [
   },
   {
     id: "c2-job-interview",
-    stage: 2,
+    stage: 5,
     title: "A Simple Job Interview",
     situation: "You're applying for a part-time job at an international company. Answer common interview questions with clear examples.",
     ieltsPart: "Real life",
@@ -144,7 +144,7 @@ export const stage2Conversations: ConversationScenario[] = [
   },
   {
     id: "c2-environment-debate",
-    stage: 2,
+    stage: 5,
     title: "Agree or Disagree: Plastic Bags",
     situation: "A colleague thinks plastic bags should be completely banned. Discuss the idea — agree with some points, challenge others.",
     ieltsPart: "Part 3",
@@ -191,7 +191,7 @@ export const stage2Conversations: ConversationScenario[] = [
   },
   {
     id: "c2-part3-technology",
-    stage: 2,
+    stage: 5,
     title: "Part 3: Technology in Our Lives",
     situation: "IELTS Speaking Part 3 on technology. The examiner asks broader, more abstract questions — answer with opinions, reasons, examples and contrast.",
     ieltsPart: "Part 3",

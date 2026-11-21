@@ -12,7 +12,7 @@ const OFFICIAL = [
     url: "https://takeielts.britishcouncil.org/",
     where: "Prepare → Free practice tests",
     what: "Free full practice tests for all four skills from a co-owner of IELTS, plus a familiarisation test that shows the computer-delivered format.",
-    when: "Use after Stage 2 to check your timing on real-format tests.",
+    when: "Use after Stage 5 to check your timing on real-format tests.",
   },
   {
     name: "IDP IELTS — free practice tests",
@@ -26,7 +26,7 @@ const OFFICIAL = [
     url: "https://ielts.org/",
     where: "Prepare → Sample test questions · Results → Band descriptors",
     what: "Official sample questions for every section, the exact test format, and the public band descriptors examiners use for Writing and Speaking.",
-    when: "Read the Writing and Speaking band descriptors once you reach Stage 3.",
+    when: "Read the Writing and Speaking band descriptors once you reach Stage 6.",
   },
   {
     name: "Cambridge IELTS 1–19 (Academic) — official books",
@@ -51,7 +51,7 @@ export default async function ResourcesPage() {
         {OFFICIAL.map((r) => (
           <article key={r.name} className="card flex flex-col p-5">
             <div className="flex items-start gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl" style={{ background: "color-mix(in srgb, var(--success) 14%, transparent)", color: "var(--success)" }}>
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md" style={{ background: "color-mix(in srgb, var(--success) 14%, transparent)", color: "var(--success)" }}>
                 <Icon name="shield" size={20} />
               </span>
               <div>

@@ -203,7 +203,7 @@ export function SpeakingTaskView({
           )}
         </div>
         {task.cueCard ? (
-          <div className="rounded-2xl border-2 border-dashed p-4" style={{ borderColor: `color-mix(in srgb, ${accent} 50%, transparent)` }}>
+          <div className="rounded-[10px] border-2 border-dashed p-4" style={{ borderColor: `color-mix(in srgb, ${accent} 50%, transparent)` }}>
             <p className="font-display text-xl font-bold">{task.cueCard.topic}</p>
             <p className="mt-2 text-sm font-semibold" style={{ color: "var(--muted)" }}>
               You should say:
@@ -229,7 +229,7 @@ export function SpeakingTaskView({
             {task.questions.map((q, i) => (
               <li
                 key={q}
-                className="flex gap-3 rounded-xl p-3 transition-colors"
+                className="flex gap-3 rounded-md p-3 transition-colors"
                 style={{ background: phase === "recording" && i === qIndex ? `color-mix(in srgb, ${accent} 12%, transparent)` : "var(--surface-2)" }}
               >
                 <span className="font-bold" style={{ color: accent }}>
@@ -254,7 +254,7 @@ export function SpeakingTaskView({
                     : "Press start and answer naturally."}
                 {!recognitionOk && " Your browser can't transcribe speech, so you'll type what you said afterwards (Chrome or Edge give live transcripts)."}
               </p>
-              <button type="button" onClick={begin} className="btn btn-primary" style={{ background: accent, boxShadow: `0 4px 0 color-mix(in srgb, ${accent} 60%, #000)` }}>
+              <button type="button" onClick={begin} className="btn btn-primary">
                 <Icon name="mic" size={18} /> {task.prepSeconds > 0 ? "Start preparation" : "Start speaking"}
               </button>
             </>
@@ -281,7 +281,7 @@ export function SpeakingTaskView({
 
           {phase === "recording" && (
             <div>
-              <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full text-white animate-pulse-ring" style={{ background: accent }}>
+              <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full text-[var(--on-skill)] animate-pulse-ring" style={{ background: accent }}>
                 <Icon name="mic" size={32} />
               </div>
               <div className="font-display text-4xl font-bold" aria-live="off">
@@ -330,7 +330,7 @@ export function SpeakingTaskView({
                 <button type="button" className="btn btn-ghost" onClick={() => { setPhase("idle"); setQIndex(0); }} disabled={busy}>
                   <Icon name="refresh" size={16} /> Try again
                 </button>
-                <button type="button" className="btn btn-primary" onClick={submit} disabled={busy || wordCount(finalText) < 8} style={{ background: accent, boxShadow: `0 4px 0 color-mix(in srgb, ${accent} 60%, #000)` }}>
+                <button type="button" className="btn btn-primary" onClick={submit} disabled={busy || wordCount(finalText) < 8}>
                   {busy ? (
                     <>
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> The examiner is listening…
