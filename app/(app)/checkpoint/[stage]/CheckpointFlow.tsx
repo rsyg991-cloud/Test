@@ -7,7 +7,7 @@ import type { Checkpoint, Skill } from "@/content/types";
 import { Celebration } from "@/components/Celebration";
 import { Icon } from "@/components/icons";
 import { ListeningPlayer } from "@/components/task/ListeningPlayer";
-import { QuestionList } from "@/components/task/QuestionList";
+import { TaskQuestions } from "@/components/task/TaskQuestions";
 import { SpeakingTaskView } from "@/components/task/SpeakingTaskView";
 import { WritingTaskView } from "@/components/task/WritingTaskView";
 import { Ring, SKILL_META } from "@/components/ui";
@@ -94,7 +94,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
         <section className="animate-rise space-y-6">
           <h1 className="font-display text-3xl font-bold">Listening</h1>
           <ListeningPlayer task={checkpoint.listening} revealScript={false} />
-          <QuestionList questions={checkpoint.listening.questions} answers={listening} onChange={(id, v) => setListening((a) => ({ ...a, [id]: v }))} accent="var(--listening)" />
+          <TaskQuestions task={checkpoint.listening} section="listening" answers={listening} onChange={(id, v) => setListening((a) => ({ ...a, [id]: v }))} accent="var(--listening)" />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={() => go(1)}>
               Next: Reading <Icon name="arrow" size={18} />
@@ -112,7 +112,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
               <p key={i}>{p}</p>
             ))}
           </article>
-          <QuestionList questions={checkpoint.reading.questions} answers={reading} onChange={(id, v) => setReading((a) => ({ ...a, [id]: v }))} accent="var(--reading)" />
+          <TaskQuestions task={checkpoint.reading} section="reading" answers={reading} onChange={(id, v) => setReading((a) => ({ ...a, [id]: v }))} accent="var(--reading)" />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={() => go(2)}>
               Next: Writing <Icon name="arrow" size={18} />
@@ -188,13 +188,13 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
           <details className="card p-5">
             <summary className="cursor-pointer font-bold">Review Listening answers ({result.listening.correct}/{result.listening.total})</summary>
             <div className="mt-4">
-              <QuestionList questions={checkpoint.listening.questions} answers={listening} onChange={() => {}} results={result.listening.results} accent="var(--listening)" />
+              <TaskQuestions task={checkpoint.listening} section="listening" answers={listening} onChange={() => {}} results={result.listening.results} groupResults={result.listening.groupResults} accent="var(--listening)" />
             </div>
           </details>
           <details className="card p-5">
             <summary className="cursor-pointer font-bold">Review Reading answers ({result.reading.correct}/{result.reading.total})</summary>
             <div className="mt-4">
-              <QuestionList questions={checkpoint.reading.questions} answers={reading} onChange={() => {}} results={result.reading.results} accent="var(--reading)" />
+              <TaskQuestions task={checkpoint.reading} section="reading" answers={reading} onChange={() => {}} results={result.reading.results} groupResults={result.reading.groupResults} accent="var(--reading)" />
             </div>
           </details>
         </section>

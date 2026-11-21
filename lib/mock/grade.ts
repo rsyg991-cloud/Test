@@ -111,3 +111,15 @@ export const TYPE_LABELS: Record<QuestionType, string> = {
   labelling: "Map / diagram labelling",
   "short-answer": "Short answer",
 };
+
+/** Question numbers that have an answer (choose-TWO groups count one number per pick). */
+export function answeredNumbers(groups: QuestionGroup[], answers: MockAnswers): Set<number> {
+  const s = new Set<number>();
+  for (const g of groups) {
+    if (g.type === "mcq-multi") {
+      const picked = (answers[multiKey(g.id)] ?? "").split(",").filter(Boolean).length;
+      g.questions.slice(0, picked).forEach((q) => s.add(q.n));
+    } else g.questions.forEach((q) => answers[String(q.n)]?.trim() && s.add(q.n));
+  }
+  return s;
+}

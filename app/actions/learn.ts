@@ -8,7 +8,8 @@ import { prisma } from "@/lib/db";
 import { addBandSnapshot, addVocab, recordActivity, type ActivityResult } from "@/lib/progress";
 import { bandFromScore, gradeQuestions, overallBand, roundBand, type Answers, type QuestionResult } from "@/lib/scoring";
 import { academicReadingBand, listeningBand, writingBand } from "@/lib/mock/bands";
-import { gradeGroups, type MockAnswers, type SectionGrade } from "@/lib/mock/grade";
+import { gradeGroups, type MockAnswers, type MockResult, type SectionGrade } from "@/lib/mock/grade";
+import { gradeTask, type TaskGrade } from "@/lib/taskGrade";
 import { getTest } from "@/lib/mock/registry";
 
 export interface CompletionResult {
@@ -18,6 +19,8 @@ export interface CompletionResult {
   correct?: number;
   total?: number;
   results?: QuestionResult[];
+  /** Results for official IELTS question groups (Stages 3–4). */
+  groupResults?: MockResult[];
   activity: ActivityResult;
   vocabAdded: number;
   firstTime: boolean;
@@ -55,12 +58,11 @@ export async function completeLesson(
 
   let band: number;
   let pct: number | undefined;
-  let graded: ReturnType<typeof gradeQuestions> | undefined;
+  let graded: TaskGrade | undefined;
   let attemptId: string | undefined;
 
   if (lesson.reading || lesson.listening) {
-    const questions = (lesson.reading ?? lesson.listening)!.questions;
-    graded = gradeQuestions(questions, payload.answers ?? {});
+    graded = gradeTask((lesson.reading ?? lesson.listening)!, payload.answers ?? {});
     pct = graded.pct;
     band = bandFromScore(pct, lesson.stage);
     const a = await prisma.attempt.create({
@@ -72,7 +74,7 @@ export async function completeLesson(
         score: pct,
         band,
         responseJson: JSON.stringify(payload.answers ?? {}),
-        feedbackJson: JSON.stringify(graded.results),
+        feedbackJson: JSON.stringify(graded.results ?? graded.groupResults),
       },
     });
     attemptId = a.id;
@@ -108,6 +110,7 @@ export async function completeLesson(
     correct: graded?.correct,
     total: graded?.total,
     results: graded?.results,
+    groupResults: graded?.groupResults,
     activity,
     vocabAdded,
     firstTime,
@@ -122,8 +125,8 @@ export interface CheckpointResult {
   passBand: number;
   passed: boolean;
   unlockedStage: number | null;
-  reading: ReturnType<typeof gradeQuestions>;
-  listening: ReturnType<typeof gradeQuestions>;
+  reading: TaskGrade;
+  listening: TaskGrade;
   activity: ActivityResult;
 }
 
@@ -142,8 +145,8 @@ export async function completeCheckpoint(
   const sa = await loadOwnedAttempt(user.id, payload.speakingAttemptId, { refId: cp.id, skill: "speaking" });
   if (!wa || !sa) return { ok: false, error: "Please complete the Writing and Speaking sections first." };
 
-  const reading = gradeQuestions(cp.reading.questions, payload.reading ?? {});
-  const listening = gradeQuestions(cp.listening.questions, payload.listening ?? {});
+  const reading = gradeTask(cp.reading, payload.reading ?? {});
+  const listening = gradeTask(cp.listening, payload.listening ?? {});
   const bands: Record<Skill, number> = {
     reading: bandFromScore(reading.pct, stage.id),
     listening: bandFromScore(listening.pct, stage.id),
@@ -164,7 +167,7 @@ export async function completeCheckpoint(
       score: passed ? 1 : 0,
       band: overall,
       responseJson: JSON.stringify(payload),
-      feedbackJson: JSON.stringify({ bands, reading: reading.results, listening: listening.results }),
+      feedbackJson: JSON.stringify({ bands, reading: reading.results ?? reading.groupResults, listening: listening.results ?? listening.groupResults }),
     },
   });
 

@@ -14,7 +14,7 @@ import { requestEvaluation } from "@/components/task/evaluate-client";
 import { SpeakingTaskView } from "@/components/task/SpeakingTaskView";
 import { wordCount } from "@/components/task/speech";
 import { Ring, SKILL_META } from "@/components/ui";
-import { multiKey, TYPE_LABELS, type MockAnswers, type MockResult } from "@/lib/mock/grade";
+import { answeredNumbers, multiKey, TYPE_LABELS, type MockAnswers, type MockResult } from "@/lib/mock/grade";
 import type { FullTest, QuestionGroup } from "@/lib/mock/schema";
 import type { SpeakingTask } from "@/content/types";
 
@@ -51,17 +51,7 @@ const fresh = (): Saved => ({
 
 const MIN = 60_000;
 
-/** Count answered question numbers, expanding choose-TWO groups. */
-function answeredSet(groups: QuestionGroup[], answers: MockAnswers) {
-  const s = new Set<number>();
-  for (const g of groups) {
-    if (g.type === "mcq-multi") {
-      const picked = (answers[multiKey(g.id)] ?? "").split(",").filter(Boolean).length;
-      g.questions.slice(0, picked).forEach((q) => s.add(q.n));
-    } else g.questions.forEach((q) => answers[String(q.n)]?.trim() && s.add(q.n));
-  }
-  return s;
-}
+const answeredSet = answeredNumbers;
 
 export function MockTestFlow({ test, storageKey, timeScale }: { test: FullTest; storageKey: string; timeScale: number }) {
   const [st, setSt] = useState<Saved>(fresh);

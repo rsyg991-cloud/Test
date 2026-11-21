@@ -1,5 +1,7 @@
 import type { Stage } from "./types";
 import { gap, mcq, tf, v } from "./helpers";
+import { stage4Groups } from "./official/stage4";
+
 
 export const stage4: Stage = {
   id: 4,
@@ -62,16 +64,8 @@ export const stage4: Stage = {
               "E. Despite this evidence, modern lifestyles often reduce sleep. Artificial light, particularly the blue light emitted by screens, delays the release of melatonin, a hormone that signals the body to prepare for sleep. Teenagers face an additional challenge: their circadian rhythms naturally shift later during adolescence, yet school days typically begin early. Several American school districts that moved start times later reported improvements in attendance and attention.",
               "F. Sleep scientists increasingly argue that sleep should be treated as a public health priority, alongside diet and exercise. Their recommendation for adults is simple, if not always easy: seven to nine hours a night, at regular times.",
             ],
-            questions: [
-              mcq("q1", "Which paragraph describes how sleep may remove harmful substances from the brain?", ["Paragraph B", "Paragraph C", "Paragraph D", "Paragraph E"], 1, "Paragraph C: fluid washes away waste proteins."),
-              mcq("q2", "Which paragraph mentions a biological change that happens during adolescence?", ["Paragraph A", "Paragraph D", "Paragraph E", "Paragraph F"], 2, "'their circadian rhythms naturally shift later during adolescence'."),
-              gap("q3", "Information moves from the hippocampus to the ___ during deep sleep.", ["cortex"], "Paragraph B."),
-              gap("q4", "In mice, space between brain cells increases by around ___% during sleep.", ["60", "sixty"], "Paragraph C."),
-              tf("q5", "Scientists have proven that poor sleep causes Alzheimer's disease.", "FALSE", "'remains unproven'."),
-              tf("q6", "Sleep deprivation can affect hormones that control hunger.", "TRUE", "'disrupts the hormones that regulate appetite'."),
-              tf("q7", "Blue light from screens increases melatonin production.", "FALSE", "It 'delays the release of melatonin'."),
-              tf("q8", "Later school start times improved exam results in all US districts.", "NOT GIVEN", "Only attendance and attention are mentioned, and only in 'several' districts."),
-            ],
+            questions: [],
+            groups: stage4Groups["s4-u1-reading"],
           },
         },
         {
@@ -106,13 +100,8 @@ export const stage4: Stage = {
               { speaker: "Lecturer", voice: "female", text: "Perhaps the most influential — and controversial — map is the Mercator projection of 1569. It was designed for sailors, because straight lines on the map represent constant compass directions. The problem is that it greatly exaggerates the size of regions far from the equator. Greenland appears roughly the size of Africa, when in reality Africa is about fourteen times larger." },
               { speaker: "Lecturer", voice: "female", text: "Today, of course, most maps are digital and based on satellite data. But this raises a new issue: when a single company provides the maps billions of people use, decisions about which places are shown, or even named, carry enormous influence." },
             ],
-            questions: [
-              gap("q1", "The Babylonian map was made of ___.", ["clay"], "'a Babylonian clay tablet'."),
-              gap("q2", "Ptolemy introduced a ___ system of latitude and longitude.", ["grid"], "'a grid system of latitude and longitude'."),
-              gap("q3", "The Mercator projection was designed for ___.", ["sailors"], "'It was designed for sailors'."),
-              gap("q4", "Africa is about ___ times larger than Greenland.", ["14", "fourteen"], "'Africa is about fourteen times larger'."),
-              mcq("q5", "What concern does the lecturer raise about digital maps?", ["They are inaccurate.", "One company can have great influence.", "Satellites are expensive.", "People no longer read paper maps."], 1, "'when a single company provides the maps… carry enormous influence'."),
-            ],
+            questions: [],
+            groups: stage4Groups["s4-u1-listening"],
           },
         },
         {
@@ -246,19 +235,8 @@ export const stage4: Stage = {
               "There are also unresolved questions of accountability. If an AI system misses a tumour, is the software company responsible, or the doctor who relied on it? Current regulations in most countries were not designed with such cases in mind.",
               "Most researchers now favour a model in which AI augments rather than replaces clinicians. In one trial of breast cancer screening in Sweden, AI combined with a single radiologist detected more cancers than two radiologists working together, while reducing workload by almost half. The future, it seems, belongs not to machines alone, but to well-designed partnerships between humans and machines.",
             ],
-            questions: [
-              mcq("q1", "What did the 2017 Stanford study find?", ["AI was more accurate than all doctors.", "AI matched dermatologists in identifying skin cancer.", "AI could replace dermatologists.", "Dermatologists preferred AI."], 1, "'about as accurately as' = matched. Option A over-generalises; C is not stated."),
-              mcq("q2", "Why is the example from India mentioned?", ["To show AI is cheaper", "To show AI can help where specialists are scarce", "To criticise Indian hospitals", "To prove AI never makes mistakes"], 1, "'where an eye specialist might otherwise be weeks away'."),
-              mcq("q3", "What problem with AI studies does the writer identify?", [
-                "They are too expensive.",
-                "Performance may drop in real-world settings.",
-                "They only use X-rays.",
-                "Doctors refuse to participate.",
-              ], 1, "'performance often falls when systems are used in real hospitals'."),
-              tf("q4", "AI systems may perform differently depending on patients' skin colour.", "TRUE", "'may be considerably less accurate for patients with darker skin'."),
-              tf("q5", "Most countries have clear laws on who is responsible for AI errors.", "FALSE", "'Current regulations in most countries were not designed with such cases in mind'."),
-              mcq("q6", "In the Swedish trial, AI plus one radiologist…", ["found fewer cancers but saved time", "found more cancers and reduced workload", "replaced radiologists entirely", "doubled the workload"], 1, "'detected more cancers than two radiologists… while reducing workload by almost half'."),
-            ],
+            questions: [],
+            groups: stage4Groups["s4-u2-reading"],
           },
         },
         {
@@ -297,14 +275,8 @@ export const stage4: Stage = {
               { speaker: "Agent", voice: "female", text: "Yes, one hundred and fifty pounds, which is refundable if you cancel at least thirty days before arrival. Check-in is from four o'clock, not three as it says on some old websites." },
               { speaker: "Customer", voice: "male", text: "Great. And the name for the booking is Chris Fairbourne. F-A-I-R-B-O-U-R-N-E." },
             ],
-            questions: [
-              gap("q1", "Arrival date: ___ July", ["22", "22nd", "twenty-second"], "The 15th is corrected to the 22nd."),
-              gap("q2", "Cottage chosen: ___ Cottage", ["Willow"], "Harbour Cottage is rejected because it has no garden."),
-              gap("q3", "Price for the week: £___", ["640", "six hundred and forty"], "'six hundred and forty pounds'."),
-              gap("q4", "Deposit: £___", ["150", "one hundred and fifty"], "'one hundred and fifty pounds'."),
-              gap("q5", "Check-in from ___ pm", ["4", "four"], "'from four o'clock, not three'."),
-              gap("q6", "Surname: ___", ["Fairbourne"], "Spelled F-A-I-R-B-O-U-R-N-E."),
-            ],
+            questions: [],
+            groups: stage4Groups["s4-u2-listening"],
           },
         },
         {
@@ -422,14 +394,8 @@ export const stage4: Stage = {
               "Not everyone is enthusiastic. Some residents complain that rewilded areas look untidy or neglected, and there are concerns about ticks and allergies. Experts suggest that clear signs explaining the purpose of the change, together with neatly mown edges, can make wilder areas look intentional rather than abandoned.",
               "Advocates stress that rewilding is not merely about wildlife. Studies indicate that people who spend time in biodiverse green spaces report lower stress levels than those in conventional parks. As cities grow, giving nature room may prove to be one of the simplest ways to improve both ecological and human health.",
             ],
-            questions: [
-              tf("q1", "Traditional lawns support a wide variety of insect species.", "FALSE", "They support 'only a fraction' compared with meadows."),
-              mcq("q2", "Which of the following is a rewilding practice mentioned?", ["Planting non-native species", "Removing dead wood", "Leaving grass uncut for longer", "Building ponds"], 2, "'Grass is left uncut for longer'. Dead wood is LEFT, not removed."),
-              gap("q3", "Brighton saw more wildflowers and ___ within two years.", ["pollinators"], "Paragraph 3."),
-              tf("q4", "Rewilding can reduce maintenance costs.", "TRUE", "'lower fuel and labour expenses'."),
-              mcq("q5", "What do experts suggest to address residents' complaints?", ["Stopping rewilding in residential areas", "Signs and neatly mown edges", "Using chemicals against ticks", "Paying residents compensation"], 1, "Paragraph 4."),
-              tf("q6", "Rewilding projects have been introduced in every major British city.", "NOT GIVEN", "Only Brighton is mentioned."),
-            ],
+            questions: [],
+            groups: stage4Groups["s4-u3-reading"],
           },
         },
         {
@@ -466,13 +432,8 @@ export const stage4: Stage = {
               { speaker: "Hana", voice: "female", text: "Good point. The bigger problem is timing. We can't start collecting data until we get ethics approval, and the committee only meets once a month. The next meeting is on the ninth." },
               { speaker: "Sam", voice: "male", text: "Then we should submit the application this week. Let's focus on that today, rather than the literature review." },
             ],
-            questions: [
-              mcq("q1", "Why does Sam want to include interviews?", ["They are quicker.", "They explain the reasons behind students' choices.", "The tutor requires them.", "Questionnaires are unreliable."], 1, "'they won't tell us why students make the choices they do'."),
-              gap("q2", "Number of interviews agreed: ___", ["10", "ten"], "Hana suggests ten; Sam agrees."),
-              mcq("q3", "Why does Sam want a mix of subjects?", ["To increase the sample size", "Because different students may use AI tools differently", "Because science students are easier to find", "To save time"], 1, "'science and humanities students probably use these tools very differently'."),
-              mcq("q4", "What is the main problem with timing?", ["The questionnaire is too long.", "They must wait for ethics approval.", "Students are on holiday.", "The literature review is late."], 1, "'We can't start collecting data until we get ethics approval'."),
-              mcq("q5", "What will they work on today?", ["The literature review", "The questionnaire", "The ethics application", "The interviews"], 2, "'submit the application this week… focus on that today'."),
-            ],
+            questions: [],
+            groups: stage4Groups["s4-u3-listening"],
           },
         },
         {
@@ -564,14 +525,8 @@ export const stage4: Stage = {
         "D. Defenders of the industry point out that users receive valuable services, from maps to messaging, without paying money. They also note that people have always been distracted, and that earlier technologies such as television faced similar criticism.",
         "E. Regulators have begun to respond. The European Union's Digital Services Act requires large platforms to assess risks such as the spread of illegal content and to offer at least one recommendation feed not based on personal profiling. Whether such measures can change incentives built into the business model itself remains an open question.",
       ],
-      questions: [
-        mcq("cq1", "Best heading for Paragraph B?", ["How design keeps users engaged", "The history of advertising", "Why slot machines are illegal", "Users' data rights"], 0, "Features designed to keep users longer."),
-        mcq("cq2", "Best heading for Paragraph D?", ["A counter-argument", "New regulations", "The cost of services", "The decline of television"], 0, "'Defenders of the industry point out…'."),
-        tf("cq3", "Researchers fully agree on the effect of social media on teenage anxiety.", "FALSE", "'remain debated'."),
-        tf("cq4", "The Digital Services Act bans all personalised recommendations.", "FALSE", "It requires at least one non-profiled option, not a ban."),
-        tf("cq5", "Herbert Simon worked for a technology company.", "NOT GIVEN", "Only described as an economist."),
-        mcq("cq6", "What is the writer's attitude to regulation in Paragraph E?", ["Confident it will solve the problem", "Uncertain whether it will change underlying incentives", "Strongly opposed", "Uninterested"], 1, "'remains an open question'."),
-      ],
+      questions: [],
+      groups: stage4Groups["s4-checkpoint-reading"],
     },
     listening: {
       context: "A lecture on the psychology of habits.",
@@ -580,13 +535,8 @@ export const stage4: Stage = {
         { speaker: "Lecturer", voice: "female", text: "A popular belief is that a new habit takes twenty-one days to form. However, a study at University College London found the average was sixty-six days, with a huge range from eighteen to over two hundred." },
         { speaker: "Lecturer", voice: "female", text: "One effective strategy is called 'habit stacking': attaching a new behaviour to an existing one. For example, 'After I pour my morning coffee, I will review ten English words.' Interestingly, missing a single day made almost no difference to long-term success — consistency over time matters more than perfection." },
       ],
-      questions: [
-        gap("cl1", "About ___% of daily actions are habits.", ["40", "forty"], "'Around forty percent'."),
-        gap("cl2", "The habit loop: cue, routine and ___.", ["reward"], "Three parts."),
-        gap("cl3", "Average time to form a habit in the UCL study: ___ days", ["66", "sixty-six"], "Not 21 — that's the popular belief."),
-        gap("cl4", "Attaching a new behaviour to an existing one is called habit ___.", ["stacking"], "'habit stacking'."),
-        mcq("cl5", "What did the study find about missing one day?", ["It reset progress.", "It made almost no difference.", "It doubled the time needed.", "It was beneficial."], 1, "'missing a single day made almost no difference'."),
-      ],
+      questions: [],
+      groups: stage4Groups["s4-checkpoint-listening"],
     },
     writing: {
       task: "task2",

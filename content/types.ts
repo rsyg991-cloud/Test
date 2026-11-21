@@ -1,3 +1,5 @@
+import type { QuestionGroup } from "@/lib/mock/schema";
+
 export type Skill = "reading" | "listening" | "writing" | "speaking";
 export const SKILLS: Skill[] = ["reading", "listening", "writing", "speaking"];
 
@@ -43,6 +45,8 @@ export interface ReadingTask {
   title: string;
   paragraphs: string[];
   questions: Question[];
+  /** Official IELTS question groups. When present, they replace `questions`. */
+  groups?: QuestionGroup[];
   timeMinutes: number;
 }
 
@@ -50,6 +54,8 @@ export interface ListeningTask {
   context: string;
   script: { speaker: string; voice: "female" | "male"; text: string }[];
   questions: Question[];
+  /** Official IELTS question groups. When present, they replace `questions`. */
+  groups?: QuestionGroup[];
 }
 
 export interface WritingTask {

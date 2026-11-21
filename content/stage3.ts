@@ -1,5 +1,7 @@
 import type { Stage } from "./types";
 import { gap, mcq, tf, v } from "./helpers";
+import { stage3Groups } from "./official/stage3";
+
 
 export const stage3: Stage = {
   id: 3,
@@ -61,34 +63,8 @@ export const stage3: Stage = {
               "Such findings raise difficult ethical questions. Deceiving patients undermines trust, which is fundamental to medicine. Open-label placebos may offer a way around this problem, but sceptics point out that the conditions which respond best — pain, fatigue, nausea — are those measured through patients' own reports, which are easily influenced by mood and expectation.",
               "What is clear is that the context of treatment matters. A doctor who listens carefully and explains a treatment confidently may, in effect, be adding a powerful 'ingredient' that no pharmacy can supply.",
             ],
-            questions: [
-              mcq("q1", "How has the view of the placebo effect changed?", [
-                "It is now considered dangerous.",
-                "It was once seen as a problem but is now considered worth researching.",
-                "It has been proven not to exist.",
-                "It is now used in all clinical trials.",
-              ], 1, "'Traditionally… regarded as a nuisance… Increasingly, however, researchers see it as a phenomenon worth studying'."),
-              mcq("q2", "What does the writer suggest by describing some factors as 'surprisingly superficial'?", [
-                "The factors have no real effect.",
-                "Factors unrelated to medicine itself can change results.",
-                "Doctors should stop using injections.",
-                "Packaging is the most important factor.",
-              ], 1, "Number of pills, method and packaging are superficial, yet they change outcomes."),
-              tf("q3", "Patients in the Harvard study did not know they were receiving placebos.", "FALSE", "They 'were told plainly that they were receiving sugar pills'."),
-              tf("q4", "The open-label group improved more than the no-treatment group.", "TRUE", "'significantly greater improvement than a group that received no treatment'."),
-              mcq("q5", "What concern do sceptics raise about open-label placebos?", [
-                "They are too expensive.",
-                "They only work for conditions measured by self-report.",
-                "Patients refuse to take them.",
-                "They damage the brain.",
-              ], 1, "Conditions that respond best 'are those measured through patients' own reports'."),
-              mcq("q6", "What is the writer's main conclusion?", [
-                "Placebos should replace medicine.",
-                "Doctors' communication can contribute to healing.",
-                "Pharmacies should sell placebos.",
-                "The placebo effect is unethical.",
-              ], 1, "'A doctor who listens carefully… may… be adding a powerful \"ingredient\"'."),
-            ],
+            questions: [],
+            groups: stage3Groups["s3-u1-reading"],
           },
         },
         {
@@ -123,14 +99,8 @@ export const stage3: Stage = {
               { speaker: "Lecturer", voice: "male", text: "Why does this matter? Mainly for health. During heatwaves, death rates rise sharply in cities, particularly among elderly people. Higher temperatures also increase energy demand, as people use more air conditioning, which, ironically, makes the outside air even hotter." },
               { speaker: "Lecturer", voice: "male", text: "Now, the solutions. Planting trees is the most obvious one, and studies suggest a tree-lined street can be up to five degrees cooler. Green roofs — roofs covered with plants — are another option. And some cities, such as Los Angeles, have experimented with painting roads with a reflective grey coating, which lowered surface temperatures by around six degrees." },
             ],
-            questions: [
-              gap("q1", "Night-time difference can reach ___ °C.", ["12", "twelve"], "'as much as twelve degrees Celsius'."),
-              gap("q2", "Main cause: building ___ such as asphalt and concrete.", ["materials"], "'The main factor is the materials we build with'."),
-              gap("q3", "Plants cool the air through a process called ___.", ["evapotranspiration"], "A technical term — spell it carefully."),
-              mcq("q4", "Which group is most at risk during heatwaves?", ["Children", "Elderly people", "Outdoor workers", "Tourists"], 1, "'particularly among elderly people'."),
-              gap("q5", "Tree-lined streets can be up to ___ degrees cooler.", ["5", "five"], "'up to five degrees cooler'. Six degrees refers to reflective roads."),
-              gap("q6", "Los Angeles used a ___ coating on roads.", ["reflective", "reflective grey"], "'a reflective grey coating'."),
-            ],
+            questions: [],
+            groups: stage3Groups["s3-u1-listening"],
           },
         },
         {
@@ -226,7 +196,7 @@ export const stage3: Stage = {
           strategy: {
             title: "YES / NO / NOT GIVEN = opinions",
             points: [
-              "YES/NO/NOT GIVEN questions test the writer's OPINION, not facts. (In this app they appear as TRUE/FALSE/NOT GIVEN.)",
+              "YES/NO/NOT GIVEN questions test the writer's OPINION or claims, not facts — unlike TRUE/FALSE/NOT GIVEN, which tests information.",
               "Find evaluative language: 'convincing', 'misleading', 'it would be naive to…'.",
               "Separate reported views ('Supporters claim…') from the writer's own view.",
               "If the writer reports a view but doesn't comment, the writer's opinion may be NOT GIVEN.",
@@ -248,14 +218,8 @@ export const stage3: Stage = {
               "It is far less clear how a hospital, a school or a bus company could adopt the model without hiring additional staff. In such sectors, a shorter week for existing employees would almost certainly mean higher costs — a burden that would ultimately fall on taxpayers or customers.",
               "None of this means the idea should be dismissed. The trial demonstrated that many organisations waste a remarkable amount of time on unnecessary meetings and processes. Even firms that keep a five-day week could learn from this. The real lesson may not be about the number of days at all, but about how intelligently working time is used.",
             ],
-            questions: [
-              tf("q1", "Most companies in the trial decided to keep the four-day week.", "TRUE", "'92% of the companies chose to continue'."),
-              tf("q2", "The writer believes the trial proves the five-day week is outdated.", "FALSE", "That is the supporters' view; the writer says 'it would be naive to assume…'."),
-              tf("q3", "The writer suggests that the participating companies may not be typical.", "TRUE", "'volunteered… already enthusiastic… well placed to make it work'."),
-              tf("q4", "The writer thinks hospitals could easily adopt a four-day week.", "FALSE", "'It is far less clear how a hospital… could adopt the model'."),
-              tf("q5", "The writer thinks the four-day week will become law in Britain.", "NOT GIVEN", "Legislation is never mentioned."),
-              mcq("q6", "What is the writer's final point?", ["Meetings should be banned.", "The four-day week should be rejected.", "Using time efficiently may matter more than the number of days.", "Small firms are more productive."], 2, "'The real lesson may not be about the number of days… but about how intelligently working time is used'."),
-            ],
+            questions: [],
+            groups: stage3Groups["s3-u2-reading"],
           },
         },
         {
@@ -291,13 +255,8 @@ export const stage3: Stage = {
               { speaker: "Lecturer", voice: "female", text: "Another example is social comparison. In the UK, the tax office sent letters telling late payers that most people in their town had already paid. This simple sentence significantly increased payment rates." },
               { speaker: "Lecturer", voice: "female", text: "However, critics argue that nudges can be manipulative, particularly when the person doesn't notice they're being influenced. This is why many researchers insist that nudges should be transparent and easy to avoid." },
             ],
-            questions: [
-              mcq("q1", "According to behavioural economics, people tend to…", ["always choose the cheapest option", "choose what requires the least effort", "make fully rational choices", "avoid following others"], 1, "'we strongly prefer whatever option requires the least effort'."),
-              mcq("q2", "A nudge works by…", ["offering money", "banning choices", "changing how a choice is presented", "punishing bad behaviour"], 2, "'a small change in how a choice is presented'."),
-              gap("q3", "With pension enrolment as the default, participation reached about ___%.", ["90", "ninety"], "'jumped to around ninety percent'. Forty was before."),
-              gap("q4", "Tax letters used the idea of social ___.", ["comparison"], "'Another example is social comparison'."),
-              mcq("q5", "What do critics say about nudges?", ["They are too expensive.", "They don't work.", "They can be manipulative.", "They are illegal."], 2, "'critics argue that nudges can be manipulative'."),
-            ],
+            questions: [],
+            groups: stage3Groups["s3-u2-listening"],
           },
         },
         {
@@ -424,21 +383,14 @@ export const stage3: Stage = {
             title: "When Languages Die",
             timeMinutes: 20,
             paragraphs: [
-              "Of the roughly 7,000 languages spoken in the world today, linguists estimate that around 40% are endangered. Many have only a few hundred speakers, most of them elderly. On current trends, a language disappears approximately every few months.",
-              "Language death rarely happens because speakers suddenly abandon their mother tongue. More often, it is a gradual process across generations. Parents who speak a minority language may choose to raise their children in the dominant language, believing it offers better economic opportunities. Within two or three generations, transmission stops entirely.",
-              "Why does this matter? Each language encodes a particular way of seeing the world. Some Aboriginal Australian languages, for example, use compass directions rather than 'left' and 'right', and their speakers show remarkable navigation skills. Indigenous languages also contain detailed knowledge of local plants and ecosystems that is often unrecorded elsewhere.",
-              "Revival, though difficult, is possible. Hebrew, used for centuries mainly in religious contexts, became the everyday language of millions in the twentieth century. Welsh, once in steep decline, has been revitalised through Welsh-medium schools and broadcasting, and the number of young speakers has risen.",
-              "Technology may also play a role. Online dictionaries, apps and social media allow scattered communities to communicate in their language. Yet experts caution that technology cannot replace the most crucial factor: children learning the language at home and using it in daily life.",
+              "A. Of the roughly 7,000 languages spoken in the world today, linguists estimate that around 40% are endangered. Many have only a few hundred speakers, most of them elderly. On current trends, a language disappears approximately every few months.",
+              "B. Language death rarely happens because speakers suddenly abandon their mother tongue. More often, it is a gradual process across generations. Parents who speak a minority language may choose to raise their children in the dominant language, believing it offers better economic opportunities. Within two or three generations, transmission stops entirely.",
+              "C. Why does this matter? Each language encodes a particular way of seeing the world. Some Aboriginal Australian languages, for example, use compass directions rather than 'left' and 'right', and their speakers show remarkable navigation skills. Indigenous languages also contain detailed knowledge of local plants and ecosystems that is often unrecorded elsewhere.",
+              "D. Revival, though difficult, is possible. Hebrew, used for centuries mainly in religious contexts, became the everyday language of millions in the twentieth century. Welsh, once in steep decline, has been revitalised through Welsh-medium schools and broadcasting, and the number of young speakers has risen.",
+              "E. Technology may also play a role. Online dictionaries, apps and social media allow scattered communities to communicate in their language. Yet experts caution that technology cannot replace the most crucial factor: children learning the language at home and using it in daily life.",
             ],
-            questions: [
-              gap("q1", "About ___% of the world's languages are endangered.", ["40", "forty"], "'around 40% are endangered'."),
-              mcq("q2", "According to the passage, languages usually die because…", ["speakers are forced to stop", "parents gradually stop passing them on", "they are banned by governments", "they have no written form"], 1, "'a gradual process across generations… transmission stops entirely'."),
-              mcq("q3", "Why does the writer mention Aboriginal Australian languages?", ["To show languages are difficult", "To illustrate how language reflects a way of seeing the world", "To prove they are endangered", "To compare them with English"], 1, "'Each language encodes a particular way of seeing the world… for example'."),
-              tf("q4", "Hebrew was never used during the centuries before its revival.", "FALSE", "It was 'used for centuries mainly in religious contexts'."),
-              tf("q5", "The number of young Welsh speakers has increased.", "TRUE", "'the number of young speakers has risen'."),
-              tf("q6", "Experts believe technology alone can save endangered languages.", "FALSE", "'technology cannot replace the most crucial factor'."),
-              tf("q7", "Welsh-medium schools receive more funding than English schools.", "NOT GIVEN", "Funding is not mentioned."),
-            ],
+            questions: [],
+            groups: stage3Groups["s3-u3-reading"],
           },
         },
         {
@@ -477,12 +429,8 @@ export const stage3: Stage = {
               { speaker: "Rina", voice: "female", text: "I agree with Noah on that, actually. Returning them would make museums more trustworthy." },
               { speaker: "Tutor", voice: "female", text: "Good. So you disagree on the value of physical visits, but agree on repatriation. For next week, please read the article on immersive exhibitions." },
             ],
-            questions: [
-              mcq("q1", "What is Rina's main argument for museums?", ["They are free.", "Seeing real objects can't be replaced.", "They are good for tourism.", "They have better technology."], 1, "'Online images can't replace seeing a real artefact'."),
-              mcq("q2", "What point does Noah make about visitors?", ["They spend very little time looking at each object.", "They prefer guided tours.", "They don't pay enough.", "They are mostly tourists."], 0, "'Most visitors spend only a few seconds in front of each object'."),
-              mcq("q3", "What do Rina and Noah agree on?", ["Museums should charge entry fees.", "Virtual tours are better.", "Objects taken in colonial times should be returned.", "Museums are no longer relevant."], 2, "Rina: 'I agree with Noah on that' — returning objects."),
-              mcq("q4", "What must students read for next week?", ["An article on museum funding", "An article on immersive exhibitions", "A book on colonial history", "A virtual tour guide"], 1, "'read the article on immersive exhibitions'."),
-            ],
+            questions: [],
+            groups: stage3Groups["s3-u3-listening"],
           },
         },
         {
@@ -574,14 +522,8 @@ export const stage3: Stage = {
         "There are exceptions. Combining an automatic activity, such as walking, with a cognitive one, such as talking, causes few problems. Difficulties arise when both tasks require conscious attention.",
         "The implications for organisations are significant. Open-plan offices and constant notifications may encourage the very behaviour that reduces performance. Some companies now introduce 'focus hours' during which meetings and messages are discouraged.",
       ],
-      questions: [
-        mcq("cq1", "What does the writer suggest about the popular view of multitasking?", ["It is supported by neuroscience.", "It is not supported by research.", "It only applies to managers.", "It is a new idea."], 1, "'Neuroscience, however, paints a less flattering picture'."),
-        gap("cq2", "Switching tasks can reduce productivity by up to ___%.", ["40", "forty"], "Paragraph 2."),
-        tf("cq3", "The Stanford researchers expected heavy multitaskers to perform worse.", "FALSE", "Results were 'contrary to the researchers' initial expectations'."),
-        tf("cq4", "Walking while talking usually causes significant problems.", "FALSE", "'causes few problems'."),
-        tf("cq5", "Focus hours have been shown to double productivity.", "NOT GIVEN", "No results for focus hours are given."),
-        mcq("cq6", "What is the main idea of the final paragraph?", ["Open-plan offices are cheaper.", "Workplace design may encourage harmful multitasking.", "Notifications should be banned by law.", "Meetings are always unproductive."], 1, "Offices and notifications 'may encourage the very behaviour that reduces performance'."),
-      ],
+      questions: [],
+      groups: stage3Groups["s3-checkpoint-reading"],
     },
     listening: {
       context: "A lecture on the history of coffee.",
@@ -590,13 +532,8 @@ export const stage3: Stage = {
         { speaker: "Lecturer", voice: "male", text: "What we know for certain is that by the fifteenth century coffee was being cultivated in Yemen. From there, coffee houses spread to Cairo, Istanbul and eventually Europe. In seventeenth-century England, coffee houses were nicknamed 'penny universities', because for the price of a cup, you could listen to educated conversation." },
         { speaker: "Lecturer", voice: "male", text: "Economically, coffee transformed entire regions. Brazil became the world's largest producer in the nineteenth century, a position it still holds today. However, production depended heavily on slave labour, a dark chapter that is often left out of popular histories." },
       ],
-      questions: [
-        gap("cl1", "The legend says coffee was discovered by a goat ___.", ["herder"], "'a goat herder'."),
-        gap("cl2", "By the 15th century coffee was cultivated in ___.", ["Yemen"], "'cultivated in Yemen'."),
-        gap("cl3", "English coffee houses were called 'penny ___'.", ["universities"], "'penny universities'."),
-        mcq("cl4", "Which country is currently the largest producer?", ["Ethiopia", "Yemen", "Brazil", "Turkey"], 2, "'a position it still holds today'."),
-        mcq("cl5", "What does the lecturer say is often left out of popular histories?", ["The role of goats", "The use of slave labour", "Coffee prices", "European coffee houses"], 1, "'a dark chapter that is often left out'."),
-      ],
+      questions: [],
+      groups: stage3Groups["s3-checkpoint-listening"],
     },
     writing: {
       task: "task2",

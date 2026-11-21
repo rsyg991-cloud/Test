@@ -8,7 +8,8 @@ import type { Answers } from "@/lib/scoring";
 import { Celebration } from "../Celebration";
 import { Icon } from "../icons";
 import { ListeningPlayer } from "../task/ListeningPlayer";
-import { QuestionList } from "../task/QuestionList";
+import { TaskQuestions } from "../task/TaskQuestions";
+import { taskAnsweredCount, taskQuestionCount } from "@/lib/taskGrade";
 import { SpeakingTaskView } from "../task/SpeakingTaskView";
 import { WritingTaskView } from "../task/WritingTaskView";
 import { SKILL_META, SkillIcon } from "../ui";
@@ -25,8 +26,9 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
   const [pending, start] = useTransition();
   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
   const meta = SKILL_META[lesson.skill];
-  const questions = (lesson.reading ?? lesson.listening)?.questions ?? [];
-  const answered = questions.filter((q) => answers[q.id] !== undefined && answers[q.id] !== "").length;
+  const task = lesson.reading ?? lesson.listening;
+  const totalQuestions = task ? taskQuestionCount(task) : 0;
+  const answered = task ? taskAnsweredCount(task, answers) : 0;
 
   function finish(payload: { answers?: Answers; attemptId?: string }) {
     setError(null);
@@ -194,14 +196,16 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-xl font-bold">Questions</h2>
           <span className="text-sm font-semibold" style={{ color: "var(--muted)" }}>
-            {result ? `${result.correct}/${result.total} correct` : `${answered}/${questions.length} answered`}
+            {result ? `${result.correct}/${result.total} correct` : `${answered}/${totalQuestions} answered`}
           </span>
         </div>
-        <QuestionList
-          questions={questions}
+        <TaskQuestions
+          task={task!}
+          section={lesson.reading ? "reading" : "listening"}
           answers={answers}
           onChange={(id, v) => setAnswers((a) => ({ ...a, [id]: v }))}
           results={result?.results}
+          groupResults={result?.groupResults}
           accent={meta.color}
         />
         {error && (
@@ -218,7 +222,7 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
             </>
           ) : (
             <button type="button" className="btn btn-primary" style={accentBtn} disabled={pending || answered === 0} onClick={() => finish({ answers })}>
-              {pending ? "Checking…" : answered < questions.length ? `Check answers (${questions.length - answered} blank)` : "Check answers"}
+              {pending ? "Checking…" : answered < totalQuestions ? `Check answers (${totalQuestions - answered} blank)` : "Check answers"}
             </button>
           )}
         </div>

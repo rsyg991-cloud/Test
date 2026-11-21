@@ -6,11 +6,12 @@ const CHOICE = new Set(["mcq", "mcq-multi", "tfng", "ynng", "matching", "complet
 const TFNG = ["TRUE", "FALSE", "NOT GIVEN"];
 const YNNG = ["YES", "NO", "NOT GIVEN"];
 
-function checkGroups(section: string, groups: QuestionGroup[], errors: string[], imageExists: (src: string) => boolean) {
+function checkGroups(section: string, groups: QuestionGroup[], errors: string[], imageExists: (src: string) => boolean, count?: number) {
   const numbers = groups.flatMap((g) => g.questions.map((q) => q.n));
-  const expected = Array.from({ length: 40 }, (_, i) => i + 1);
-  if (numbers.length !== 40) errors.push(`${section}: has ${numbers.length} questions, expected 40.`);
-  if (JSON.stringify(numbers) !== JSON.stringify(expected)) errors.push(`${section}: questions must be numbered 1–40 in order.`);
+  const total = count ?? numbers.length;
+  const expected = Array.from({ length: total }, (_, i) => i + 1);
+  if (numbers.length !== total) errors.push(`${section}: has ${numbers.length} questions, expected ${total}.`);
+  if (JSON.stringify(numbers) !== JSON.stringify(expected)) errors.push(`${section}: questions must be numbered 1–${total} in order.`);
 
   for (const g of groups) {
     const where = `${section} group "${g.id}"`;
@@ -58,12 +59,20 @@ export function checkTest(
   t.reading.forEach((p, i) => {
     if (p.passage !== i + 1) errors.push(`reading: passages must be 1–3 in order.`);
   });
-  checkGroups("listening", t.listening.flatMap((p) => p.groups), errors, imageExists);
-  checkGroups("reading", t.reading.flatMap((p) => p.groups), errors, imageExists);
+  checkGroups("listening", t.listening.flatMap((p) => p.groups), errors, imageExists, 40);
+  checkGroups("reading", t.reading.flatMap((p) => p.groups), errors, imageExists, 40);
   const words = t.reading.flatMap((p) => p.paragraphs).reduce((a, p) => a + p.text.split(/\s+/).length, 0);
   if (words < 2000) errors.push(`reading: total length is ${words} words; real tests are about 2150–2750.`);
   if (t.writing.task1.task !== "task1" || t.writing.task2.task !== "task2") errors.push("writing: task1/task2 mismatch.");
   if (!t.writing.task1.chart && !t.writing.task1.image) errors.push("writing task1: needs a chart or an image.");
   if (t.writing.task1.image && !t.writing.task1.imageDescription) errors.push("writing task1: images need an imageDescription for AI grading.");
   return { test: errors.length ? undefined : t, errors };
+}
+
+/** Check question groups of any length (e.g. a lesson): numbering 1–N, answers within options, word limits. */
+export function checkQuestionGroups(label: string, groups: QuestionGroup[], opts: { publicDir?: string } = {}): string[] {
+  const errors: string[] = [];
+  const publicDir = opts.publicDir ?? path.join(process.cwd(), "public");
+  checkGroups(label, groups, errors, (src) => /^https?:\/\//.test(src) || existsSync(path.join(publicDir, src)));
+  return errors;
 }

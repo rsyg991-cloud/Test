@@ -49,7 +49,7 @@ They live on the Practice page, and the dashboard suggests one each day.
 - **Licensed past papers**: the engine can load authentic tests (e.g. Cambridge IELTS) with real audio once you have a licence — see **[docs/licensed-tests.md](docs/licensed-tests.md)**. `npm run validate:tests` checks every test file. Licensed files are git-ignored.
 - **Resources page** (`/resources`): links to the official free practice tests (British Council, IDP, IELTS.org) and the Cambridge books, with a warning about pirated "past paper" sites.
 
-The 48 lessons and stage checkpoints are original practice material in IELTS style; they are shorter than the real test by design (they teach one skill at a time).
+The 48 lessons and stage checkpoints are original practice material, shorter than the real test by design (they teach one skill at a time). From **Stage 3** on, every Reading and Listening lesson and checkpoint uses the **official question types and instructions** (Yes/No/Not Given, choose TWO, matching information/headings/features/sentence endings, completion with word limits, summary word boxes), graded by the same engine as the full mock test.
 
 ## AI evaluation: n8n webhook, Claude or demo
 
@@ -70,7 +70,7 @@ Writing and Speaking are graded by Claude (`lib/ai/evaluate.ts`) with structured
 
 ## Tech
 
-Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Prisma (SQLite locally, Postgres-ready) · `@anthropic-ai/sdk` · email/password auth with hashed session tokens in httpOnly cookies · Vitest.
+Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Prisma + PostgreSQL (Neon in production) · `@anthropic-ai/sdk` · email/password auth with hashed session tokens in httpOnly cookies · Vitest.
 
 ```
 app/                    pages (landing, auth, onboarding, dashboard, journey, learn, checkpoint, practice, vocab, progress, plan)
@@ -95,8 +95,8 @@ prisma/                 schema + demo seed
 
 ```bash
 npm install
-cp .env.example .env        # set N8N_EVAL_WEBHOOK_URL (or ANTHROPIC_API_KEY) for real AI grading
-npm run setup               # create the database and seed a demo learner
+cp .env.example .env        # point DATABASE_URL(_UNPOOLED) at any Postgres; set N8N_EVAL_WEBHOOK_URL for real AI grading
+npm run setup               # run migrations and seed a demo learner
 npm run dev                 # http://localhost:3000
 ```
 
@@ -112,6 +112,6 @@ npm run build
 BASE_URL=http://localhost:3000 npm run e2e   # browser smoke test: register → placement → plan → lesson → AI conversation → full mock test → dashboard
 ```
 
-For production, switch the Prisma datasource to `postgresql`, set `DATABASE_URL`, and deploy as a standard Next.js app.
+**Deploying**: Vercel + Neon, every push deploys automatically — step-by-step in **[docs/deploy.md](docs/deploy.md)**.
 
 *IELTS is a registered trademark of its owners. BandUp is an independent preparation tool and is not affiliated with them.*
