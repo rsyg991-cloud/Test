@@ -231,22 +231,22 @@ export default async function Home() {
       </section>
 
       {/* Skills */}
-      <section className="py-20" style={{ background: "#111316", color: "#f2f2ef" }}>
+      <section className="py-20" style={{ background: "#0a2540", color: "#eaf5fd" }}>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="eyebrow mb-2" style={{ color: "#a6abb2" }}>
+          <div className="eyebrow mb-2" style={{ color: "#9bb2c6" }}>
             Four skills, one system
           </div>
           <h2 className="max-w-2xl font-display text-3xl sm:text-4xl">
-            Practice that feels like the real test. Feedback that <span style={{ color: "#ffe14d" }}>doesn&apos;t</span>.
+            Practice that feels like the real test. Feedback that <span style={{ color: "#4cc3f5" }}>doesn&apos;t</span>.
           </h2>
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {(Object.keys(SKILL_COPY) as Skill[]).map((k) => (
-              <div key={k} className="rounded-[10px] p-6" style={{ background: "#1b1d20", border: "1px solid #33363b" }}>
+              <div key={k} className="rounded-[10px] p-6" style={{ background: "#0f2f4d", border: "1px solid #23466a" }}>
                 <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest" style={{ color: SKILL_DARK[k] }}>
                   <Icon name={SKILL_META[k].icon} size={18} /> {SKILL_META[k].label}
                 </span>
                 <h3 className="mt-3 text-xl font-bold">{SKILL_COPY[k].title}</h3>
-                <p className="mt-2 leading-relaxed" style={{ color: "#a6abb2" }}>
+                <p className="mt-2 leading-relaxed" style={{ color: "#9bb2c6" }}>
                   {SKILL_COPY[k].body}
                 </p>
               </div>
@@ -304,7 +304,7 @@ export default async function Home() {
           <p className="ar mx-auto mt-4 max-w-xl text-lg font-bold" lang="ar" dir="rtl">
             ابدأ من مستواك، ووصل للدرجة اللي تبيها.
           </p>
-          <Link href={cta} className="btn mt-8 px-7 py-4 text-base" style={{ background: "#111316", color: "#ffe14d" }}>
+          <Link href={cta} className="btn btn-primary mt-8 px-7 py-4 text-base">
             Find my starting point <Icon name="arrow" size={18} />
           </Link>
         </div>

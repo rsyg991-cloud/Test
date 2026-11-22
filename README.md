@@ -25,9 +25,9 @@ Balbal is a full-stack English learning platform that takes a learner from **any
 
 ## Brand
 
-**Balbal (بلبل)** — the bulbul, the bird that sings: Balbal is about learning to speak. The "Score Sheet" identity is built from the exam itself: the answer sheet, the filled answer bubble and the highlighter that marks what matters. The mark joins the two ideas: a bulbul whose body is the filled answer bubble, with a crest, a beak and a tail like the tail of a speech bubble, on a highlighter tile. The wordmark is "Balbal" (the second "bal" marked by the highlighter) beside "بلبل"; on phones the header shows the mark and "Balbal" only.
+**Balbal (بلبل)** — the bulbul, the bird that sings: Balbal is about learning to speak. The mark is a singing bulbul leaning forward mid-song: a navy bird with an open beak and two sound waves, its eye and wing cut in sky blue, on a sky tile. The wordmark is "Balbal" (the second "bal" marked by the pale-sky highlighter) beside "بلبل"; on phones the header shows the mark and "Balbal" only. The layout language comes from the exam: answer-sheet bubbles, ruled lines, the highlighter that marks what matters.
 
-- **Colours** are tokens in `app/globals.css` (light and dark): paper, sheet, ink, one action colour (ink in light, the highlighter yellow in dark), the highlighter `#FFE14D`, sheet red for wrong answers, a green for correct ones, and one colour per skill.
+- **Colours** ("pure sky and white") are tokens in `app/globals.css`, light and dark: a white page with ice-blue cards (`#F2F9FE`), navy text (`#0A2540`), one action colour (ocean `#0B5E8E` in light, sky `#4CC3F5` in dark), the sky logo tile (`--tile` / `--on-tile`), a pale-sky highlighter (`#BFE8FB`), green for correct, red for wrong, and one colour per skill. Every text colour passes WCAG AA on its surfaces in both themes.
 - **Type**: Archivo Black for headlines, Public Sans for text, JetBrains Mono for every band, score, timer and question number (`.num`), Noto Kufi Arabic for Arabic (`.ar`).
 - **Logo** files are in `public/brand/` (lockup, on-dark, one-colour, mark); the site's `<Logo>` uses the same outlined paths (`components/logo-paths.ts`), and `app/icon.svg`, `app/apple-icon.tsx` and `app/opengraph-image.tsx` are built from the mark.
 - One highlighted word per headline (`.hl`), tight corners (6 / 10 / 16 px), borders rather than shadows.

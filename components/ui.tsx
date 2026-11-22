@@ -10,19 +10,16 @@ export const SKILL_META: Record<Skill, { label: string; icon: string; color: str
   speaking: { label: "Speaking", icon: "mic", color: "var(--speaking)", soft: "color-mix(in srgb, var(--speaking) 14%, transparent)" },
 };
 
-/** The bulbul on its highlighter tile. Its body is the filled answer bubble. */
+/** The singing bulbul on its sky tile: navy bird, eye and wing cut in the tile colour. */
 function MarkShapes() {
   return (
     <>
-      <rect width="64" height="64" rx="14" fill="var(--highlighter)" />
-      <g fill="var(--on-highlighter)">
-        <path d={MARK.tail} />
-        <path d={MARK.crest} />
-        <path d={MARK.beak} />
-        <circle {...MARK.body} />
-        <circle {...MARK.head} />
-      </g>
-      <circle {...MARK.eye} fill="var(--highlighter)" />
+      <rect width="64" height="64" rx="14" fill="var(--tile)" />
+      <path d={MARK.bird} fill="var(--on-tile)" />
+      <path d={MARK.beak} fill="var(--on-tile)" />
+      <path d={MARK.wing} fill="none" stroke="var(--tile)" strokeWidth="2.4" strokeLinecap="round" />
+      <circle {...MARK.eye} fill="var(--tile)" />
+      <path d={MARK.waves} fill="none" stroke="var(--on-tile)" strokeWidth="2.8" strokeLinecap="round" />
     </>
   );
 }

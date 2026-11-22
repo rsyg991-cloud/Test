@@ -1,4 +1,4 @@
-// Generated from the Balbal design system (Score Sheet brand): "Balbal" outlined from Archivo Black and
+// Generated from the Balbal design system (Sky palette): "Balbal" outlined from Archivo Black and
 // "بلبل" shaped with HarfBuzz and outlined from Noto Kufi Arabic, so the logo renders the same before web fonts load.
 // Source: scratchpad script make_balbal.py. Lockup is 347×64; the mark is the first 64×64.
 export const LOGO_WIDTH = 347;
@@ -12,12 +12,15 @@ export const LOGO_SWIPE = { x: 165.1, y: 32.7, width: 82.2, height: 22.3 };
 export const LOGO_BOX = { x: 164.1, y: 6.0, width: 84.2, height: 51.0 };
 export const LOGO_SEP = { x: 252.5, y: 19.0, width: 1.5, height: 30.0 };
 
-/** The bulbul: its body is the filled answer bubble. Coordinates on a 64×64 tile. */
+/**
+ * The singing bulbul, leaning forward mid-song, on a 64×64 tile.
+ * bird + beak are filled; wing and waves are strokes (wing 2.4, waves 2.8, round caps);
+ * the eye and wing are cut in the tile colour.
+ */
 export const MARK = {
-  body: { cx: 28, cy: 38, r: 16 },
-  head: { cx: 41, cy: 23, r: 9 },
-  eye: { cx: 43.5, cy: 21.5, r: 2.4 },
-  crest: "M36 17 L34 5 L46 16 Z",
-  beak: "M48.5 19.5 L58 24 L48.5 27 Z",
-  tail: "M16 43 L5 55 L23 51 Z",
+  bird: "M23.52 14.47 16.01 7.07 27.41 11.44C32.26 10.23 36.02 12.9 37.22 17.75C38.43 22.6 41.83 25.88 43.16 31.22C45.09 38.98 40.48 45.28 33.2 47.1C29.81 47.94 26.66 47.7 23.75 46.36L13.91 60.67L15.49 54.61L10.16 58L18.78 42.97C17.81 37.02 20 31.32 23.64 27.32C23.64 23.2 22.43 18.35 23.52 14.47Z",
+  beak: "M35.72 13.8 45.11 10.12 37.13 17.37 35.72 13.8ZM37.56 19.11 46.63 20.35 37.71 21.76 37.56 19.11Z",
+  wing: "M31.03 30.12C27.39 34.12 24.24 40.06 22.53 45.64",
+  waves: "M46.93 9.15C49.28 9.87 51.08 11.77 51.68 14.15C52.27 16.53 51.57 19.06 49.83 20.79M49.48 4.91C53.24 6 56.13 9.01 57.07 12.8C58.02 16.6 56.88 20.61 54.08 23.34",
+  eye: { cx: 31.45, cy: 17.34, r: 2.3 },
 };
