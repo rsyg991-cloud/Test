@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/lib/i18n/client";
 import type { Skill } from "@/content/types";
 import { SKILL_META } from "./ui";
 
@@ -9,6 +12,7 @@ interface Point {
 
 /** Band-over-time chart: one line per skill plus the learner's target. */
 export function BandChart({ snapshots, target, height = 240 }: { snapshots: Point[]; target: number | null; height?: number }) {
+  const { t, formatDate } = useT();
   const W = 640;
   const H = height;
   const pad = { l: 34, r: 14, t: 14, b: 26 };
@@ -18,7 +22,7 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
   if (sorted.length < 2) {
     return (
       <div className="grid place-items-center rounded-[10px] p-8 text-center text-sm" style={{ background: "var(--surface-2)", color: "var(--muted)", minHeight: 160 }}>
-        Complete a few lessons and your band trend will appear here.
+        {t("chart.empty")}
       </div>
     );
   }
@@ -33,8 +37,8 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
   for (let b = minB; b <= maxB; b += maxB - minB > 4 ? 1 : 0.5) ticks.push(b);
 
   return (
-    <figure>
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Estimated band per skill over time">
+    <figure dir="ltr">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={t("chart.label")}>
         {ticks.map((b) => (
           <g key={b}>
             <line x1={pad.l} x2={W - pad.r} y1={y(b)} y2={y(b)} stroke="var(--line)" strokeDasharray="3 5" />
@@ -47,7 +51,7 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
           <g>
             <line x1={pad.l} x2={W - pad.r} y1={y(target)} y2={y(target)} stroke="var(--brand)" strokeWidth="2" strokeDasharray="8 6" />
             <text x={W - pad.r} y={y(target) - 6} textAnchor="end" fontSize="11" fontWeight="700" fill="var(--brand)">
-              Target {target.toFixed(1)}
+              {t("chart.target", { band: target.toFixed(1) })}
             </text>
           </g>
         )}
@@ -60,7 +64,7 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
               <path d={d} fill="none" stroke={SKILL_META[s].color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
               {pts.map((p, i) => (
                 <circle key={i} cx={x(p.createdAt.getTime())} cy={y(p.band)} r="3.5" fill="var(--surface)" stroke={SKILL_META[s].color} strokeWidth="2">
-                  <title>{`${SKILL_META[s].label}: ${p.band.toFixed(1)} (${p.createdAt.toLocaleDateString("en-GB")})`}</title>
+                  <title>{t("chart.point", { skill: t(`skills.${s}`), band: p.band.toFixed(1), date: formatDate(p.createdAt) })}</title>
                 </circle>
               ))}
             </g>
@@ -71,7 +75,7 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
         {skills.map((s) => (
           <span key={s} className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: SKILL_META[s].color }} />
-            {SKILL_META[s].label}
+            {t(`skills.${s}`)}
           </span>
         ))}
       </figcaption>

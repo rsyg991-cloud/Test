@@ -12,10 +12,12 @@ import { SpeakingTaskView } from "@/components/task/SpeakingTaskView";
 import { WritingTaskView } from "@/components/task/WritingTaskView";
 import { Ring, SKILL_META } from "@/components/ui";
 import type { Answers } from "@/lib/scoring";
+import { useT } from "@/lib/i18n/client";
 
 const ORDER: Skill[] = ["listening", "reading", "writing", "speaking"];
 
 export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { checkpoint: Checkpoint; stageName: string; passBand: number; isFinal: boolean }) {
+  const { t, stage } = useT();
   const [idx, setIdx] = useState(-1);
   const [reading, setReading] = useState<Answers>({});
   const [listening, setListening] = useState<Answers>({});
@@ -46,12 +48,12 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/journey" className="grid h-10 w-10 place-items-center rounded-full" style={{ background: "var(--surface-2)" }} aria-label="Back to journey">
+        <Link href="/journey" className="grid h-10 w-10 place-items-center rounded-full" style={{ background: "var(--surface-2)" }} aria-label={t("lesson.backAria")}>
           <Icon name="back" size={18} />
         </Link>
         <div className="flex-1">
           <div className="eyebrow">
-            Stage {checkpoint.stage} · {stageName}
+            {t("checkpoint.header", { n: checkpoint.stage, stage: stageName })}
           </div>
           <div className="mt-1 flex gap-1.5">
             {ORDER.map((s, i) => (
@@ -66,38 +68,38 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
           <span className="grid h-14 w-14 place-items-center rounded-[10px] text-white" style={{ background: "var(--navy)" }}>
             <Icon name="trophy" size={26} />
           </span>
-          <h1 className="mt-4 font-display text-3xl font-bold">{checkpoint.title}</h1>
+          <h1 className="mt-4 font-display text-3xl">{t("checkpoint.title", { camp: stage(checkpoint.stage, "camp") })}</h1>
           <p className="mt-2" style={{ color: "var(--muted)" }}>
-            A mini exam across all four skills, about 60 minutes. Reach an overall Band {passBand.toFixed(1)} to {isFinal ? "reach the summit" : "unlock the next stage"}. You can retake it any time.
+            {t(isFinal ? "checkpoint.introFinal" : "checkpoint.intro", { band: passBand.toFixed(1) })}
           </p>
           <ol className="mt-6 grid gap-2 sm:grid-cols-2">
             {ORDER.map((s, i) => (
               <li key={s} className="flex items-center gap-3 rounded-md p-3" style={{ background: "var(--surface-2)" }}>
-                <span className="font-display font-bold" style={{ color: SKILL_META[s].color }}>
+                <span className="num font-bold" style={{ color: SKILL_META[s].color }}>
                   {i + 1}
                 </span>
                 <Icon name={SKILL_META[s].icon} size={18} style={{ color: SKILL_META[s].color }} />
-                <span className="font-semibold">{SKILL_META[s].label}</span>
+                <span className="font-semibold">{t(`skills.${s}`)}</span>
               </li>
             ))}
           </ol>
           <p className="mt-4 text-sm" style={{ color: "var(--muted)" }}>
-            Tip: find a quiet place with a microphone. Treat it like the real exam — no dictionary, no pauses.
+            {t("checkpoint.tip")}
           </p>
           <button type="button" className="btn btn-primary mt-6 px-6 py-3" onClick={() => go(0)}>
-            Begin <Icon name="arrow" size={18} />
+            {t("checkpoint.begin")} <Icon name="arrow" size={18} />
           </button>
         </section>
       )}
 
       {skill === "listening" && (
         <section className="animate-rise space-y-6">
-          <h1 className="font-display text-3xl font-bold">Listening</h1>
+          <h1 className="font-display text-3xl">{t("skills.listening")}</h1>
           <ListeningPlayer task={checkpoint.listening} revealScript={false} />
           <TaskQuestions task={checkpoint.listening} section="listening" answers={listening} onChange={(id, v) => setListening((a) => ({ ...a, [id]: v }))} accent="var(--listening)" />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={() => go(1)}>
-              Next: Reading <Icon name="arrow" size={18} />
+              {t("checkpoint.next", { skill: t("skills.reading") })} <Icon name="arrow" size={18} />
             </button>
           </div>
         </section>
@@ -105,9 +107,9 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
 
       {skill === "reading" && (
         <section className="animate-rise space-y-6">
-          <h1 className="font-display text-3xl font-bold">Reading · {checkpoint.reading.timeMinutes} minutes</h1>
-          <article className="card prose-reading p-6 text-[16px]">
-            <h2 className="mb-3 font-display text-2xl font-bold">{checkpoint.reading.title}</h2>
+          <h1 className="font-display text-3xl">{t("checkpoint.readingTitle", { minutes: checkpoint.reading.timeMinutes })}</h1>
+          <article className="card prose-reading p-6 text-[16px]" lang="en" dir="ltr">
+            <h2 className="mb-3 font-display text-2xl">{checkpoint.reading.title}</h2>
             {checkpoint.reading.paragraphs.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -115,7 +117,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
           <TaskQuestions task={checkpoint.reading} section="reading" answers={reading} onChange={(id, v) => setReading((a) => ({ ...a, [id]: v }))} accent="var(--reading)" />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={() => go(2)}>
-              Next: Writing <Icon name="arrow" size={18} />
+              {t("checkpoint.next", { skill: t("skills.writing") })} <Icon name="arrow" size={18} />
             </button>
           </div>
         </section>
@@ -123,11 +125,11 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
 
       {skill === "writing" && (
         <section className="animate-rise space-y-6">
-          <h1 className="font-display text-3xl font-bold">Writing</h1>
+          <h1 className="font-display text-3xl">{t("skills.writing")}</h1>
           <WritingTaskView task={checkpoint.writing} source="checkpoint" refId={checkpoint.id} onEvaluated={(id) => setWritingId(id)} compact />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={() => go(3)} disabled={!writingId}>
-              Next: Speaking <Icon name="arrow" size={18} />
+              {t("checkpoint.next", { skill: t("skills.speaking") })} <Icon name="arrow" size={18} />
             </button>
           </div>
         </section>
@@ -135,7 +137,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
 
       {skill === "speaking" && (
         <section className="animate-rise space-y-6">
-          <h1 className="font-display text-3xl font-bold">Speaking</h1>
+          <h1 className="font-display text-3xl">{t("skills.speaking")}</h1>
           <SpeakingTaskView task={checkpoint.speaking} source="checkpoint" refId={checkpoint.id} onEvaluated={(id) => setSpeakingId(id)} />
           {error && (
             <p role="alert" className="font-semibold" style={{ color: "var(--danger)" }}>
@@ -144,7 +146,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
           )}
           <div className="flex justify-end">
             <button className="btn btn-primary px-6 py-3" onClick={submit} disabled={!speakingId || pending}>
-              {pending ? "Calculating…" : "Finish & see my result"} <Icon name="trophy" size={18} />
+              {pending ? t("checkpoint.calculating") : t("checkpoint.finish")} <Icon name="trophy" size={18} />
             </button>
           </div>
         </section>
@@ -153,46 +155,48 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
       {idx === 4 && result && (
         <section className="animate-rise space-y-6">
           <div className="card p-6 text-center sm:p-8">
-            <div className="eyebrow">{result.passed ? "Checkpoint passed" : "Not quite yet"}</div>
-            <h1 className="mt-2 font-display text-5xl font-bold">Band {result.overall.toFixed(1)}</h1>
+            <div className="eyebrow">{result.passed ? t("checkpoint.passed") : t("checkpoint.notYet")}</div>
+            <h1 className="mt-2 font-display text-5xl" dir="ltr">
+              Band <span className="num">{result.overall.toFixed(1)}</span>
+            </h1>
             <p className="mx-auto mt-2 max-w-md" style={{ color: "var(--muted)" }}>
               {result.passed
                 ? result.unlockedStage
-                  ? `You unlocked Stage ${result.unlockedStage}. The next camp is waiting.`
+                  ? t("checkpoint.unlocked", { n: result.unlockedStage })
                   : isFinal
-                    ? "You've reached the summit. You're ready for exam day."
-                    : "Great consolidation of your skills."
-                : `You need Band ${result.passBand.toFixed(1)} to pass. Review your weakest skill below, practise a little more, and try again — every attempt makes you stronger.`}
+                    ? t("checkpoint.summit")
+                    : t("checkpoint.consolidated")
+                : t("checkpoint.needBand", { band: result.passBand.toFixed(1) })}
             </p>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {ORDER.map((s) => (
                 <div key={s} className="flex flex-col items-center">
-                  <Ring value={result.bands[s] / 9} size={86} stroke={8} color={SKILL_META[s].color} label={`${SKILL_META[s].label} ${result.bands[s]}`}>
-                    <span className="font-display text-xl font-bold">{result.bands[s].toFixed(1)}</span>
+                  <Ring value={result.bands[s] / 9} size={86} stroke={8} color={SKILL_META[s].color} label={`${t(`skills.${s}`)} ${result.bands[s]}`}>
+                    <span className="num text-xl font-bold">{result.bands[s].toFixed(1)}</span>
                   </Ring>
-                  <span className="mt-2 text-sm font-bold">{SKILL_META[s].label}</span>
+                  <span className="mt-2 text-sm font-bold">{t(`skills.${s}`)}</span>
                 </div>
               ))}
             </div>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href="/journey" className="btn btn-primary">
-                Back to the journey
+                {t("lesson.backToJourney")}
               </Link>
               {!result.passed && (
                 <Link href="/practice" className="btn btn-ghost">
-                  Practise more
+                  {t("checkpoint.practiseMore")}
                 </Link>
               )}
             </div>
           </div>
           <details className="card p-5">
-            <summary className="cursor-pointer font-bold">Review Listening answers ({result.listening.correct}/{result.listening.total})</summary>
+            <summary className="cursor-pointer font-bold">{t("checkpoint.reviewListening", { correct: result.listening.correct ?? 0, total: result.listening.total ?? 0 })}</summary>
             <div className="mt-4">
               <TaskQuestions task={checkpoint.listening} section="listening" answers={listening} onChange={() => {}} results={result.listening.results} groupResults={result.listening.groupResults} accent="var(--listening)" />
             </div>
           </details>
           <details className="card p-5">
-            <summary className="cursor-pointer font-bold">Review Reading answers ({result.reading.correct}/{result.reading.total})</summary>
+            <summary className="cursor-pointer font-bold">{t("checkpoint.reviewReading", { correct: result.reading.correct ?? 0, total: result.reading.total ?? 0 })}</summary>
             <div className="mt-4">
               <TaskQuestions task={checkpoint.reading} section="reading" answers={reading} onChange={() => {}} results={result.reading.results} groupResults={result.reading.groupResults} accent="var(--reading)" />
             </div>
@@ -203,15 +207,15 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
       {celebrate && result && (
         <Celebration
           big
-          title={isFinal ? "Summit reached!" : "Camp reached!"}
-          subtitle={result.unlockedStage ? `Stage ${result.unlockedStage} is now unlocked.` : `Overall Band ${result.overall.toFixed(1)}`}
+          title={isFinal ? t("checkpoint.summitReached") : t("checkpoint.campReached")}
+          subtitle={result.unlockedStage ? t("checkpoint.nowUnlocked", { n: result.unlockedStage }) : t("checkpoint.overallBand", { band: result.overall.toFixed(1) })}
           band={result.overall}
           xp={result.activity.xpGained}
           streak={result.activity.streak}
           streakExtended={result.activity.streakExtended}
           freezeEarned={result.activity.freezeEarned}
           nextHref="/journey"
-          nextTitle="See the map"
+          nextTitle={t("checkpoint.seeMap")}
           onClose={() => setCelebrate(false)}
         />
       )}

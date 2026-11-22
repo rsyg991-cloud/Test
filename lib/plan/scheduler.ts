@@ -130,13 +130,22 @@ export function lessonsPerDay(months: number, itemCount: number): number {
   return itemCount / Math.max(1, studyDays);
 }
 
-/** An honest note when a plan is too short for the learner's path. Null when the pace is comfortable. */
-export function paceWarning(months: number, itemCount: number): string | null {
+/** How demanding a plan is for the learner's path: null when the pace is comfortable. */
+export function paceLevel(months: number, itemCount: number): { level: "veryTight" | "busy"; n: number } | null {
   const perDay = lessonsPerDay(months, itemCount);
   const n = perDay >= 1.95 ? Math.round(perDay) : Math.round(perDay * 10) / 10;
-  if (perDay > 2) return `Very tight: about ${n} lessons every day for your path. Choose a longer plan if you can.`;
-  if (perDay > 1.2) return `Busy pace: about ${n} lessons a day. Doable with real daily commitment.`;
+  if (perDay > 2) return { level: "veryTight", n };
+  if (perDay > 1.2) return { level: "busy", n };
   return null;
+}
+
+/** An honest note (English) when a plan is too short for the learner's path. Pages translate paceLevel instead. */
+export function paceWarning(months: number, itemCount: number): string | null {
+  const p = paceLevel(months, itemCount);
+  if (!p) return null;
+  return p.level === "veryTight"
+    ? `Very tight: about ${p.n} lessons every day for your path. Choose a longer plan if you can.`
+    : `Busy pace: about ${p.n} lessons a day. Doable with real daily commitment.`;
 }
 
 /** Roughly how many months the band gap needs at a realistic pace. */

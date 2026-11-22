@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
+import { getT } from "@/lib/i18n/server";
 import { AuthForm } from "../AuthForm";
 
-export const metadata: Metadata = { title: "Log in" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT();
+  return { title: t("meta.login") };
+}
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const { t } = await getT();
   return (
     <>
-      <h1 className="font-display text-4xl font-bold tracking-tight">Welcome back</h1>
+      <h1 className="font-display text-4xl">{t("auth.loginTitle")}</h1>
       <p className="mb-8 mt-2" style={{ color: "var(--muted)" }}>
-        Your streak is waiting for you.
+        {t("auth.loginSubtitle")}
       </p>
       <AuthForm mode="login" />
     </>

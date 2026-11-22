@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { Icon } from "./icons";
@@ -61,6 +62,7 @@ export interface CelebrationProps {
 }
 
 export function Celebration(p: CelebrationProps) {
+  const { t, plural } = useT();
   const btn = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     btn.current?.focus();
@@ -78,7 +80,7 @@ export function Celebration(p: CelebrationProps) {
           <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-[10px] " style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
             <Icon name={p.big ? "trophy" : "star"} size={30} />
           </div>
-          <h2 id="celebration-title" className="font-display text-3xl font-bold">
+          <h2 id="celebration-title" className="font-display text-3xl">
             {p.title}
           </h2>
           {p.subtitle && (
@@ -88,14 +90,14 @@ export function Celebration(p: CelebrationProps) {
           )}
         </div>
         <div className="grid grid-cols-3 gap-3 px-6 py-5">
-          <Stat icon="star" color="var(--gold)" value={`+${p.xp}`} label="XP" />
-          <Stat icon="flame" color="var(--brand)" value={String(p.streak)} label={p.streakExtended ? "Streak +1!" : "Day streak"} />
-          <Stat icon="target" color="var(--listening)" value={p.band != null ? p.band.toFixed(1) : "—"} label="Band" />
+          <Stat icon="star" color="var(--gold)" value={`+${p.xp}`} label={t("celebration.xp")} />
+          <Stat icon="flame" color="var(--brand)" value={String(p.streak)} label={p.streakExtended ? t("celebration.streakPlus") : t("celebration.dayStreak")} />
+          <Stat icon="target" color="var(--listening)" value={p.band != null ? p.band.toFixed(1) : "—"} label={t("celebration.band")} />
         </div>
         {(p.vocabAdded || p.freezeEarned) ? (
           <div className="mx-6 mb-4 space-y-1 rounded-md p-3 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>
-            {!!p.vocabAdded && <p>📚 {p.vocabAdded} new words added to your review deck</p>}
-            {p.freezeEarned && <p>🧊 7-day streak! You earned a streak freeze.</p>}
+            {!!p.vocabAdded && <p>{plural("celebration.newWords", p.vocabAdded)}</p>}
+            {p.freezeEarned && <p>{t("celebration.freeze")}</p>}
           </div>
         ) : null}
         <div className="flex flex-col gap-2 px-6 pb-6">
@@ -104,7 +106,7 @@ export function Celebration(p: CelebrationProps) {
           </Link>
           {p.onClose && (
             <button type="button" onClick={p.onClose} className="btn btn-ghost w-full">
-              Review my answers
+              {t("celebration.review")}
             </button>
           )}
         </div>
@@ -117,7 +119,7 @@ function Stat({ icon, color, value, label }: { icon: string; color: string; valu
   return (
     <div className="rounded-[10px] p-3" style={{ background: "var(--surface-2)" }}>
       <Icon name={icon} size={20} style={{ color, margin: "0 auto" }} />
-      <div className="mt-1 font-display text-2xl font-bold">{value}</div>
+      <div className="num mt-1 text-2xl font-bold">{value}</div>
       <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
         {label}
       </div>

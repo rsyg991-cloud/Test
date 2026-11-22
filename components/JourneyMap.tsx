@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useT } from "@/lib/i18n/client";
 import { Icon } from "./icons";
 
 export interface StageProgress {
@@ -21,6 +24,7 @@ export interface StageProgress {
  * Works for any number of stages (the curriculum ends at the learner's target stage).
  */
 export function JourneyMap({ stages, compact = false }: { stages: StageProgress[]; compact?: boolean }) {
+  const { t, stage } = useT();
   const n = Math.max(1, stages.length);
   // Overall position: passed stages count fully, the current stage by its lesson completion.
   let v = 0;
@@ -40,16 +44,16 @@ export function JourneyMap({ stages, compact = false }: { stages: StageProgress[
 
   return (
     <div className="ruled relative w-full overflow-hidden rounded-[16px] border px-4 py-4 sm:px-5" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
-      <ol className="relative flex flex-col-reverse" aria-label="Your stages, from first to last">
+      <ol className="relative flex flex-col-reverse" aria-label={t("journeyMap.listLabel")}>
         <span
           aria-hidden="true"
           className="absolute rounded-full"
-          style={{ left: bubble / 2 - 2, width: 4, bottom: row / 2, height: (n - 1) * row, background: "var(--surface-2)" }}
+          style={{ insetInlineStart: bubble / 2 - 2, width: 4, bottom: row / 2, height: (n - 1) * row, background: "var(--surface-2)" }}
         />
         <span
           aria-hidden="true"
           className="absolute rounded-full transition-all duration-700"
-          style={{ left: bubble / 2 - 2, width: 4, bottom: row / 2, height: (n - 1) * row * fill, background: "var(--brand)" }}
+          style={{ insetInlineStart: bubble / 2 - 2, width: 4, bottom: row / 2, height: (n - 1) * row * fill, background: "var(--brand)" }}
         />
         {stages.map((s, i) => {
           const isCurrent = i === currentIdx;
@@ -62,7 +66,11 @@ export function JourneyMap({ stages, compact = false }: { stages: StageProgress[
               <Link
                 href={`/journey#stage-${s.id}`}
                 className="flex min-w-0 flex-1 items-center gap-3"
-                aria-label={`Stage ${s.id}, ${s.name} (${s.cefr})${s.passed ? ", completed" : s.skipped ? ", skipped" : s.locked ? ", locked" : isCurrent ? ", you are here" : ""}${isGoal ? ", your goal" : ""}`}
+                aria-label={
+                  t("journeyMap.aria", { n: s.id, name: stage(s.id, "name"), cefr: s.cefr }) +
+                  (s.passed ? t("journeyMap.ariaCompleted") : s.skipped ? t("journeyMap.ariaSkipped") : s.locked ? t("journeyMap.ariaLocked") : isCurrent ? t("journeyMap.ariaHere") : "") +
+                  (isGoal ? t("journeyMap.ariaGoal") : "")
+                }
               >
                 <span
                   className={`num relative grid shrink-0 place-items-center rounded-full border-2 text-base font-bold ${isCurrent ? "animate-pulse-ring" : ""}`}
@@ -72,21 +80,23 @@ export function JourneyMap({ stages, compact = false }: { stages: StageProgress[
                 </span>
                 <span className="min-w-0">
                   <span className="flex items-center gap-2">
-                    <span className="truncate text-sm font-bold leading-tight">{s.name}</span>
+                    <span className="truncate text-sm font-bold leading-tight">{stage(s.id, "name")}</span>
                     {isCurrent && (
                       <span className="chip shrink-0" style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
-                        You are here
+                        {t("journeyMap.youAreHere")}
                       </span>
                     )}
                     {isGoal && !isCurrent && (
                       <span className="chip shrink-0" style={{ background: "var(--surface-2)", color: "var(--ink)" }}>
-                        Your goal
+                        {t("journeyMap.yourGoal")}
                       </span>
                     )}
                   </span>
                   <span className="block truncate text-[11px] font-semibold" style={{ color: "var(--muted)" }}>
-                    <span className="num">{s.cefr}</span>
-                    {s.skipped ? " · Skipped (placed higher)" : outside && !s.passed ? " · Beyond your goal" : !compact ? ` · ${s.camp} · ` : ""}
+                    <span className="num" dir="ltr">
+                      {s.cefr}
+                    </span>
+                    {s.skipped ? ` · ${t("journeyMap.skipped")}` : outside && !s.passed ? ` · ${t("journeyMap.beyondGoal")}` : !compact ? ` · ${stage(s.id, "camp")} · ` : ""}
                     {!compact && !s.skipped && !(outside && !s.passed) && <span className="num">{Math.round(s.pct * 100)}%</span>}
                   </span>
                 </span>

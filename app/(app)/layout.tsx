@@ -1,18 +1,21 @@
 import { logout } from "@/app/actions/auth";
 import { Icon } from "@/components/icons";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { BottomNav, SideNav } from "@/components/NavLinks";
 import { Logo } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getT } from "@/lib/i18n/server";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
+  const { t, number } = await getT();
   const vocabDue = await prisma.vocabCard.count({ where: { userId: user.id, due: { lte: new Date() } } });
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[250px_1fr]">
       <aside
-        className="sticky top-0 hidden h-dvh flex-col gap-8 border-r p-5 lg:flex"
+        className="sticky top-0 hidden h-dvh flex-col gap-8 border-e p-5 lg:flex"
         style={{ borderColor: "var(--line)", background: "var(--surface)" }}
       >
         <Logo href="/dashboard" />
@@ -25,15 +28,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 <Icon name="flame" size={16} style={{ color: "var(--brand)" }} /> {user.streak}
               </span>
               <span className="inline-flex items-center gap-1">
-                <Icon name="star" size={16} style={{ color: "var(--gold)" }} /> {user.xp.toLocaleString()} XP
+                <Icon name="star" size={16} style={{ color: "var(--gold)" }} /> {number(user.xp)} {t("common.xp")}
               </span>
             </div>
           </div>
-          <form action={logout}>
-            <button className="flex items-center gap-2 px-3 text-sm font-semibold" style={{ color: "var(--muted)" }}>
-              <Icon name="logout" size={16} /> Log out
-            </button>
-          </form>
+          <div className="flex items-center justify-between gap-2">
+            <form action={logout}>
+              <button className="flex items-center gap-2 px-3 text-sm font-semibold" style={{ color: "var(--muted)" }}>
+                <Icon name="logout" size={16} /> {t("common.logOut")}
+              </button>
+            </form>
+            <LanguageSwitch />
+          </div>
         </div>
       </aside>
 
@@ -50,8 +56,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <span className="inline-flex items-center gap-1">
               <Icon name="star" size={17} style={{ color: "var(--gold)" }} /> {user.xp}
             </span>
+            <LanguageSwitch className="px-2 py-1 text-xs" />
             <form action={logout}>
-              <button aria-label="Log out" className="grid place-items-center p-1" style={{ color: "var(--muted)" }}>
+              <button aria-label={t("common.logOut")} className="grid place-items-center p-1" style={{ color: "var(--muted)" }}>
                 <Icon name="logout" size={17} />
               </button>
             </form>

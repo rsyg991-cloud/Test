@@ -2,6 +2,7 @@
 
 import type { Question } from "@/content/types";
 import type { Answers, QuestionResult } from "@/lib/scoring";
+import { useT } from "@/lib/i18n/client";
 import { Icon } from "../icons";
 
 export function QuestionList({
@@ -17,11 +18,12 @@ export function QuestionList({
   results?: QuestionResult[];
   accent?: string;
 }) {
+  const { t } = useT();
   const resultFor = (id: string) => results?.find((r) => r.id === id);
   const locked = !!results;
 
   return (
-    <ol className="space-y-5">
+    <ol className="space-y-5" lang="en" dir="ltr">
       {questions.map((q, idx) => {
         const r = resultFor(q.id);
         return (
@@ -35,7 +37,7 @@ export function QuestionList({
             </div>
 
             {q.type === "mcq" && (
-              <div className="grid gap-2" role="radiogroup" aria-label={`Question ${idx + 1}`}>
+              <div className="grid gap-2" role="radiogroup" aria-label={t("task.question", { n: idx + 1 })}>
                 {q.options.map((opt, i) => {
                   const selected = answers[q.id] !== undefined && Number(answers[q.id]) === i;
                   const isAnswer = locked && i === q.answer;
@@ -47,7 +49,7 @@ export function QuestionList({
                       aria-checked={selected}
                       disabled={locked}
                       onClick={() => onChange(q.id, i)}
-                      className="flex items-center gap-3 rounded-md border-2 px-3 py-2.5 text-left text-[15px] transition-colors"
+                      className="flex items-center gap-3 rounded-md border-2 px-3 py-2.5 text-start text-[15px] transition-colors"
                       style={{
                         borderColor: isAnswer ? "var(--success)" : selected ? accent : "var(--line)",
                         background: isAnswer ? "color-mix(in srgb, var(--success) 10%, transparent)" : selected ? `color-mix(in srgb, ${accent} 10%, transparent)` : "transparent",
@@ -64,7 +66,7 @@ export function QuestionList({
             )}
 
             {q.type === "tfng" && (
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={`Question ${idx + 1}`}>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("task.question", { n: idx + 1 })}>
                 {(["TRUE", "FALSE", "NOT GIVEN"] as const).map((opt) => {
                   const selected = answers[q.id] === opt;
                   const isAnswer = locked && q.answer === opt;
@@ -96,11 +98,11 @@ export function QuestionList({
                 <div>
                   {!r.correct && (
                     <div className="mb-1 font-semibold">
-                      Answer: <span style={{ color: "var(--success)" }}>{r.expected}</span>
+                      {t("task.answer")} <span style={{ color: "var(--success)" }}>{r.expected}</span>
                       {r.given && (
                         <span style={{ color: "var(--muted)" }}>
                           {" "}
-                          · you wrote <span className="line-through">{r.given}</span>
+                          · {t("task.youWrote")} <span className="line-through">{r.given}</span>
                         </span>
                       )}
                     </div>

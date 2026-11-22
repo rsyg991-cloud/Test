@@ -70,9 +70,14 @@ const paths: Record<string, React.ReactNode> = {
 
 export type IconName = keyof typeof paths;
 
-export function Icon({ name, size = 20, ...rest }: { name: IconName | string; size?: number } & SVGProps<SVGSVGElement>) {
+/** Icons that point "forward" or "back": mirrored in right-to-left pages. */
+const DIRECTIONAL = new Set(["arrow", "back", "logout"]);
+
+export function Icon({ name, size = 20, className, ...rest }: { name: IconName | string; size?: number } & SVGProps<SVGSVGElement>) {
+  const flip = DIRECTIONAL.has(name) ? "rtl:-scale-x-100" : "";
   return (
     <svg
+      className={[flip, className].filter(Boolean).join(" ") || undefined}
       width={size}
       height={size}
       viewBox="0 0 24 24"

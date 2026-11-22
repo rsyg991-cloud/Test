@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { completePractice, type CompletionResult } from "@/app/actions/learn";
@@ -11,6 +12,7 @@ import { WritingTaskView } from "@/components/task/WritingTaskView";
 import { SkillBadge } from "@/components/ui";
 
 export function PracticeRunner({ prompt }: { prompt: PracticePrompt }) {
+  const { t } = useT();
   const [result, setResult] = useState<CompletionResult | null>(null);
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,12 +30,14 @@ export function PracticeRunner({ prompt }: { prompt: PracticePrompt }) {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/practice" className="grid h-10 w-10 place-items-center rounded-full" style={{ background: "var(--surface-2)" }} aria-label="Back to practice">
+        <Link href="/practice" className="grid h-10 w-10 place-items-center rounded-full" style={{ background: "var(--surface-2)" }} aria-label={t("drill.back")}>
           <Icon name="back" size={18} />
         </Link>
         <div>
           <SkillBadge skill={prompt.skill} />
-          <h1 className="mt-1 font-display text-2xl font-bold">{prompt.title}</h1>
+          <h1 className="mt-1 font-display text-2xl" lang="en" dir="auto">
+            {prompt.title}
+          </h1>
         </div>
       </div>
       {prompt.writing && <WritingTaskView task={prompt.writing} source="practice" refId={prompt.id} onEvaluated={onEvaluated} />}
@@ -46,21 +50,21 @@ export function PracticeRunner({ prompt }: { prompt: PracticePrompt }) {
       {result && (
         <div className="mt-6 flex justify-end">
           <Link href="/practice" className="btn btn-primary">
-            More practice <Icon name="arrow" size={18} />
+            {t("drill.more")} <Icon name="arrow" size={18} />
           </Link>
         </div>
       )}
       {show && result && (
         <Celebration
-          title="Drill complete!"
-          subtitle="Your band estimate has been added to your progress."
+          title={t("drill.done")}
+          subtitle={t("drill.doneBody")}
           band={result.band}
           xp={result.activity.xpGained}
           streak={result.activity.streak}
           streakExtended={result.activity.streakExtended}
           freezeEarned={result.activity.freezeEarned}
           nextHref="/dashboard"
-          nextTitle="Back to today"
+          nextTitle={t("drill.backToday")}
           onClose={() => setShow(false)}
         />
       )}

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { placement } from "@/content/placement";
 import { FINAL_STAGE, stageForBand } from "@/content/stageList";
 import { PLAN_MONTHS } from "@/lib/plan/scheduler";
+import { getT } from "@/lib/i18n/server";
 import { getCurrentUser } from "@/lib/auth";
 import { loadOwnedAttempt } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
@@ -27,7 +28,7 @@ export async function submitPlacement(input: {
   speakingAttemptId?: string;
 }): Promise<PlacementResult> {
   const user = await getCurrentUser();
-  if (!user) throw new Error("Please log in again.");
+  if (!user) throw new Error((await getT()).t("errors.loginAgain"));
 
   const g = gradeQuestions(placement.grammar, input.grammar ?? {});
   const r = gradeQuestions(placement.reading.questions, input.reading ?? {});

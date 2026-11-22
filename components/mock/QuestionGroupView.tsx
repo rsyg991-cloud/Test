@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import type { MockAnswers, MockResult } from "@/lib/mock/grade";
 import { multiKey } from "@/lib/mock/grade";
 import type { MockQuestion, QuestionGroup } from "@/lib/mock/schema";
@@ -25,7 +26,7 @@ export function QuestionGroupView({ section, group, answers, onChange, flagged, 
   const showOptionsBox = ["matching", "completion-box"].includes(group.type) && group.options;
 
   return (
-    <section className="rounded-[10px] border p-4 sm:p-5" style={{ borderColor: "var(--line)", background: "var(--surface)" }} aria-label={`Questions ${first}–${last}`}>
+    <section lang="en" dir="ltr" className="rounded-[10px] border p-4 sm:p-5" style={{ borderColor: "var(--line)", background: "var(--surface)" }} aria-label={`Questions ${first}–${last}`}>
       <div className="mb-1 text-sm font-extrabold">Questions {first === last ? first : `${first}–${last}`}</div>
       <p className="mb-4 text-sm" style={{ color: "var(--muted)" }}>
         {group.instructions.replace(/^Questions? [\d–-]+\.\s*/, "")}
@@ -238,6 +239,7 @@ function MultiChoice({ group, section, answers, onChange, results }: { group: Qu
 }
 
 function ReviewNote({ result, label }: { result: MockResult; label?: string }) {
+  const { t } = useT();
   return (
     <div className="mt-2 rounded-lg p-2.5 text-sm" style={{ background: "var(--surface-2)" }}>
       <div className="flex flex-wrap items-center gap-x-2 font-semibold">
@@ -248,7 +250,7 @@ function ReviewNote({ result, label }: { result: MockResult; label?: string }) {
         ) : (
           <>
             <span style={{ color: "var(--success)" }}>{result.expected}</span>
-            <span style={{ color: "var(--muted)" }}>· your answer: {result.given || "(blank)"}</span>
+            <span style={{ color: "var(--muted)" }}>· {t("task.yourAnswer", { answer: result.given || t("task.blank") })}</span>
           </>
         )}
       </div>

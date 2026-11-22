@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
+import { getT } from "@/lib/i18n/server";
 import Link from "next/link";
 import { catchUp } from "@/app/actions/study";
 import { Icon } from "@/components/icons";
 import { PageHeader, ProgressBar, SKILL_META } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { addDays, formatDate } from "@/lib/dates";
+import { addDays } from "@/lib/dates";
 import { getPlan, isReviewDay, scheduleItems } from "@/lib/plan/scheduler";
 import { getTodayPlan } from "@/lib/progress";
 import { PlanEditor } from "./PlanEditor";
 
-export const metadata: Metadata = { title: "My plan" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT();
+  return { title: t("meta.plan") };
+}
 
 export default async function PlanPage() {
   const user = await requireUser();
+  const { t, plural, planText, stage, formatDate } = await getT();
   const { items, completed, today } = await getTodayPlan(user);
   const plan = getPlan(user.planMonths);
   const schedule = scheduleItems(plan.months, items.length);
@@ -29,38 +34,40 @@ export default async function PlanPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Study plan" title={`${plan.name} · ${plan.months} ${plan.months === 1 ? "month" : "months"}`} subtitle={plan.bestFor} />
+      <PageHeader
+        eyebrow={t("plan.eyebrow")}
+        title={t("plan.title", { name: planText(plan.months, "name"), months: plural("common.month", plan.months) })}
+        subtitle={planText(plan.months, "bestFor")}
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
-          <div className="eyebrow">Timeline</div>
+          <div className="eyebrow">{t("plan.timeline")}</div>
           <div className="mt-1 font-bold">
-            {formatDate(planStart)} → {formatDate(today.endDate)}
+            {formatDate(planStart)} <span className="inline-block rtl:-scale-x-100">→</span> {formatDate(today.endDate)}
           </div>
           <div className="mt-3">
-            <ProgressBar value={Math.min(1, today.dayNumber / today.totalDays)} label="Time elapsed" />
+            <ProgressBar value={Math.min(1, today.dayNumber / today.totalDays)} label={t("plan.timeElapsed")} />
           </div>
           <div className="mt-1 text-xs font-semibold" style={{ color: "var(--muted)" }}>
-            Day {Math.min(today.dayNumber, today.totalDays)} of {today.totalDays}
+            {t("plan.dayOf", { day: Math.min(today.dayNumber, today.totalDays), total: today.totalDays })}
           </div>
         </div>
         <div className="card p-5">
-          <div className="eyebrow">Curriculum</div>
-          <div className="mt-1 font-bold">
-            {done} of {items.length} completed
-          </div>
+          <div className="eyebrow">{t("plan.curriculum")}</div>
+          <div className="mt-1 font-bold">{t("plan.doneOf", { done, total: items.length })}</div>
           <div className="mt-3">
-            <ProgressBar value={done / items.length} color="var(--success)" label="Curriculum completed" />
+            <ProgressBar value={done / items.length} color="var(--success)" label={t("plan.curriculumDone")} />
           </div>
           <div className="mt-1 text-xs font-semibold" style={{ color: today.behind > 0 ? "var(--writing)" : "var(--success)" }}>
-            {today.behind > 0 ? `${today.behind} behind schedule` : "On track ✓"}
+            {today.behind > 0 ? t("plan.behindSchedule", { n: today.behind }) : t("plan.onTrack")}
           </div>
         </div>
         <div className="card p-5">
-          <div className="eyebrow">Daily commitment</div>
-          <div className="mt-1 font-display text-3xl font-bold">{plan.dailyMinutes} min</div>
+          <div className="eyebrow">{t("plan.commitment")}</div>
+          <div className="mt-1 font-display text-3xl">{t("common.minutesShort", { n: plan.dailyMinutes })}</div>
           <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-            6 study days + 1 light review day each week
+            {t("plan.commitmentNote")}
           </div>
         </div>
       </div>
@@ -69,7 +76,7 @@ export default async function PlanPage() {
         <div className="card flex items-center gap-3 p-4" style={{ borderColor: "var(--danger)" }}>
           <Icon name="calendar" size={20} style={{ color: "var(--danger)" }} />
           <p className="text-sm font-semibold">
-            Your plan ends after your exam ({formatDate(user.examDate!)}). Consider a shorter, more intensive plan below.
+            {t("plan.endsAfterExam", { date: formatDate(user.examDate!) })}
           </p>
         </div>
       )}
@@ -77,26 +84,26 @@ export default async function PlanPage() {
       {today.behind > 0 && (
         <form action={catchUp} className="card flex flex-wrap items-center gap-3 p-4">
           <Icon name="refresh" size={20} style={{ color: "var(--writing)" }} />
-          <p className="flex-1 text-sm font-semibold">Behind schedule? Shift your plan so today is a fresh start. Your end date moves by {today.behind > 1 ? "a few days" : "a day"}.</p>
-          <button className="btn btn-dark px-4 py-2">Catch up</button>
+          <p className="flex-1 text-sm font-semibold">{plural("plan.catchUpBody", today.behind)}</p>
+          <button className="btn btn-dark px-4 py-2">{t("plan.catchUp")}</button>
         </form>
       )}
 
       <section className="card p-5 sm:p-6">
-        <h2 className="mb-4 font-display text-xl font-bold">Next two weeks</h2>
+        <h2 className="mb-4 font-display text-xl">{t("plan.nextTwoWeeks")}</h2>
         <ol className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
           {upcoming.map((d, k) => (
             <li key={d.dayIndex} className="flex gap-3 rounded-[10px] p-3" style={{ background: k === 0 ? "var(--brand-soft)" : "var(--surface-2)" }}>
               <div className="w-14 shrink-0 text-center">
                 <div className="text-[11px] font-bold uppercase" style={{ color: "var(--muted)" }}>
-                  {d.date.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" })}
+                  {formatDate(d.date, { weekday: "short" })}
                 </div>
-                <div className="font-display text-xl font-bold">{d.date.getUTCDate()}</div>
+                <div className="num text-xl font-bold">{d.date.getUTCDate()}</div>
               </div>
               <div className="min-w-0 flex-1 space-y-1">
                 {d.items.length === 0 ? (
                   <div className="pt-1 text-sm font-semibold" style={{ color: "var(--muted)" }}>
-                    {isReviewDay(d.dayIndex) ? "Review day · vocab + one drill" : "Practice drills + vocab review"}
+                    {isReviewDay(d.dayIndex) ? t("plan.reviewDay") : t("plan.drillsDay")}
                   </div>
                 ) : (
                   d.items.map(({ item, done }) => (
@@ -111,7 +118,9 @@ export default async function PlanPage() {
                       ) : (
                         <Icon name="trophy" size={14} style={{ flexShrink: 0 }} />
                       )}
-                      <span className="truncate">{item.kind === "lesson" ? item.lesson.title : item.checkpoint.title}</span>
+                      <span className="truncate" dir="auto">
+                        {item.kind === "lesson" ? item.lesson.title : t("journey.checkpointTitle", { camp: stage(item.stage, "camp") })}
+                      </span>
                     </Link>
                   ))
                 )}

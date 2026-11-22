@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getT } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import type { PlacementResult } from "@/app/actions/onboarding";
 import { getCurrentUser } from "@/lib/auth";
@@ -7,7 +8,10 @@ import { stageForBand } from "@/content/stageList";
 import { overallBand } from "@/lib/scoring";
 import { OnboardingFlow } from "./OnboardingFlow";
 
-export const metadata: Metadata = { title: "Get started" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT();
+  return { title: t("meta.onboarding") };
+}
 
 export default async function OnboardingPage() {
   const user = await getCurrentUser();

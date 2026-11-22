@@ -26,6 +26,7 @@ model User {
   planStart      DateTime?
   startStage     Int       @default(1)
   unlockedStage  Int       @default(1)
+  locale         String?   // interface language: "en" | "ar" (null = follow the browser)
   placementDone  Boolean   @default(false)
 
   // Motivation

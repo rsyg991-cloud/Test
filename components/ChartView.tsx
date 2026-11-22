@@ -6,12 +6,12 @@ const SERIES_COLORS = ["var(--listening)", "var(--brand)", "var(--reading)", "va
 export function ChartView({ chart }: { chart: ChartData }) {
   if (chart.kind === "table") {
     return (
-      <figure className="overflow-x-auto rounded-[10px] border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
+      <figure lang="en" dir="ltr" className="overflow-x-auto rounded-[10px] border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
         <table className="w-full min-w-[320px] border-collapse text-sm">
           <caption className="mb-3 text-center font-bold">{chart.title}</caption>
           <thead>
             <tr>
-              <th className="border p-2 text-left" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }} />
+              <th className="border p-2 text-start" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }} />
               {chart.series.map((s) => (
                 <th key={s.name} scope="col" className="border p-2 text-center" style={{ borderColor: "var(--line)", background: "var(--surface-2)" }}>
                   {s.name}
@@ -22,7 +22,7 @@ export function ChartView({ chart }: { chart: ChartData }) {
           <tbody>
             {chart.labels.map((l, i) => (
               <tr key={l}>
-                <th scope="row" className="border p-2 text-left font-semibold" style={{ borderColor: "var(--line)" }}>
+                <th scope="row" className="border p-2 text-start font-semibold" style={{ borderColor: "var(--line)" }}>
                   {l}
                 </th>
                 {chart.series.map((s) => (
@@ -53,7 +53,7 @@ export function ChartView({ chart }: { chart: ChartData }) {
   const group = iw / n;
 
   return (
-    <figure className="rounded-[10px] border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
+    <figure lang="en" dir="ltr" className="rounded-[10px] border p-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
       <figcaption className="mb-2 text-center text-sm font-bold">{chart.title}</figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={chart.title}>
         {ticks.map((t) => (

@@ -1,11 +1,13 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useEffect, useRef, useState } from "react";
 import type { ListeningTask } from "@/content/types";
 import { Icon } from "../icons";
 import { speak, ttsSupported } from "./speech";
 
 export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; revealScript: boolean }) {
+  const { t } = useT();
   const [supported, setSupported] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [line, setLine] = useState(-1);
@@ -57,38 +59,40 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
   return (
     <div className="rounded-[10px] p-5" style={{ background: "color-mix(in srgb, var(--listening) 10%, var(--surface))", border: "1px solid var(--line)" }}>
       <div className="eyebrow mb-1" style={{ color: "var(--listening)" }}>
-        Audio
+        {t("listening.audio")}
       </div>
-      <p className="mb-4 font-semibold">{task.context}</p>
+      <p className="mb-4 font-semibold" lang="en" dir="ltr">
+        {task.context}
+      </p>
 
       {!supported ? (
         <p className="text-sm" style={{ color: "var(--muted)" }}>
-          Your browser can&apos;t play generated audio. You can read the transcript below instead.
+          {t("listening.noAudio")}
         </p>
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-3">
             {playing ? (
-              <button type="button" onClick={stop} className="btn btn-dark" aria-label="Stop audio">
-                <Icon name="stop" size={18} /> Stop
+              <button type="button" onClick={stop} className="btn btn-dark" aria-label={t("listening.stopAria")}>
+                <Icon name="stop" size={18} /> {t("listening.stop")}
               </button>
             ) : (
               <button type="button" onClick={play} disabled={blocked} className="btn btn-primary">
-                <Icon name="play" size={18} /> {plays === 0 ? "Play recording" : blocked ? "Played once (exam mode)" : "Play again"}
+                <Icon name="play" size={18} /> {plays === 0 ? t("listening.play") : blocked ? t("listening.playedOnce") : t("listening.playAgain")}
               </button>
             )}
             <label className="flex items-center gap-2 text-sm font-semibold">
-              Speed
+              {t("listening.speed")}
               <select className="input w-auto py-1.5" value={rate} onChange={(e) => setRate(Number(e.target.value))} disabled={playing}>
-                <option value={0.8}>Slow</option>
-                <option value={0.9}>Slower</option>
-                <option value={1}>Normal</option>
-                <option value={1.15}>Exam+</option>
+                <option value={0.8}>{t("listening.slow")}</option>
+                <option value={0.9}>{t("listening.slower")}</option>
+                <option value={1}>{t("listening.normal")}</option>
+                <option value={1.15}>{t("listening.examPlus")}</option>
               </select>
             </label>
             <label className="flex items-center gap-2 text-sm font-semibold">
               <input type="checkbox" checked={examMode} onChange={(e) => setExamMode(e.target.checked)} disabled={plays > 0} />
-              Exam mode (play once)
+              {t("listening.examMode")}
             </label>
           </div>
           <div className="mt-4 flex items-center gap-3">
@@ -106,7 +110,7 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
               })}
             </div>
             <span className="text-xs font-bold" style={{ color: "var(--muted)" }}>
-              {playing ? `${line + 1}/${task.script.length}` : plays > 0 ? `Played ${plays}×` : ""}
+              {playing ? `${line + 1}/${task.script.length}` : plays > 0 ? t("listening.played", { n: plays }) : ""}
             </span>
           </div>
         </>
@@ -115,10 +119,10 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
       {(revealScript || !supported) && (
         <div className="mt-4">
           <button type="button" className="text-sm font-bold underline" onClick={() => setShowText((s) => !s)}>
-            {showText ? "Hide transcript" : "Show transcript"}
+            {showText ? t("listening.hideTranscript") : t("listening.showTranscript")}
           </button>
           {showText && (
-            <div className="mt-3 space-y-2 rounded-md p-4 text-[15px] leading-relaxed" style={{ background: "var(--surface)" }}>
+            <div className="mt-3 space-y-2 rounded-md p-4 text-[15px] leading-relaxed" style={{ background: "var(--surface)" }} lang="en" dir="ltr">
               {task.script.map((l, i) => (
                 <p key={i}>
                   <span className="font-bold" style={{ color: l.voice === "female" ? "var(--listening)" : "var(--reading)" }}>

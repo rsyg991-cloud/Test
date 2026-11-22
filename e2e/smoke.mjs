@@ -227,6 +227,48 @@ if (!b.url().includes("/journey") && !(await b.getByText(/locked/i).count())) th
 await ctx2.close();
 step("beginner: self-assessed A0, 12-month plan recommended, tight plan warned, Arabic lesson shown, later stages locked");
 
+// Arabic: first visit follows the browser, the switch remembers the choice, pages flip to right-to-left,
+// and English learning material stays left-to-right inside Arabic pages.
+const ctxAr = await browser.newContext({ viewport: { width: 1280, height: 860 }, extraHTTPHeaders: { "Accept-Language": "ar-SA,ar;q=0.9" } });
+const ar = await ctxAr.newPage();
+ar.on("pageerror", (e) => errors.push(e.message));
+await ar.goto(BASE);
+await ar.locator("html[dir=rtl][lang=ar]").waitFor({ state: "attached" });
+await ar.getByRole("heading", { level: 1, name: /من أول كلمة/ }).waitFor();
+if (shots) await ar.screenshot({ path: `${shots}/20-ar-landing.png`, fullPage: false });
+await ar.getByRole("button", { name: "Switch to English" }).click();
+await ar.locator("html[dir=ltr][lang=en]").waitFor({ state: "attached" });
+await ar.getByRole("button", { name: "التبديل إلى العربية" }).click();
+await ar.locator("html[dir=rtl][lang=ar]").waitFor({ state: "attached" });
+await ar.goto(`${BASE}/register`);
+await ar.getByLabel("الاسم الأول").fill("ريم");
+await ar.getByLabel("الإيميل").fill(`ar-${Date.now()}@example.com`);
+await ar.getByLabel("كلمة المرور").fill("password123");
+await ar.getByRole("button", { name: "سوّ حسابي" }).click();
+await ar.waitForURL("**/onboarding");
+await ar.getByRole("radio", { name: /أعرف كلمات وعبارات بسيطة/ }).click();
+await ar.getByRole("radio", { name: "6.0" }).click();
+await ar.getByRole("button", { name: /ابنِ خطتي/ }).click();
+await ar.getByRole("button", { name: /ابدأ رحلتي/ }).click();
+await ar.waitForURL("**/dashboard**");
+await ar.getByText(/جلسة اليوم|يوم مراجعة|ماشي صح/).first().waitFor();
+if (shots) await ar.screenshot({ path: `${shots}/21-ar-dashboard.png`, fullPage: true });
+await ar.goto(`${BASE}/learn/f2-u1-reading`);
+await ar.getByText("بناء المهارة").waitFor();
+await ar.getByRole("button", { name: /جاهز — ابدأ المهمة/ }).click();
+const passageDir = await ar.locator("article .prose-reading").getAttribute("dir");
+if (passageDir !== "ltr") throw new Error(`English passage should stay left-to-right in Arabic pages, got dir=${passageDir}`);
+if (shots) await ar.screenshot({ path: `${shots}/22-ar-lesson.png`, fullPage: true });
+const arMobile = await ctxAr.newPage();
+await arMobile.setViewportSize({ width: 390, height: 844 });
+for (const path of ["/", "/dashboard", "/journey", "/plan"]) {
+  await arMobile.goto(`${BASE}${path}`);
+  const over = await arMobile.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  if (over > 1) throw new Error(`Arabic ${path} scrolls horizontally on mobile by ${over}px`);
+}
+await ctxAr.close();
+step("arabic: browser language respected, switch remembered, RTL pages, English passage kept LTR, no mobile overflow");
+
 if (errors.length) throw new Error("Page errors:\n" + errors.join("\n"));
 await browser.close();
 console.log("All smoke checks passed.");

@@ -6,22 +6,26 @@ import { finishVocabSession, reviewVocab } from "@/app/actions/study";
 import { Confetti } from "@/components/Celebration";
 import { Icon } from "@/components/icons";
 import { speak, ttsSupported } from "@/components/task/speech";
+import { useT } from "@/lib/i18n/client";
 
 interface Card {
   id: string;
   word: string;
   definition: string;
   example: string;
+  /** Arabic meaning (foundation-stage words). */
+  ar?: string;
 }
 
 const GRADES = [
-  { grade: 0 as const, label: "Forgot", hint: "again today", color: "var(--danger)" },
-  { grade: 3 as const, label: "Hard", hint: "soon", color: "var(--writing)" },
-  { grade: 4 as const, label: "Good", hint: "in a few days", color: "var(--reading)" },
-  { grade: 5 as const, label: "Easy", hint: "later", color: "var(--listening)" },
-];
+  { grade: 0 as const, key: "forgot", color: "var(--danger)" },
+  { grade: 3 as const, key: "hard", color: "var(--writing)" },
+  { grade: 4 as const, key: "good", color: "var(--reading)" },
+  { grade: 5 as const, key: "easy", color: "var(--listening)" },
+] as const;
 
 export function VocabReview({ cards }: { cards: Card[] }) {
+  const { t, plural } = useT();
   const [queue, setQueue] = useState(cards);
   const [revealed, setRevealed] = useState(false);
   const [reviewed, setReviewed] = useState(0);
@@ -55,12 +59,12 @@ export function VocabReview({ cards }: { cards: Card[] }) {
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-[10px] " style={{ background: "var(--highlighter)", color: "var(--on-highlighter)" }}>
           <Icon name="check" size={30} strokeWidth={3} />
         </div>
-        <h2 className="mt-4 font-display text-2xl font-bold">{done ? "Deck cleared!" : "Nothing to review"}</h2>
+        <h2 className="mt-4 font-display text-2xl">{done ? t("vocab.cleared") : t("vocab.nothing")}</h2>
         <p className="mt-2" style={{ color: "var(--muted)" }}>
-          {done ? `You reviewed ${reviewed} card${reviewed === 1 ? "" : "s"}. They'll come back right before you'd forget them.` : "New words from your lessons will appear here when they're due."}
+          {done ? plural("vocab.clearedBody", reviewed) : t("vocab.nothingBody")}
         </p>
         <Link href="/dashboard" className="btn btn-primary mt-6">
-          Back to today
+          {t("vocab.backToday")}
         </Link>
       </div>
     );
@@ -69,28 +73,37 @@ export function VocabReview({ cards }: { cards: Card[] }) {
   return (
     <div className="mx-auto max-w-lg">
       <div className="mb-3 flex justify-between text-sm font-semibold" style={{ color: "var(--muted)" }}>
-        <span>{queue.length} left</span>
-        <span>{reviewed} reviewed</span>
+        <span>{t("vocab.left", { n: queue.length })}</span>
+        <span>{t("vocab.reviewed", { n: reviewed })}</span>
       </div>
       <div className="card animate-rise p-8 text-center" key={card.id + queue.length}>
         <div className="flex items-center justify-center gap-2">
-          <h2 className="font-display text-4xl font-bold">{card.word}</h2>
+          <h2 className="font-display text-4xl" lang="en" dir="ltr">
+            {card.word}
+          </h2>
           {tts && (
-            <button type="button" onClick={() => speak(card.word)} aria-label={`Pronounce ${card.word}`} className="grid h-9 w-9 place-items-center rounded-full" style={{ background: "var(--surface-2)" }}>
+            <button type="button" onClick={() => speak(card.word)} aria-label={t("vocab.pronounce", { word: card.word })} className="grid h-9 w-9 place-items-center rounded-full" style={{ background: "var(--surface-2)" }}>
               <Icon name="volume" size={16} />
             </button>
           )}
         </div>
         {revealed ? (
           <div className="animate-rise mt-6">
-            <p className="text-lg font-semibold">{card.definition}</p>
-            <p className="mt-3 italic" style={{ color: "var(--muted)" }}>
+            <p className="text-lg font-semibold" lang="en" dir="ltr">
+              {card.definition}
+            </p>
+            {card.ar && (
+              <p className="ar mt-1 text-lg font-bold" lang="ar" dir="rtl">
+                {card.ar}
+              </p>
+            )}
+            <p className="mt-3 italic" style={{ color: "var(--muted)" }} lang="en" dir="ltr">
               “{card.example}”
             </p>
           </div>
         ) : (
           <p className="mt-6" style={{ color: "var(--muted)" }}>
-            Say the meaning out loud, then check.
+            {t("vocab.sayIt")}
           </p>
         )}
       </div>
@@ -99,17 +112,17 @@ export function VocabReview({ cards }: { cards: Card[] }) {
           {GRADES.map((g) => (
             <button key={g.grade} type="button" disabled={pending} onClick={() => grade(g.grade)} className="rounded-[10px] border-2 p-3 text-center transition-transform active:scale-95" style={{ borderColor: g.color }}>
               <div className="font-bold" style={{ color: g.color }}>
-                {g.label}
+                {t(`vocab.grades.${g.key}.label`)}
               </div>
               <div className="text-[11px]" style={{ color: "var(--muted)" }}>
-                {g.hint}
+                {t(`vocab.grades.${g.key}.hint`)}
               </div>
             </button>
           ))}
         </div>
       ) : (
         <button type="button" className="btn btn-primary mt-5 w-full py-3.5" onClick={() => setRevealed(true)}>
-          <Icon name="eye" size={18} /> Show meaning
+          <Icon name="eye" size={18} /> {t("vocab.show")}
         </button>
       )}
     </div>

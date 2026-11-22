@@ -30,6 +30,8 @@ export function ExamTimer({ endsAt, onExpire, label }: { endsAt: number; onExpir
       className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold tabular-nums"
       style={{ background: warn ? "color-mix(in srgb, var(--danger) 14%, transparent)" : "var(--surface-2)", color: warn ? "var(--danger)" : "var(--ink)" }}
       role="timer"
+      lang="en"
+      dir="ltr"
       aria-label={`${label}: ${mm} minutes ${ss} seconds left`}
     >
       <Icon name="calendar" size={15} /> {mm}:{ss} <span className="font-semibold" style={{ color: "var(--muted)" }}>{label}</span>

@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import { getT } from "@/lib/i18n/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getTest, toClientTest } from "@/lib/mock/registry";
 import { MockTestFlow } from "./MockTestFlow";
 
-export const metadata: Metadata = { title: "Full mock test" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT();
+  return { title: t("meta.mock") };
+}
 
 export default async function MockTestPage({
   params,

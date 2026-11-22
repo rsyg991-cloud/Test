@@ -11,6 +11,7 @@ import { academicReadingBand, listeningBand, writingBand } from "@/lib/mock/band
 import { gradeGroups, type MockAnswers, type MockResult, type SectionGrade } from "@/lib/mock/grade";
 import { gradeTask, type TaskGrade } from "@/lib/taskGrade";
 import { getTest } from "@/lib/mock/registry";
+import { getT } from "@/lib/i18n/server";
 
 export interface CompletionResult {
   ok: true;
@@ -43,9 +44,10 @@ async function nextStep(userId: string, user: { startStage: number; targetBand: 
   ]);
   const done = new Set([...lessons.map((l) => l.lessonId), ...cps.map((c) => c.refId)]);
   const next = items.find((i) => !done.has(i.id) && i.stage <= unlockedStage);
-  if (!next) return { nextHref: "/dashboard", nextTitle: "Back to dashboard" };
+  const { t, stage } = await getT();
+  if (!next) return { nextHref: "/dashboard", nextTitle: t("next.backToDashboard") };
   if (next.kind === "lesson") return { nextHref: `/learn/${next.id}`, nextTitle: next.lesson.title };
-  return { nextHref: `/checkpoint/${next.stage}`, nextTitle: next.checkpoint.title };
+  return { nextHref: `/checkpoint/${next.stage}`, nextTitle: t("next.checkpoint", { camp: stage(next.stage, "camp") }) };
 }
 
 export async function completeLesson(
@@ -53,10 +55,10 @@ export async function completeLesson(
   payload: { answers?: Answers; attemptId?: string },
 ): Promise<CompletionResult | CompletionError> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Please log in again." };
+  if (!user) return { ok: false, error: (await getT()).t("errors.loginAgain") };
   const lesson = getLesson(lessonId);
-  if (!lesson) return { ok: false, error: "Lesson not found." };
-  if (lesson.stage > user.unlockedStage) return { ok: false, error: "This stage is still locked." };
+  if (!lesson) return { ok: false, error: (await getT()).t("errors.lessonNotFound") };
+  if (lesson.stage > user.unlockedStage) return { ok: false, error: (await getT()).t("errors.stageLocked") };
 
   let band: number;
   let pct: number | undefined;
@@ -85,7 +87,7 @@ export async function completeLesson(
       refId: lesson.id,
       skill: lesson.skill as "writing" | "speaking",
     });
-    if (!a) return { ok: false, error: "Please submit your answer for feedback first." };
+    if (!a) return { ok: false, error: (await getT()).t("errors.submitFirst") };
     band = a.band!;
     attemptId = a.id;
   }
@@ -137,15 +139,15 @@ export async function completeCheckpoint(
   payload: { reading: Answers; listening: Answers; writingAttemptId?: string; speakingAttemptId?: string },
 ): Promise<CheckpointResult | CompletionError> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Please log in again." };
+  if (!user) return { ok: false, error: (await getT()).t("errors.loginAgain") };
   const stage = getStage(stageId);
-  if (!stage) return { ok: false, error: "Stage not found." };
-  if (stage.id > user.unlockedStage) return { ok: false, error: "This checkpoint is still locked." };
+  if (!stage) return { ok: false, error: (await getT()).t("errors.stageNotFound") };
+  if (stage.id > user.unlockedStage) return { ok: false, error: (await getT()).t("errors.checkpointLocked") };
   const cp = stage.checkpoint;
 
   const wa = await loadOwnedAttempt(user.id, payload.writingAttemptId, { refId: cp.id, skill: "writing" });
   const sa = await loadOwnedAttempt(user.id, payload.speakingAttemptId, { refId: cp.id, skill: "speaking" });
-  if (!wa || !sa) return { ok: false, error: "Please complete the Writing and Speaking sections first." };
+  if (!wa || !sa) return { ok: false, error: (await getT()).t("errors.completeWritingSpeaking") };
 
   const reading = gradeTask(cp.reading, payload.reading ?? {});
   const listening = gradeTask(cp.listening, payload.listening ?? {});
@@ -185,11 +187,11 @@ export async function completeCheckpoint(
 
 export async function completePractice(promptId: string, attemptId: string): Promise<CompletionResult | CompletionError> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Please log in again." };
+  if (!user) return { ok: false, error: (await getT()).t("errors.loginAgain") };
   const p = getPractice(promptId);
-  if (!p) return { ok: false, error: "Practice task not found." };
+  if (!p) return { ok: false, error: (await getT()).t("errors.practiceNotFound") };
   const a = await loadOwnedAttempt(user.id, attemptId, { refId: p.id, skill: p.skill });
-  if (!a) return { ok: false, error: "Please submit your answer for feedback first." };
+  if (!a) return { ok: false, error: (await getT()).t("errors.submitFirst") };
   await addBandSnapshot(user.id, p.skill, a.band!, "practice");
   const activity = await recordActivity(user.id, 40, p.skill === "writing" ? 40 : 15);
   revalidatePath("/dashboard");
@@ -200,7 +202,7 @@ export async function completePractice(promptId: string, attemptId: string): Pro
     vocabAdded: 0,
     firstTime: true,
     nextHref: "/practice",
-    nextTitle: "More practice",
+    nextTitle: (await getT()).t("next.morePractice"),
   };
 }
 
@@ -209,15 +211,15 @@ export async function completeConversation(
   payload: { attemptId?: string; checked: number },
 ): Promise<CompletionResult | CompletionError> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Please log in again." };
+  if (!user) return { ok: false, error: (await getT()).t("errors.loginAgain") };
   const c = getConversation(conversationId);
-  if (!c) return { ok: false, error: "Conversation not found." };
-  if (c.stage > user.unlockedStage) return { ok: false, error: "This stage is still locked." };
+  if (!c) return { ok: false, error: (await getT()).t("errors.conversationNotFound") };
+  if (c.stage > user.unlockedStage) return { ok: false, error: (await getT()).t("errors.stageLocked") };
 
   const attempt = payload.attemptId
     ? await loadOwnedAttempt(user.id, payload.attemptId, { refId: c.id, skill: "conversation" })
     : null;
-  if (payload.attemptId && !attempt) return { ok: false, error: "We couldn't find your feedback. Please try again." };
+  if (payload.attemptId && !attempt) return { ok: false, error: (await getT()).t("errors.feedbackMissing") };
 
   const checked = Math.max(0, Math.min(c.selfCheck.length, Math.round(payload.checked)));
   const selfScore = checked / c.selfCheck.length;
@@ -253,7 +255,7 @@ export async function completeConversation(
     vocabAdded,
     firstTime,
     nextHref: "/practice#conversations",
-    nextTitle: "More conversations",
+    nextTitle: (await getT()).t("next.moreConversations"),
   };
 }
 
@@ -278,9 +280,9 @@ export async function completeMock(
   },
 ): Promise<MockCompletion | CompletionError> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Please log in again." };
+  if (!user) return { ok: false, error: (await getT()).t("errors.loginAgain") };
   const test = getTest(testId);
-  if (!test) return { ok: false, error: "Test not found." };
+  if (!test) return { ok: false, error: (await getT()).t("errors.testNotFound") };
 
   const lg = gradeGroups(test.listening.flatMap((p) => p.groups), payload.listening ?? {});
   const rg = gradeGroups(test.reading.flatMap((p) => p.groups), payload.reading ?? {});

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useEffect, useRef, useState } from "react";
 import type { SpeakingTask } from "@/content/types";
 import type { Evaluation } from "@/lib/ai/schema";
@@ -21,6 +22,7 @@ export function SpeakingTaskView({
   refId: string;
   onEvaluated: (attemptId: string, evaluation: Evaluation) => void;
 }) {
+  const { t } = useT();
   const [phase, setPhase] = useState<Phase>("idle");
   const [prepLeft, setPrepLeft] = useState(task.prepSeconds);
   const [elapsed, setElapsed] = useState(0);
@@ -114,7 +116,7 @@ export function SpeakingTaskView({
       mr.start();
       mediaRef.current = mr;
     } catch {
-      setError("We couldn't access your microphone. Allow microphone access in your browser, or type your answer after pressing Stop.");
+      setError(t("speaking.micError"));
     }
 
     const rec = createRecognition();
@@ -181,7 +183,7 @@ export function SpeakingTaskView({
       setEvaluation(evaluation);
       onEvaluated(attemptId, evaluation);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setError(e instanceof Error ? e.message : t("errors.generic"));
     } finally {
       setBusy(false);
     }
@@ -194,21 +196,21 @@ export function SpeakingTaskView({
       <div className="card p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="eyebrow" style={{ color: accent }}>
-            Speaking Part {task.part} · aim for about {fmtTime(target)}
+            {t("speaking.header", { n: task.part, time: fmtTime(target) })}
           </div>
           {tts && phase !== "recording" && (
             <button type="button" onClick={readQuestion} className="btn btn-ghost px-3 py-1.5 text-sm">
-              <Icon name="volume" size={16} /> Hear the examiner
+              <Icon name="volume" size={16} /> {t("speaking.hear")}
             </button>
           )}
         </div>
         {task.cueCard ? (
-          <div className="rounded-[10px] border-2 border-dashed p-4" style={{ borderColor: `color-mix(in srgb, ${accent} 50%, transparent)` }}>
+          <div className="rounded-[10px] border-2 border-dashed p-4" style={{ borderColor: `color-mix(in srgb, ${accent} 50%, transparent)` }} lang="en" dir="ltr">
             <p className="font-display text-xl font-bold">{task.cueCard.topic}</p>
             <p className="mt-2 text-sm font-semibold" style={{ color: "var(--muted)" }}>
               You should say:
             </p>
-            <ul className="mt-1 list-disc space-y-0.5 pl-5">
+            <ul className="mt-1 list-disc space-y-0.5 ps-5">
               {task.cueCard.bullets.map((b) => (
                 <li key={b}>{b}</li>
               ))}
@@ -216,7 +218,7 @@ export function SpeakingTaskView({
             {task.questions.length > 1 && (
               <div className="mt-3 border-t pt-3 text-sm" style={{ borderColor: "var(--line)" }}>
                 <span className="font-semibold">Follow-up questions:</span>
-                <ul className="mt-1 list-disc pl-5" style={{ color: "var(--muted)" }}>
+                <ul className="mt-1 list-disc ps-5" style={{ color: "var(--muted)" }}>
                   {task.questions.slice(1).map((q) => (
                     <li key={q}>{q}</li>
                   ))}
@@ -225,7 +227,7 @@ export function SpeakingTaskView({
             )}
           </div>
         ) : (
-          <ol className="space-y-2">
+          <ol className="space-y-2" lang="en" dir="ltr">
             {task.questions.map((q, i) => (
               <li
                 key={q}
@@ -248,33 +250,33 @@ export function SpeakingTaskView({
             <>
               <p className="mb-4 text-sm" style={{ color: "var(--muted)" }}>
                 {task.prepSeconds > 0
-                  ? `You'll get ${task.prepSeconds} seconds to prepare, then recording starts automatically.`
+                  ? t("speaking.prepIntro", { n: task.prepSeconds })
                   : task.questions.length > 1
-                    ? "Answer each question in turn. Press “Next question” as you move on."
-                    : "Press start and answer naturally."}
-                {!recognitionOk && " Your browser can't transcribe speech, so you'll type what you said afterwards (Chrome or Edge give live transcripts)."}
+                    ? t("speaking.multiIntro")
+                    : t("speaking.singleIntro")}
+                {!recognitionOk && t("speaking.noRecognition")}
               </p>
               <button type="button" onClick={begin} className="btn btn-primary">
-                <Icon name="mic" size={18} /> {task.prepSeconds > 0 ? "Start preparation" : "Start speaking"}
+                <Icon name="mic" size={18} /> {task.prepSeconds > 0 ? t("speaking.startPrep") : t("speaking.startSpeaking")}
               </button>
             </>
           )}
 
           {phase === "prep" && (
             <div>
-              <div className="eyebrow mb-2">Preparation time</div>
+              <div className="eyebrow mb-2">{t("speaking.prepTime")}</div>
               <div className="font-display text-5xl font-bold" aria-live="polite">
                 {fmtTime(prepLeft)}
               </div>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Jot down keywords (not sentences)…"
-                aria-label="Preparation notes"
-                className="input mt-4 min-h-[90px] text-left"
+                placeholder={t("speaking.notesPlaceholder")}
+                aria-label={t("speaking.notesLabel")}
+                className="input mt-4 min-h-[90px] text-start"
               />
               <button type="button" onClick={() => setPrepLeft(0)} className="btn btn-ghost mt-4">
-                I&apos;m ready — start speaking
+                {t("speaking.readyToSpeak")}
               </button>
             </div>
           )}
@@ -292,52 +294,52 @@ export function SpeakingTaskView({
               </div>
               {notes && (
                 <p className="mx-auto mt-3 max-w-md whitespace-pre-line text-sm" style={{ color: "var(--muted)" }}>
-                  Notes: {notes}
+                  {t("speaking.notes", { notes })}
                 </p>
               )}
               {recognitionOk && (
-                <p className="mx-auto mt-4 min-h-[3rem] max-w-xl text-left text-[15px] leading-relaxed">
+                <p className="mx-auto mt-4 min-h-[3rem] max-w-xl text-start text-[15px] leading-relaxed" lang="en" dir="ltr">
                   {finalText} <span style={{ color: "var(--muted)" }}>{interim}</span>
                 </p>
               )}
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 {!task.cueCard && qIndex < task.questions.length - 1 && (
                   <button type="button" className="btn btn-ghost" onClick={() => setQIndex((i) => i + 1)}>
-                    Next question <Icon name="arrow" size={16} />
+                    {t("speaking.nextQuestion")} <Icon name="arrow" size={16} />
                   </button>
                 )}
                 <button type="button" className="btn btn-dark" onClick={stopRecording}>
-                  <Icon name="stop" size={16} /> Stop
+                  <Icon name="stop" size={16} /> {t("speaking.stop")}
                 </button>
               </div>
             </div>
           )}
 
           {phase === "review" && (
-            <div className="text-left">
+            <div className="text-start">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-bold">Your answer · {fmtTime(durationRef.current)}</h3>
+                <h3 className="font-bold">{t("speaking.yourAnswer", { time: fmtTime(durationRef.current) })}</h3>
                 {audioUrl && <audio controls src={audioUrl} className="h-9 max-w-full" />}
               </div>
               <label className="mb-1 block text-sm font-semibold" htmlFor="transcript">
-                {recognitionOk ? "Transcript (fix only words the computer misheard)" : "Type what you said, as closely as you can"}
+                {recognitionOk ? t("speaking.transcriptFix") : t("speaking.transcriptType")}
               </label>
-              <textarea id="transcript" value={finalText} onChange={(e) => setFinalText(e.target.value)} className="input min-h-[140px] leading-relaxed" />
+              <textarea id="transcript" value={finalText} onChange={(e) => setFinalText(e.target.value)} className="input min-h-[140px] leading-relaxed" lang="en" dir="ltr" />
               <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
-                {wordCount(finalText)} words
+                {t("speaking.words", { n: wordCount(finalText) })}
               </p>
               <div className="mt-4 flex flex-wrap justify-end gap-3">
                 <button type="button" className="btn btn-ghost" onClick={() => { setPhase("idle"); setQIndex(0); }} disabled={busy}>
-                  <Icon name="refresh" size={16} /> Try again
+                  <Icon name="refresh" size={16} /> {t("speaking.tryAgain")}
                 </button>
                 <button type="button" className="btn btn-primary" onClick={submit} disabled={busy || wordCount(finalText) < 8}>
                   {busy ? (
                     <>
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> The examiner is listening…
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> {t("speaking.listening")}
                     </>
                   ) : (
                     <>
-                      <Icon name="sparkle" size={18} /> Get my band score
+                      <Icon name="sparkle" size={18} /> {t("speaking.getBand")}
                     </>
                   )}
                 </button>

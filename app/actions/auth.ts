@@ -4,40 +4,48 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
+import { isLocale } from "@/lib/i18n/config";
+import { getT } from "@/lib/i18n/server";
+import { writeLocaleCookie } from "./locale";
 
 export interface AuthState {
   error?: string;
 }
 
-const RegisterSchema = z.object({
-  name: z.string().trim().min(1, "Please enter your name.").max(60),
-  email: z.string().trim().toLowerCase().email("Please enter a valid email address."),
-  password: z.string().min(8, "Password must be at least 8 characters.").max(200),
-});
+const registerSchema = (t: Awaited<ReturnType<typeof getT>>["t"]) =>
+  z.object({
+    name: z.string().trim().min(1, t("errors.nameRequired")).max(60),
+    email: z.string().trim().toLowerCase().email(t("errors.emailInvalid")),
+    password: z.string().min(8, t("errors.passwordShort")).max(200),
+  });
 
 export async function register(_: AuthState, form: FormData): Promise<AuthState> {
-  const parsed = RegisterSchema.safeParse({
+  const { t, locale } = await getT();
+  const parsed = registerSchema(t).safeParse({
     name: form.get("name"),
     email: form.get("email"),
     password: form.get("password"),
   });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid details." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? t("errors.invalid") };
   const { name, email, password } = parsed.data;
   const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) return { error: "An account with this email already exists. Try logging in." };
-  const user = await prisma.user.create({ data: { name, email, passwordHash: await hashPassword(password) } });
+  if (exists) return { error: t("errors.emailTaken") };
+  const user = await prisma.user.create({ data: { name, email, passwordHash: await hashPassword(password), locale } });
   await createSession(user.id);
   redirect("/onboarding");
 }
 
 export async function login(_: AuthState, form: FormData): Promise<AuthState> {
+  const { t } = await getT();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    return { error: "Email or password is incorrect." };
+    return { error: t("errors.badLogin") };
   }
   await createSession(user.id);
+  // Bring back the learner's saved interface language on any device.
+  if (isLocale(user.locale)) await writeLocaleCookie(user.locale);
   redirect(user.placementDone && user.planMonths ? "/dashboard" : "/onboarding");
 }
 

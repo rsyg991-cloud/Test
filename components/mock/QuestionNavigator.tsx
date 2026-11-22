@@ -17,7 +17,7 @@ export function QuestionNavigator({
   onSelect?: (n: number) => void;
 }) {
   return (
-    <nav aria-label="Question navigator" className="flex flex-wrap gap-1">
+    <nav aria-label="Question navigator" className="flex flex-wrap gap-1" lang="en" dir="ltr">
       {numbers.map((n) => {
         const a = answered.has(n);
         const f = flagged.has(n);

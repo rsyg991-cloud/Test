@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -38,36 +39,36 @@ function resolveTask(source: string, refId: string, kind: "writing" | "speaking"
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Please log in again." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: (await getT()).t("errors.loginAgain") }, { status: 401 });
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: (await getT()).t("errors.invalidRequest") }, { status: 400 });
   const { kind, source, refId, text, durationSec = 0 } = parsed.data;
 
   const scenario = kind === "conversation" ? getConversation(refId) : undefined;
   const task = kind === "conversation" ? undefined : resolveTask(source, refId, kind);
   if (kind === "conversation" ? !scenario || source !== "conversation" : !task) {
-    return NextResponse.json({ error: "Task not found." }, { status: 404 });
+    return NextResponse.json({ error: (await getT()).t("errors.taskNotFound") }, { status: 404 });
   }
   if (scenario && scenario.stage > user.unlockedStage) {
-    return NextResponse.json({ error: "This conversation is still locked." }, { status: 403 });
+    return NextResponse.json({ error: (await getT()).t("errors.conversationLocked") }, { status: 403 });
   }
 
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   if (kind === "writing" && words < 20) {
-    return NextResponse.json({ error: "Write at least 20 words so there's enough to assess." }, { status: 400 });
+    return NextResponse.json({ error: (await getT()).t("errors.minWords") }, { status: 400 });
   }
   if (kind === "conversation" && words < 30) {
-    return NextResponse.json({ error: "Paste the whole conversation (at least a few exchanges) so there's enough to assess." }, { status: 400 });
+    return NextResponse.json({ error: (await getT()).t("errors.minConversation") }, { status: 400 });
   }
   if (kind === "speaking" && words < 8) {
-    return NextResponse.json({ error: "We couldn't hear enough to assess. Try speaking for longer." }, { status: 400 });
+    return NextResponse.json({ error: (await getT()).t("errors.minSpeech") }, { status: 400 });
   }
 
   const limit = Number(process.env.AI_DAILY_LIMIT || 30);
   if (aiEnabled() && (await aiUsageToday(user.id)) >= limit) {
     return NextResponse.json(
-      { error: `You've reached today's limit of ${limit} AI evaluations. It resets at midnight (UTC).` },
+      { error: (await getT()).t("errors.dailyLimit", { limit }) },
       { status: 429 },
     );
   }
@@ -97,16 +98,16 @@ export async function POST(req: Request) {
     console.error("[evaluate]", err);
     if (err instanceof WebhookError) return NextResponse.json({ error: err.message }, { status: 502 });
     if (err instanceof Anthropic.RateLimitError) {
-      return NextResponse.json({ error: "The AI examiner is busy right now. Please try again in a minute." }, { status: 503 });
+      return NextResponse.json({ error: (await getT()).t("errors.aiBusy") }, { status: 503 });
     }
     if (err instanceof Anthropic.AuthenticationError) {
-      return NextResponse.json({ error: "AI grading is not configured correctly on the server." }, { status: 500 });
+      return NextResponse.json({ error: (await getT()).t("errors.aiNotConfigured") }, { status: 500 });
     }
     if (err instanceof Anthropic.APIConnectionError) {
-      return NextResponse.json({ error: "Couldn't reach the AI examiner. Check your connection and try again." }, { status: 503 });
+      return NextResponse.json({ error: (await getT()).t("errors.aiUnreachable") }, { status: 503 });
     }
     if (err instanceof Anthropic.APIError) {
-      return NextResponse.json({ error: "The AI examiner returned an error. Please try again." }, { status: 502 });
+      return NextResponse.json({ error: (await getT()).t("errors.aiFailed") }, { status: 502 });
     }
     const message = err instanceof Error ? err.message : "Something went wrong.";
     return NextResponse.json({ error: message }, { status: 500 });

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getT } from "@/lib/i18n/server";
 import Link from "next/link";
 import { catchUp } from "@/app/actions/study";
 import { conversations, practicePrompts, SKILLS, type Skill } from "@/content";
@@ -8,21 +9,26 @@ import { JourneyMap } from "@/components/JourneyMap";
 import { BandPill, ProgressBar, Ring, SKILL_META, SkillBadge, SkillIcon } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { addDays, dayKey, formatDate } from "@/lib/dates";
+import { addDays, dayKey } from "@/lib/dates";
 import { getPlan } from "@/lib/plan/scheduler";
 import { getSkillBands, getTodayPlan, stageProgress } from "@/lib/progress";
 import { cefrForBand } from "@/lib/scoring";
 
-export const metadata: Metadata = { title: "Today" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT();
+  return { title: t("meta.dashboard") };
+}
 
-const greeting = () => {
-  const h = new Date().getUTCHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+/** Morning / afternoon / evening. Arabic users are mostly in the Gulf (UTC+3). */
+const greetingKey = (locale: string) => {
+  const h = (new Date().getUTCHours() + (locale === "ar" ? 3 : 0)) % 24;
+  return h < 12 ? ("dashboard.morning" as const) : h < 18 ? ("dashboard.afternoon" as const) : ("dashboard.evening" as const);
 };
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const { welcome } = await searchParams;
   const user = await requireUser();
+  const { t, plural, planText, stage, formatDate, locale } = await getT();
   const [{ items, today, completedIds }, { bands, overall, snapshots }, activity, vocabDue, convDone] = await Promise.all([
     getTodayPlan(user),
     getSkillBands(user.id),
@@ -58,8 +64,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <div className="flex items-center gap-3">
             <Icon name="mountain" size={26} />
             <div>
-              <div className="font-display text-xl font-bold">Your {plan.months}-month plan is ready.</div>
-              <div className="opacity-90">Day 1 starts now. Small steps, every day — you&apos;ve got this.</div>
+              <div className="font-display text-xl">{t("dashboard.planReady", { plan: planText(plan.months, "name") })}</div>
+              <div className="opacity-90">{t("dashboard.planReadyBody")}</div>
             </div>
           </div>
         </div>
@@ -68,16 +74,14 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="eyebrow">
-            Day {Math.min(today.dayNumber, today.totalDays)} of {today.totalDays} · {plan.name} plan
+            {t("dashboard.dayOf", { day: Math.min(today.dayNumber, today.totalDays), total: today.totalDays, plan: planText(plan.months, "name") })}
           </div>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            {greeting()}, {user.name}.
-          </h1>
+          <h1 className="mt-1 font-display text-3xl sm:text-4xl">{t("dashboard.greeting", { greeting: t(greetingKey(locale)), name: user.name })}</h1>
         </div>
         {examDays !== null && examDays >= 0 && (
           <div className="card flex items-center gap-3 px-4 py-2.5">
             <Icon name="calendar" size={18} style={{ color: "var(--brand)" }} />
-            <span className="text-sm font-bold">{examDays === 0 ? "Exam day — good luck!" : `${examDays} days to your exam`}</span>
+            <span className="text-sm font-bold">{examDays === 0 ? t("dashboard.examToday") : plural("dashboard.examIn", examDays)}</span>
           </div>
         )}
       </div>
@@ -88,8 +92,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <Icon name="trophy" size={20} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="font-bold">Your exam is in {examDays} days — take a full mock test</div>
-            <div className="text-sm" style={{ color: "var(--muted)" }}>The complete test with official timing shows exactly where you stand.</div>
+            <div className="font-bold">{plural("dashboard.mockNudge", examDays)}</div>
+            <div className="text-sm" style={{ color: "var(--muted)" }}>{t("dashboard.mockNudgeBody")}</div>
           </div>
           <Icon name="arrow" size={18} />
         </Link>
@@ -101,13 +105,13 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <Icon name="refresh" size={20} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="font-bold">You&apos;re {today.behind} lessons behind — that&apos;s okay.</div>
+            <div className="font-bold">{plural("dashboard.behind", today.behind)}</div>
             <div className="text-sm" style={{ color: "var(--muted)" }}>
-              Life happens. Reset your pace and we&apos;ll move the schedule so today is a fresh start.
+              {t("dashboard.behindBody")}
             </div>
           </div>
           <form action={catchUp}>
-            <button className="btn btn-dark">Build my catch-up plan</button>
+            <button className="btn btn-dark">{t("dashboard.catchUp")}</button>
           </form>
         </div>
       )}
@@ -118,26 +122,32 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <div className="flex items-center justify-between gap-4 p-5 sm:p-6" style={{ background: "var(--brand-soft)" }}>
             <div>
               <div className="eyebrow" style={{ color: "var(--brand)" }}>
-                {today.finished ? "Journey complete" : today.reviewDay ? "Review day" : today.aheadMode ? "You're on track" : "Today's session"}
-              </div>
-              <h2 className="mt-1 font-display text-2xl font-bold">
                 {today.finished
-                  ? "You reached the summit! 🏔️"
-                  : today.reviewDay && due.length === 0
-                    ? "Light day: review & practise"
+                  ? t("dashboard.journeyComplete")
+                  : today.reviewDay
+                    ? t("dashboard.reviewDay")
                     : today.aheadMode
-                      ? "Get ahead with the next lesson"
-                      : `${due.length} task${due.length === 1 ? "" : "s"} planned for today`}
+                      ? t("dashboard.onTrack")
+                      : t("dashboard.todaysSession")}
+              </div>
+              <h2 className="mt-1 font-display text-2xl">
+                {today.finished
+                  ? t("dashboard.summit")
+                  : today.reviewDay && due.length === 0
+                    ? t("dashboard.lightDay")
+                    : today.aheadMode
+                      ? t("dashboard.getAhead")
+                      : plural("dashboard.tasksToday", due.length)}
               </h2>
               <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
-                Daily goal: {plan.dailyMinutes} minutes · {minutesToday} done
+                {t("dashboard.dailyGoal", { goal: plan.dailyMinutes, done: minutesToday })}
               </p>
             </div>
-            <Ring value={goalPct} size={84} stroke={9} label={`Daily goal ${Math.round(goalPct * 100)}%`}>
+            <Ring value={goalPct} size={84} stroke={9} label={t("dashboard.goalLabel", { pct: Math.round(goalPct * 100) })}>
               <div>
-                <div className="font-display text-lg font-bold leading-none">{Math.round(goalPct * 100)}%</div>
+                <div className="num text-lg font-bold leading-none">{Math.round(goalPct * 100)}%</div>
                 <div className="text-[10px] font-bold uppercase" style={{ color: "var(--muted)" }}>
-                  goal
+                  {t("dashboard.goal")}
                 </div>
               </div>
             </Ring>
@@ -158,20 +168,22 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                       </span>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="truncate font-bold">{item.kind === "lesson" ? item.lesson.title : item.checkpoint.title}</div>
+                      <div className="truncate font-bold" dir="auto">
+                        {item.kind === "lesson" ? item.lesson.title : t("dashboard.checkpointTitle", { camp: stage(item.stage, "camp") })}
+                      </div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-semibold" style={{ color: "var(--muted)" }}>
                         {item.kind === "lesson" ? (
                           <>
-                            <SkillBadge skill={item.lesson.skill} /> ~{item.lesson.minutes} min · +{item.lesson.xp} XP
+                            <SkillBadge skill={item.lesson.skill} /> {t("dashboard.lessonMeta", { minutes: item.lesson.minutes, xp: item.lesson.xp })}
                           </>
                         ) : (
-                          <span>Stage {item.stage} checkpoint · all four skills · ~60 min</span>
+                          <span>{t("dashboard.checkpointMeta", { n: item.stage })}</span>
                         )}
                       </div>
                     </div>
                     {i === 0 ? (
                       <span className="btn btn-primary animate-pulse-ring hidden px-4 py-2 sm:inline-flex">
-                        Start <Icon name="play" size={14} />
+                        {t("common.start")} <Icon name="play" size={14} className="rtl:-scale-x-100" />
                       </span>
                     ) : (
                       <Icon name="arrow" size={18} style={{ color: "var(--muted)" }} />
@@ -187,9 +199,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                     <Icon name="cards" size={20} />
                   </span>
                   <div className="flex-1">
-                    <div className="font-bold">Vocabulary review</div>
+                    <div className="font-bold">{t("dashboard.vocabReview")}</div>
                     <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                      {vocabDue} word{vocabDue === 1 ? "" : "s"} ready · ~{Math.max(2, Math.ceil(vocabDue / 3))} min
+                      {plural("dashboard.vocabMeta", vocabDue, { min: Math.max(2, Math.ceil(vocabDue / 3)) })}
                     </div>
                   </div>
                   <Icon name="arrow" size={18} style={{ color: "var(--muted)" }} />
@@ -203,9 +215,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                     <Icon name="mic" size={20} />
                   </span>
                   <div className="flex-1">
-                    <div className="font-bold">Talk with AI: {conversation.title}</div>
+                    <div className="font-bold">{t("dashboard.talkWithAi", { title: conversation.title })}</div>
                     <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                      Learn the phrases, then role-play with ChatGPT · ~{conversation.minutes} min · +{conversation.xp} XP
+                      {t("dashboard.talkMeta", { minutes: conversation.minutes, xp: conversation.xp })}
                     </div>
                   </div>
                   <Icon name="arrow" size={18} style={{ color: "var(--muted)" }} />
@@ -217,9 +229,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 <Link href={`/practice/${suggestedPractice.id}`} className="flex items-center gap-4 p-4 transition-colors hover:bg-[var(--surface-2)] sm:px-6">
                   <SkillIcon skill={suggestedPractice.skill} />
                   <div className="flex-1">
-                    <div className="font-bold">Bonus drill: {suggestedPractice.title}</div>
+                    <div className="font-bold">{t("dashboard.bonusDrill", { title: suggestedPractice.title })}</div>
                     <div className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                      AI-graded {SKILL_META[suggestedPractice.skill].label.toLowerCase()} practice · targets your weakest skill
+                      {t("dashboard.bonusMeta", { skill: locale === "en" ? t(`skills.${suggestedPractice.skill}`).toLowerCase() : t(`skills.${suggestedPractice.skill}`) })}
                     </div>
                   </div>
                   <Icon name="arrow" size={18} style={{ color: "var(--muted)" }} />
@@ -237,15 +249,15 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 <Icon name="flame" size={28} />
               </span>
               <div className="flex-1">
-                <div className="font-display text-3xl font-bold leading-none">{user.streak} day{user.streak === 1 ? "" : "s"}</div>
+                <div className="font-display text-3xl leading-none">{plural("dashboard.streakDays", user.streak)}</div>
                 <div className="mt-1 text-sm font-semibold" style={{ color: "var(--muted)" }}>
-                  {todayAct ? "Streak secured for today ✓" : user.streak > 0 ? "Complete one task to keep it alive" : "Complete a task to start your streak"}
+                  {todayAct ? t("dashboard.streakSecured") : user.streak > 0 ? t("dashboard.keepAlive") : t("dashboard.startStreak")}
                 </div>
               </div>
-              <div className="text-right text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                🧊 {user.streakFreezes} freeze{user.streakFreezes === 1 ? "" : "s"}
+              <div className="text-end text-xs font-semibold" style={{ color: "var(--muted)" }}>
+                {plural("dashboard.freezes", user.streakFreezes)}
                 <br />
-                Best: {user.longestStreak}
+                {t("dashboard.best", { n: user.longestStreak })}
               </div>
             </div>
             <div className="mt-5 grid grid-cols-7 gap-1.5">
@@ -255,12 +267,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 return (
                   <div key={dayKey(d)} className="text-center">
                     <div className="text-[11px] font-bold" style={{ color: "var(--muted)" }}>
-                      {d.toLocaleDateString("en-GB", { weekday: "narrow", timeZone: "UTC" })}
+                      {formatDate(d, { weekday: "narrow" })}
                     </div>
                     <div
                       className="mx-auto mt-1 grid h-8 w-8 place-items-center rounded-full"
                       style={{ background: a ? "var(--brand)" : "var(--surface-2)", color: "var(--brand-ink)", outline: isToday ? "2px solid var(--brand)" : undefined, outlineOffset: 2 }}
-                      title={a ? `${a.minutes} min · ${a.xp} XP` : "No activity"}
+                      title={a ? t("dashboard.dayActivity", { minutes: a.minutes, xp: a.xp }) : t("dashboard.noActivity")}
                     >
                       {a && <Icon name="check" size={14} strokeWidth={3} />}
                     </div>
@@ -273,33 +285,33 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <section className="card p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="eyebrow">Estimated overall</div>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <span className="font-display text-5xl font-bold">{overall?.toFixed(1) ?? "—"}</span>
+                <div className="eyebrow">{t("dashboard.estimatedOverall")}</div>
+                <div className="mt-1 flex items-baseline gap-2" dir="ltr">
+                  <span className="num text-5xl font-bold">{overall?.toFixed(1) ?? "—"}</span>
                   <span className="font-bold" style={{ color: "var(--muted)" }}>
                     {cefrForBand(overall)}
                   </span>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="eyebrow">Target</div>
+              <div className="text-end">
+                <div className="eyebrow">{t("dashboard.target")}</div>
                 <BandPill band={target} />
               </div>
             </div>
             <div className="mt-4 space-y-3">
               {SKILLS.map((s) => (
                 <div key={s} className="flex items-center gap-3">
-                  <span className="w-20 text-sm font-semibold">{SKILL_META[s].label}</span>
+                  <span className="w-20 text-sm font-semibold">{t(`skills.${s}`)}</span>
                   <div className="relative flex-1">
-                    <ProgressBar value={(bands[s] ?? 0) / 9} color={SKILL_META[s].color} height={10} label={`${SKILL_META[s].label} band`} />
-                    <span className="absolute top-[-3px] h-4 w-0.5 rounded" style={{ left: `${(target / 9) * 100}%`, background: "var(--ink)" }} aria-hidden="true" />
+                    <ProgressBar value={(bands[s] ?? 0) / 9} color={SKILL_META[s].color} height={10} label={t("dashboard.skillBand", { skill: t(`skills.${s}`) })} />
+                    <span className="absolute top-[-3px] h-4 w-0.5 rounded" style={{ insetInlineStart: `${(target / 9) * 100}%`, background: "var(--ink)" }} aria-hidden="true" />
                   </div>
-                  <span className="w-8 text-right font-display font-bold">{bands[s]?.toFixed(1) ?? "—"}</span>
+                  <span className="num w-8 text-end font-bold">{bands[s]?.toFixed(1) ?? "—"}</span>
                 </div>
               ))}
             </div>
             <Link href="/progress" className="mt-4 inline-flex items-center gap-1 text-sm font-bold" style={{ color: "var(--brand)" }}>
-              See full progress <Icon name="arrow" size={14} />
+              {t("dashboard.seeProgress")} <Icon name="arrow" size={14} />
             </Link>
           </section>
         </div>
@@ -308,21 +320,21 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <div className="grid gap-6 lg:grid-cols-[1fr_1.45fr]">
         <section className="card p-4">
           <div className="mb-3 flex items-center justify-between px-1">
-            <h2 className="font-display text-xl font-bold">Your journey</h2>
+            <h2 className="font-display text-xl">{t("dashboard.yourJourney")}</h2>
             <span className="text-sm font-bold" style={{ color: "var(--muted)" }}>
-              {Math.round(overallProgress * 100)}% climbed
+              {t("dashboard.climbed", { pct: Math.round(overallProgress * 100) })}
             </span>
           </div>
           <JourneyMap stages={stagesP} compact />
           <Link href="/journey" className="btn btn-ghost mt-4 w-full">
-            Open the full map
+            {t("dashboard.openMap")}
           </Link>
         </section>
         <section className="card p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-xl font-bold">Band trend</h2>
+            <h2 className="font-display text-xl">{t("dashboard.bandTrend")}</h2>
             <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
-              Plan ends {formatDate(today.endDate)}
+              {t("dashboard.planEnds", { date: formatDate(today.endDate) })}
             </span>
           </div>
           <BandChart snapshots={snapshots} target={target} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { completeConversation, type CompletionResult } from "@/app/actions/learn";
@@ -15,7 +16,7 @@ import { CHATGPT_URL } from "@/lib/conversation/prompt";
 import type { Evaluation } from "@/lib/ai/schema";
 import { gradeQuestions, type Answers } from "@/lib/scoring";
 
-const STEPS = ["Learn", "Listen", "Check", "Talk", "Reflect"] as const;
+const STEPS = ["learn", "listen", "check", "talk", "reflect"] as const;
 const ACCENT = "var(--speaking)";
 
 
@@ -30,6 +31,7 @@ export function ConversationFlow({
   prompt: string;
   completedBefore: boolean;
 }) {
+  const { t, rich } = useT();
   const [step, setStep] = useState(0);
   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
   const [answers, setAnswers] = useState<Answers>({});
@@ -76,7 +78,7 @@ export function ConversationFlow({
       setEvaluation(r.evaluation);
       setAttemptId(r.attemptId);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setError(e instanceof Error ? e.message : t("errors.generic"));
     } finally {
       setBusy(false);
     }
@@ -96,19 +98,19 @@ export function ConversationFlow({
     <div className="mx-auto max-w-4xl">
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/practice#conversations" className="grid h-10 w-10 place-items-center rounded-full" style={{ background: "var(--surface-2)" }} aria-label="Back to conversations">
+        <Link href="/practice#conversations" className="grid h-10 w-10 place-items-center rounded-full" style={{ background: "var(--surface-2)" }} aria-label={t("conversation.backToList")}>
           <Icon name="back" size={18} />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="eyebrow truncate">
-            AI Conversation · Stage {s.stage} · {stageName} · {s.ieltsPart}
+            {t("conversation.header", { n: s.stage, stage: stageName, part: s.ieltsPart })}
           </div>
-          <ol className="mt-1.5 flex gap-1.5" aria-label={`Step ${step + 1} of ${STEPS.length}: ${STEPS[step]}`}>
+          <ol className="mt-1.5 flex gap-1.5" aria-label={t("conversation.stepAria", { n: step + 1, total: STEPS.length, label: t(`conversation.steps.${STEPS[step]}`) })}>
             {STEPS.map((label, i) => (
               <li key={label} className="flex-1">
                 <span className="block h-1.5 rounded-full" style={{ background: i <= step ? ACCENT : "var(--surface-2)" }} />
                 <span className="mt-1 hidden text-[11px] font-bold sm:block" style={{ color: i === step ? ACCENT : "var(--muted)" }}>
-                  {label}
+                  {t(`conversation.steps.${label}`)}
                 </span>
               </li>
             ))}
@@ -121,12 +123,15 @@ export function ConversationFlow({
           <Icon name="mic" size={26} />
         </span>
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{s.title}</h1>
-          <p className="mt-1" style={{ color: "var(--muted)" }}>
+          <h1 className="font-display text-2xl sm:text-3xl" lang="en" dir="auto">
+            {s.title}
+          </h1>
+          <p className="mt-1" style={{ color: "var(--muted)" }} lang="en" dir="ltr">
             {s.situation}
           </p>
           <p className="mt-1 text-sm font-semibold" style={{ color: "var(--muted)" }}>
-            ~{s.minutes} min · {s.xp} XP{completedBefore && " · Completed before ✓"}
+            {t("conversation.meta", { minutes: s.minutes, xp: s.xp })}
+            {completedBefore && t("conversation.completedBefore")}
           </p>
         </div>
       </div>
@@ -136,9 +141,9 @@ export function ConversationFlow({
         <div className="animate-rise space-y-6">
           <section className="card p-6">
             <div className="eyebrow mb-2" style={{ color: ACCENT }}>
-              Today you will practise
+              {t("conversation.practise")}
             </div>
-            <ul className="grid gap-2 sm:grid-cols-3">
+            <ul className="grid gap-2 sm:grid-cols-3" lang="en" dir="ltr">
               {s.goals.map((g) => (
                 <li key={g} className="flex gap-2 rounded-md p-3 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>
                   <Icon name="target" size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} /> {g}
@@ -148,8 +153,8 @@ export function ConversationFlow({
           </section>
 
           <section className="card p-6">
-            <h2 className="mb-4 font-display text-xl font-bold">Key phrases</h2>
-            <ul className="space-y-3">
+            <h2 className="mb-4 font-display text-xl">{t("conversation.keyPhrases")}</h2>
+            <ul className="space-y-3" lang="en" dir="ltr">
               {s.keyPhrases.map((p) => (
                 <li key={p.phrase} className="rounded-[10px] border p-4" style={{ borderColor: "var(--line)" }}>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -171,9 +176,10 @@ export function ConversationFlow({
           <div className="grid gap-6 lg:grid-cols-2">
             <section className="card p-6">
               <div className="eyebrow mb-1" style={{ color: ACCENT }}>
-                Grammar focus
+                {t("conversation.grammar")}
               </div>
-              <h2 className="font-display text-xl font-bold">{s.grammar.title}</h2>
+              <div lang="en" dir="ltr">
+              <h2 className="font-display text-xl">{s.grammar.title}</h2>
               <p className="mt-2 leading-relaxed">{s.grammar.explanation}</p>
               <ul className="mt-3 space-y-1.5">
                 {s.grammar.examples.map((e) => (
@@ -182,10 +188,11 @@ export function ConversationFlow({
                   </li>
                 ))}
               </ul>
+              </div>
             </section>
             <section className="card p-6">
               <div className="eyebrow mb-3" style={{ color: ACCENT }}>
-                Vocabulary · tap to flip
+                {t("conversation.vocab")}
               </div>
               <div className="grid gap-2.5">
                 {s.vocab.map((v, i) => (
@@ -194,17 +201,19 @@ export function ConversationFlow({
                     type="button"
                     onClick={() => setFlipped((f) => ({ ...f, [i]: !f[i] }))}
                     aria-expanded={!!flipped[i]}
-                    className="rounded-md border p-3 text-left"
+                    className="rounded-md border p-3 text-start"
                     style={{ borderColor: "var(--line)", background: flipped[i] ? "color-mix(in srgb, var(--speaking) 10%, transparent)" : "var(--surface)" }}
                   >
-                    <div className="font-bold">{v.word}</div>
+                    <div className="font-bold" lang="en" dir="ltr">
+                      {v.word}
+                    </div>
                     <div className="text-sm" style={{ color: flipped[i] ? "var(--ink)" : "var(--muted)" }}>
                       {flipped[i] ? (
-                        <>
+                        <span lang="en" dir="ltr" className="block">
                           {v.definition} <span className="italic" style={{ color: "var(--muted)" }}>— “{v.example}”</span>
-                        </>
+                        </span>
                       ) : (
-                        "Can you guess the meaning?"
+                        t("conversation.guess")
                       )}
                     </div>
                   </button>
@@ -214,7 +223,7 @@ export function ConversationFlow({
           </div>
           <div className="flex justify-end">
             <button type="button" className="btn btn-primary" onClick={() => go(1)}>
-              Next: hear a model conversation <Icon name="arrow" size={18} />
+              {t("conversation.nextListen")} <Icon name="arrow" size={18} />
             </button>
           </div>
         </div>
@@ -223,14 +232,14 @@ export function ConversationFlow({
       {/* 2. Listen */}
       {step === 1 && (
         <div className="animate-rise mx-auto max-w-3xl space-y-6">
-          <p style={{ color: "var(--muted)" }}>Listen to how fluent speakers use today&apos;s phrases. Then read the transcript and notice the phrases in action.</p>
+          <p style={{ color: "var(--muted)" }}>{t("conversation.listenIntro")}</p>
           <ListeningPlayer task={s.modelDialogue} revealScript />
           <div className="flex justify-between">
             <button type="button" className="btn btn-ghost" onClick={() => go(0)}>
-              <Icon name="back" size={16} /> Back
+              <Icon name="back" size={16} /> {t("common.back")}
             </button>
             <button type="button" className="btn btn-primary" onClick={() => go(2)}>
-              Next: quick check <Icon name="arrow" size={18} />
+              {t("conversation.nextCheck")} <Icon name="arrow" size={18} />
             </button>
           </div>
         </div>
@@ -240,7 +249,7 @@ export function ConversationFlow({
       {step === 2 && (
         <div className="animate-rise mx-auto max-w-3xl">
           <p className="mb-4" style={{ color: "var(--muted)" }}>
-            Get at least 2 of 3 right to unlock your conversation.
+            {t("conversation.checkIntro")}
           </p>
           <QuestionList
             questions={s.quickCheck}
@@ -256,21 +265,21 @@ export function ConversationFlow({
             {checkResult && !passed && (
               <>
                 <span className="font-semibold" style={{ color: "var(--danger)" }}>
-                  {checkResult.correct}/3 — review the explanations and try again.
+                  {t("conversation.retry", { n: checkResult.correct })}
                 </span>
                 <button type="button" className="btn btn-ghost" onClick={() => { setCheckResult(null); setAnswers({}); }}>
-                  <Icon name="refresh" size={16} /> Try again
+                  <Icon name="refresh" size={16} /> {t("conversation.tryAgain")}
                 </button>
               </>
             )}
             {!checkResult && (
               <button type="button" className="btn btn-primary" disabled={Object.keys(answers).length < s.quickCheck.length} onClick={() => setCheckResult(gradeQuestions(s.quickCheck, answers))}>
-                Check answers
+                {t("conversation.check")}
               </button>
             )}
             {passed && (
               <button type="button" className="btn btn-primary" onClick={() => go(3)}>
-                {checkResult!.correct}/3 — you&apos;re ready to talk! <Icon name="arrow" size={18} />
+                {t("conversation.ready", { n: checkResult!.correct })} <Icon name="arrow" size={18} />
               </button>
             )}
           </div>
@@ -283,27 +292,27 @@ export function ConversationFlow({
           <section className="card overflow-hidden">
             <div className="p-6" style={{ background: "color-mix(in srgb, var(--speaking) 10%, var(--surface))" }}>
               <div className="eyebrow mb-1" style={{ color: ACCENT }}>
-                Your role-play
+                {t("conversation.rolePlay")}
               </div>
-              <p className="font-semibold">
-                ChatGPT will be <span style={{ color: ACCENT }}>{s.aiRole}</span>. You are {s.learnerRole}.
-              </p>
+              <p className="font-semibold">{rich("conversation.roles", { ai: s.aiRole, you: s.learnerRole })}</p>
             </div>
             <ol className="space-y-4 p-6">
-              {[
-                ["1", "Copy your ready-made prompt", "It tells ChatGPT its role, your level, today's phrases and how to give you feedback at the end."],
-                ["2", "Open ChatGPT and paste it", "On your phone, use the ChatGPT app and tap the voice button to really speak. On a computer you can type or use voice."],
-                ["3", "Have the conversation", `About ${s.turns} exchanges. Try to complete every mission. Say “END” when you finish to get ChatGPT's feedback.`],
-                ["4", "Copy the conversation and come back", "Select the whole chat (or use the copy button on each message) — you'll paste it here for your Balbal feedback."],
-              ].map(([n, t, b]) => (
+              {(
+                [
+                  ["1", "copy"],
+                  ["2", "open"],
+                  ["3", "talk"],
+                  ["4", "back"],
+                ] as const
+              ).map(([n, key]) => (
                 <li key={n} className="flex gap-3">
                   <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold text-[var(--on-skill)]" style={{ background: ACCENT }}>
                     {n}
                   </span>
                   <div>
-                    <div className="font-bold">{t}</div>
+                    <div className="font-bold">{t(`conversation.howTo.${key}.title`)}</div>
                     <div className="text-sm" style={{ color: "var(--muted)" }}>
-                      {b}
+                      {t(`conversation.howTo.${key}.body`, { turns: s.turns })}
                     </div>
                   </div>
                 </li>
@@ -311,17 +320,17 @@ export function ConversationFlow({
             </ol>
             <div className="flex flex-wrap gap-3 border-t p-6" style={{ borderColor: "var(--line)" }}>
               <button type="button" className="btn btn-primary" onClick={copyPrompt} aria-live="polite">
-                <Icon name={copied ? "check" : "cards"} size={18} /> {copied ? "Prompt copied!" : "Copy prompt"}
+                <Icon name={copied ? "check" : "cards"} size={18} /> {copied ? t("conversation.copied") : t("conversation.copy")}
               </button>
               <a href={CHATGPT_URL} target="_blank" rel="noopener noreferrer" className="btn btn-dark">
-                Open ChatGPT <Icon name="arrow" size={16} />
+                {t("conversation.openChatGpt")} <Icon name="arrow" size={16} />
               </a>
               <button type="button" className="btn btn-ghost" onClick={() => setShowPrompt((v) => !v)} aria-expanded={showPrompt}>
-                <Icon name="eye" size={16} /> {showPrompt ? "Hide prompt" : "Preview prompt"}
+                <Icon name="eye" size={16} /> {showPrompt ? t("conversation.hidePrompt") : t("conversation.previewPrompt")}
               </button>
             </div>
             {showPrompt && (
-              <pre className="mx-6 mb-6 max-h-80 overflow-auto whitespace-pre-wrap rounded-md p-4 text-xs leading-relaxed" style={{ background: "var(--surface-2)" }}>
+              <pre className="mx-6 mb-6 max-h-80 overflow-auto whitespace-pre-wrap rounded-md p-4 text-xs leading-relaxed" style={{ background: "var(--surface-2)" }} lang="en" dir="ltr">
                 {prompt}
               </pre>
             )}
@@ -329,8 +338,8 @@ export function ConversationFlow({
 
           <aside className="space-y-6">
             <section className="card p-5">
-              <h2 className="mb-3 font-display text-lg font-bold">Your missions</h2>
-              <ul className="space-y-2">
+              <h2 className="mb-3 font-display text-lg">{t("conversation.missions")}</h2>
+              <ul className="space-y-2" lang="en" dir="ltr">
                 {s.missions.map((m) => (
                   <li key={m} className="flex gap-2 text-sm">
                     <Icon name="star" size={16} style={{ color: "var(--gold)", flexShrink: 0, marginTop: 2 }} /> {m}
@@ -339,8 +348,8 @@ export function ConversationFlow({
               </ul>
             </section>
             <section className="card p-5">
-              <h2 className="mb-3 font-display text-lg font-bold">Keep these in front of you</h2>
-              <ul className="space-y-1.5">
+              <h2 className="mb-3 font-display text-lg">{t("conversation.keepInFront")}</h2>
+              <ul className="space-y-1.5" lang="en" dir="ltr">
                 {s.keyPhrases.map((p) => (
                   <li key={p.phrase} className="rounded-lg px-3 py-1.5 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>
                     {p.phrase}
@@ -349,7 +358,7 @@ export function ConversationFlow({
               </ul>
             </section>
             <button type="button" className="btn btn-primary w-full" onClick={() => go(4)}>
-              I&apos;ve finished my conversation <Icon name="arrow" size={18} />
+              {t("conversation.finished")} <Icon name="arrow" size={18} />
             </button>
           </aside>
         </div>
@@ -359,8 +368,8 @@ export function ConversationFlow({
       {step === 4 && (
         <div className="animate-rise mx-auto max-w-3xl space-y-6">
           <section className="card p-6">
-            <h2 className="mb-3 font-display text-xl font-bold">How did it go?</h2>
-            <ul className="space-y-2">
+            <h2 className="mb-3 font-display text-xl">{t("conversation.howDidItGo")}</h2>
+            <ul className="space-y-2" lang="en" dir="ltr">
               {s.selfCheck.map((c, i) => (
                 <li key={c}>
                   <label className="flex cursor-pointer items-center gap-3 rounded-md p-3" style={{ background: checked[i] ? "color-mix(in srgb, var(--success) 10%, transparent)" : "var(--surface-2)" }}>
@@ -374,29 +383,31 @@ export function ConversationFlow({
 
           {!evaluation && (
             <section className="card p-6">
-              <h2 className="font-display text-xl font-bold">Get your Balbal feedback</h2>
+              <h2 className="font-display text-xl">{t("conversation.feedbackTitle")}</h2>
               <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
-                Paste the whole conversation from ChatGPT. We&apos;ll assess only your turns: fluency, vocabulary, grammar and how well you used today&apos;s phrases.
+                {t("conversation.feedbackBody")}
               </p>
               <textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder={"Paste your conversation here…\n\nChatGPT: Hi! I don't think we've met yet…\nYou: Hi, nice to meet you. I'm…"}
-                aria-label="Conversation transcript"
+                placeholder={t("conversation.placeholder")}
+                aria-label={t("conversation.transcriptLabel")}
+                lang="en"
+                dir="ltr"
                 className="input mt-4 min-h-[220px] text-[15px] leading-relaxed"
               />
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
                 <span className="text-xs" style={{ color: "var(--muted)" }}>
-                  {wordCount(transcript)} words
+                  {t("conversation.words", { n: wordCount(transcript) })}
                 </span>
                 <button type="button" className="btn btn-primary" onClick={getFeedback} disabled={busy || wordCount(transcript) < 30}>
                   {busy ? (
                     <>
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> Reviewing your conversation…
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> {t("conversation.reviewing")}
                     </>
                   ) : (
                     <>
-                      <Icon name="sparkle" size={18} /> Get feedback
+                      <Icon name="sparkle" size={18} /> {t("conversation.getFeedback")}
                     </>
                   )}
                 </button>
@@ -421,12 +432,12 @@ export function ConversationFlow({
               <>
                 {!evaluation && (
                   <button type="button" className="btn btn-ghost" onClick={finish} disabled={pending || busy}>
-                    Complete without feedback
+                    {t("conversation.completeWithout")}
                   </button>
                 )}
                 {evaluation && (
                   <button type="button" className="btn btn-primary" onClick={finish} disabled={pending}>
-                    {pending ? "Saving…" : "Complete conversation"} <Icon name="check" size={18} />
+                    {pending ? t("common.saving") : t("conversation.complete")} <Icon name="check" size={18} />
                   </button>
                 )}
               </>
@@ -437,8 +448,8 @@ export function ConversationFlow({
 
       {celebrate && result && (
         <Celebration
-          title="Conversation complete!"
-          subtitle={result.band != null ? "Your speaking estimate has been added to your progress." : "Paste your conversation next time to get a band estimate."}
+          title={t("conversation.doneTitle")}
+          subtitle={result.band != null ? t("conversation.doneBand") : t("conversation.doneNoBand")}
           band={result.band}
           xp={result.activity.xpGained}
           streak={result.activity.streak}

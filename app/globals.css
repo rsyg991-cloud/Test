@@ -91,8 +91,8 @@
   --color-danger: var(--danger);
   --color-highlighter: var(--highlighter);
   --color-tile: var(--tile);
-  --font-sans: var(--font-public), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-archivo), var(--font-public), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-public), var(--font-kufi), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), var(--font-kufi), var(--font-public), ui-sans-serif, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-arabic: var(--font-kufi), Tahoma, "Segoe UI", sans-serif;
   --radius-s: 6px;
