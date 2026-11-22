@@ -14,7 +14,8 @@ datasource db {
 
 model User {
   id             String    @id @default(cuid())
-  email          String    @unique
+  email          String?   @unique // optional since mobile sign-up
+  phone          String?   @unique // Saudi mobile, normalised to +9665XXXXXXXX
   name           String
   passwordHash   String
   createdAt      DateTime  @default(now())

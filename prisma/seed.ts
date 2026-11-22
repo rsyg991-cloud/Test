@@ -1,7 +1,7 @@
 /**
  * Seeds a demo learner with a few weeks of realistic history so the dashboard,
  * band chart and streak can be explored immediately.
- *   email: demo@balbal.app   password: demo12345
+ *   mobile: 0500000000 (or email demo@balbal.app)   password: demo12345
  */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -14,13 +14,15 @@ const utcMidnight = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCM
 
 async function main() {
   const email = "demo@balbal.app";
-  await prisma.user.deleteMany({ where: { email } });
+  const phone = "+966500000000";
+  await prisma.user.deleteMany({ where: { OR: [{ email }, { phone }] } });
 
   const today = utcMidnight(new Date());
   const planStart = new Date(today.getTime() - 20 * DAY);
   const user = await prisma.user.create({
     data: {
       email,
+      phone,
       name: "Sara",
       passwordHash: await bcrypt.hash("demo12345", 10),
       targetBand: 7,
@@ -81,7 +83,7 @@ async function main() {
     await prisma.activityDay.create({ data: { userId: user.id, day: dayKey(d), xp: 40 + ((k * 13) % 50), minutes: 25 + ((k * 17) % 45), tasks: 2 } });
   }
 
-  console.log(`Seeded demo learner: ${email} / demo12345`);
+  console.log(`Seeded demo learner: 0500000000 (or ${email}) / demo12345`);
 }
 
 main()

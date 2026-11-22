@@ -18,12 +18,37 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           <input id="name" name="name" required autoComplete="given-name" className="input" placeholder={t("auth.namePlaceholder")} />
         </div>
       )}
-      <div>
-        <label htmlFor="email" className="mb-1.5 block text-sm font-bold">
-          {t("auth.email")}
-        </label>
-        <input id="email" name="email" type="email" required autoComplete="email" className="input" placeholder="you@example.com" dir="ltr" />
-      </div>
+      {mode === "register" ? (
+        <>
+          <div>
+            <label htmlFor="phone" className="mb-1.5 block text-sm font-bold">
+              {t("auth.phone")}
+            </label>
+            <div className="flex" dir="ltr">
+              <span className="input num flex w-auto shrink-0 items-center rounded-e-none border-e-0 px-3" style={{ color: "var(--muted)" }} aria-hidden="true">
+                +966
+              </span>
+              <input id="phone" name="phone" type="tel" inputMode="tel" required autoComplete="tel-national" className="input min-w-0 flex-1 rounded-s-none" placeholder="05XXXXXXXX" />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-sm font-bold">
+              {t("auth.emailOptional")}
+            </label>
+            <input id="email" name="email" type="email" autoComplete="email" className="input" placeholder="you@example.com" dir="ltr" />
+          </div>
+        </>
+      ) : (
+        <div>
+          <label htmlFor="identifier" className="mb-1.5 block text-sm font-bold">
+            {t("auth.phone")}
+          </label>
+          <input id="identifier" name="identifier" type="text" inputMode="tel" required autoComplete="username" className="input" placeholder="05XXXXXXXX" dir="ltr" aria-describedby="identifier-hint" />
+          <p id="identifier-hint" className="mt-1.5 text-xs" style={{ color: "var(--muted)" }}>
+            {t("auth.loginEmailHint")}
+          </p>
+        </div>
+      )}
       <div>
         <label htmlFor="password" className="mb-1.5 block text-sm font-bold">
           {t("auth.password")}

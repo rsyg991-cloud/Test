@@ -18,10 +18,12 @@ await page.getByRole("heading", { level: 1, name: /first words/i }).waitFor();
 await snap("01-landing");
 step("landing page");
 
-const email = `e2e+${Date.now()}@example.com`;
+/** A random Saudi mobile number written the usual way: 05XXXXXXXX. */
+const randomMobile = () => "05" + String(Math.floor(Math.random() * 1e8)).padStart(8, "0");
 await page.goto(`${BASE}/register`);
 await page.getByLabel("First name").fill("Test");
-await page.getByLabel("Email").fill(email);
+await page.getByLabel("Mobile number").fill(randomMobile());
+await page.getByLabel("Email (optional)").fill(`e2e+${Date.now()}@example.com`);
 await page.getByLabel("Password").fill("password123");
 await page.getByRole("button", { name: "Create my account" }).click();
 await page.waitForURL("**/onboarding");
@@ -202,7 +204,7 @@ const b = await ctx2.newPage();
 b.on("pageerror", (e) => errors.push(e.message));
 await b.goto(`${BASE}/register`);
 await b.getByLabel("First name").fill("Zero");
-await b.getByLabel("Email").fill(`zero-${Date.now()}@example.com`);
+await b.getByLabel("Mobile number").fill(randomMobile());
 await b.getByLabel("Password").fill("password123");
 await b.getByRole("button", { name: "Create my account" }).click();
 await b.waitForURL("**/onboarding");
@@ -242,7 +244,8 @@ await ar.getByRole("button", { name: "التبديل إلى العربية" }).c
 await ar.locator("html[dir=rtl][lang=ar]").waitFor({ state: "attached" });
 await ar.goto(`${BASE}/register`);
 await ar.getByLabel("الاسم الأول").fill("ريم");
-await ar.getByLabel("الإيميل").fill(`ar-${Date.now()}@example.com`);
+const arMobileNo = randomMobile();
+await ar.getByLabel("رقم الجوال").fill(arMobileNo);
 await ar.getByLabel("كلمة المرور").fill("password123");
 await ar.getByRole("button", { name: "سوّ حسابي" }).click();
 await ar.waitForURL("**/onboarding");
@@ -266,7 +269,18 @@ for (const path of ["/", "/dashboard", "/journey", "/plan"]) {
   const over = await arMobile.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   if (over > 1) throw new Error(`Arabic ${path} scrolls horizontally on mobile by ${over}px`);
 }
+// Log out, then log back in with the same number written another way (+966, spaces).
+await ar.goto(`${BASE}/login`);
+await ar.getByLabel("رقم الجوال").fill("0500000001");
+await ar.getByLabel("كلمة المرور").fill("password123");
+await ar.getByRole("button", { name: "تسجيل الدخول", exact: true }).click();
+await ar.getByRole("alert").getByText("رقم الجوال أو كلمة المرور غلط.").waitFor();
+await ar.getByLabel("رقم الجوال").fill(`+966 ${arMobileNo.slice(1, 3)} ${arMobileNo.slice(3, 6)} ${arMobileNo.slice(6)}`);
+await ar.getByLabel("كلمة المرور").fill("password123");
+await ar.getByRole("button", { name: "تسجيل الدخول", exact: true }).click();
+await ar.waitForURL("**/dashboard**");
 await ctxAr.close();
+step("arabic: signed up and logged back in with a mobile number");
 step("arabic: browser language respected, switch remembered, RTL pages, English passage kept LTR, no mobile overflow");
 
 if (errors.length) throw new Error("Page errors:\n" + errors.join("\n"));

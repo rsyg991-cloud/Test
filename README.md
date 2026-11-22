@@ -96,7 +96,7 @@ Writing and Speaking are graded by Claude (`lib/ai/evaluate.ts`) with structured
 
 ## Tech
 
-Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Prisma + PostgreSQL (Neon in production) · `@anthropic-ai/sdk` · email/password auth with hashed session tokens in httpOnly cookies · Vitest.
+Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Prisma + PostgreSQL (Neon in production) · `@anthropic-ai/sdk` · Saudi mobile number + password auth (email optional; older email accounts can still log in with their email) with hashed session tokens in httpOnly cookies · Vitest.
 
 ```
 app/                    pages (landing, auth, onboarding, dashboard, journey, learn, checkpoint, practice, vocab, progress, plan)
@@ -127,7 +127,7 @@ npm run setup               # run migrations and seed a demo learner
 npm run dev                 # http://localhost:3000
 ```
 
-Demo learner: `demo@balbal.app` / `demo12345` (3 weeks of history, streak and bands).
+Demo learner: mobile `0500000000` (or `demo@balbal.app`) / `demo12345` (3 weeks of history, streak and bands).
 
 Checks:
 
