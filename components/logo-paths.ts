@@ -1,5 +1,5 @@
 // Generated from the Balbal design system (Sky palette): "Balbal" outlined from Archivo Black and
-// "بلبل" shaped with HarfBuzz and outlined from Thmanyah Serif Display Black (logo use only — the font files are not in this repo), so the logo renders the same before web fonts load.
+// "بلبل" shaped with HarfBuzz and outlined from Thmanyah Serif Display Black, so the logo renders the same before web fonts load.
 // Source: scratchpad script make_balbal.py. Lockup is 332×64; the mark is the first 64×64.
 export const LOGO_WIDTH = 332;
 /** "Bal" */
