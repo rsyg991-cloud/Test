@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allLessons, conversations, practicePrompts, stages, TRACKS } from "@/content";
+import { allLessons, conversations, curriculumFrom, practicePrompts, stages, TRACKS } from "@/content";
 import { conversationTracks, lessonTracks, practiceTracks } from "@/content/tracks";
 
 /** Text a learner sees that frames the lesson as exam preparation. */
@@ -12,6 +12,20 @@ function texts(value: unknown, out: string[] = []): string[] {
   else if (value && typeof value === "object") Object.values(value).forEach((v) => texts(v, out));
   return out;
 }
+
+describe("paths by goal (AC-20)", () => {
+  it("gives a General-only learner core lessons only, and no stage without core lessons", () => {
+    const path = curriculumFrom(1, 7, ["core"]);
+    for (const i of path.filter((x) => x.kind === "lesson")) expect(lessonTracks(i.lesson), i.id).toContain("core");
+    expect(Math.max(...path.map((i) => i.stage))).toBe(3);
+  });
+
+  it("gives the IELTS goal the same path as leaving tracks out (existing learners)", () => {
+    for (const [a, b] of [[1, 7], [4, 7], [2, 5]]) {
+      expect(curriculumFrom(a, b, ["core", "ielts"]).map((i) => i.id)).toEqual(curriculumFrom(a, b).map((i) => i.id));
+    }
+  });
+});
 
 describe("tracks", () => {
   it("tag every lesson, conversation and practice prompt with known tracks", () => {

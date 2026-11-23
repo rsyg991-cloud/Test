@@ -6,9 +6,11 @@ import { stage2 } from "./stage2";
 import { stage3 } from "./stage3";
 import { stage4 } from "./stage4";
 import { practicePrompts } from "./practice";
-import type { Checkpoint, Lesson, PracticePrompt, Stage } from "./types";
+import { lessonTracks } from "./tracks";
+import type { Checkpoint, Lesson, PracticePrompt, Stage, Track } from "./types";
 
 export * from "./types";
+export { lessonTracks, conversationTracks, practiceTracks } from "./tracks";
 export { conversations, getConversation } from "./conversations";
 
 /**
@@ -45,15 +47,23 @@ export type PathItem =
   | { kind: "lesson"; id: string; stage: number; lesson: Lesson }
   | { kind: "checkpoint"; id: string; stage: number; checkpoint: Checkpoint };
 
-/** The ordered curriculum from a given stage up to (and including) the end stage. */
-export function curriculumFrom(startStage = 1, endStage: number = FINAL_STAGE): PathItem[] {
+/**
+ * The ordered curriculum from a given stage up to (and including) the end stage.
+ *
+ * `tracks` filters lessons by the learner's goals (content/tracks.ts). Leaving it out gives every
+ * lesson, which is exactly the path existing learners have always had: they all chose an exam
+ * target, so they follow the IELTS goal. A stage with no lesson in the chosen tracks is left out
+ * altogether. Until General English lessons exist for Stages 4–7, a General-only path stops at Stage 3.
+ */
+export function curriculumFrom(startStage = 1, endStage: number = FINAL_STAGE, tracks?: readonly Track[]): PathItem[] {
   const items: PathItem[] = [];
   const last = Math.max(startStage, endStage);
+  const wanted = (l: Lesson) => !tracks || lessonTracks(l).some((t) => tracks.includes(t));
   for (const s of stages) {
     if (s.id < startStage || s.id > last) continue;
-    for (const u of s.units) {
-      for (const l of u.lessons) items.push({ kind: "lesson", id: l.id, stage: s.id, lesson: l });
-    }
+    const lessons = s.units.flatMap((u) => u.lessons).filter(wanted);
+    if (tracks && lessons.length === 0) continue;
+    for (const l of lessons) items.push({ kind: "lesson", id: l.id, stage: s.id, lesson: l });
     items.push({ kind: "checkpoint", id: s.checkpoint.id, stage: s.id, checkpoint: s.checkpoint });
   }
   return items;
