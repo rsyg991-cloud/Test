@@ -72,3 +72,12 @@ export function conversationTracks(c: Pick<ConversationScenario, "id">): Track[]
 export function practiceTracks(p: Pick<PracticePrompt, "id">): Track[] {
   return /^p[1-4]-/.test(p.id) ? ["ielts"] : [];
 }
+
+/**
+ * Is this lesson or checkpoint General English only (not IELTS)? Its tasks then use neutral labels
+ * ("Writing", "Speaking") instead of exam ones ("Writing Task 2", "Speaking Part 1").
+ */
+export function isGeneralEnglish(refId: string): boolean {
+  const t = lessonTracks({ id: refId });
+  return t.includes("core") && !t.includes("ielts");
+}

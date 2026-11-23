@@ -1,5 +1,6 @@
 "use client";
 
+import { isGeneralEnglish } from "@/content/tracks";
 import { useT } from "@/lib/i18n/client";
 import { useEffect, useState } from "react";
 import type { WritingTask } from "@/content/types";
@@ -78,7 +79,9 @@ export function WritingTaskView({
     <div className="space-y-5">
       <div className="card p-5">
         <div className="eyebrow mb-2" style={{ color: "var(--writing)" }}>
-          {t("writing.header", { n: task.task === "task1" ? 1 : 2, minutes: task.timeMinutes })}
+          {isGeneralEnglish(refId)
+            ? t("writing.headerGeneral", { minutes: task.timeMinutes })
+            : t("writing.header", { n: task.task === "task1" ? 1 : 2, minutes: task.timeMinutes })}
         </div>
         <p className="font-semibold leading-relaxed" lang="en" dir="ltr">
           {task.prompt}

@@ -692,6 +692,7 @@ export const ar: Messages = {
   },
   writing: {
     header: "Writing Task {n} · {minutes} دقيقة",
+    headerGeneral: "كتابة · {minutes} دقيقة",
     tips: "نصايح للتخطيط",
     words: "{words} / {min} كلمة",
     left: "باقي {time}",
@@ -706,6 +707,7 @@ export const ar: Messages = {
   },
   speaking: {
     header: "Speaking Part {n} · حاول تتكلم تقريباً {time}",
+    headerGeneral: "تحدّث · حاول تتكلم تقريباً {time}",
     hear: "اسمع سؤال المصحح",
     youShouldSay: "You should say:",
     followUps: "أسئلة إضافية:",

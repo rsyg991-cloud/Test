@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { allLessons, conversations, curriculumFrom, practicePrompts, stages, TRACKS } from "@/content";
-import { conversationTracks, lessonTracks, practiceTracks } from "@/content/tracks";
+import { conversationTracks, isGeneralEnglish, lessonTracks, practiceTracks } from "@/content/tracks";
 
 /** Text a learner sees that frames the lesson as exam preparation. */
 const EXAM_FRAMING = /\bIELTS\b|\bband\s*\d|\bband score|\bPart [1-4]\b|\bTask [12]\b|cue card|\bexaminer\b/i;
@@ -52,5 +52,12 @@ describe("tracks", () => {
       const { ieltsPart: _structural, ...shown } = c;
       for (const t of texts(shown)) expect(t, `${c.id}: "${t}"`).not.toMatch(EXAM_FRAMING);
     }
+  });
+});
+
+describe("task labels", () => {
+  it("label General English tasks neutrally and IELTS tasks with their exam part", () => {
+    for (const id of ["f1-u1-writing", "f2-u2-speaking", "f1-checkpoint", "f2-checkpoint", "g4-u1-writing"]) expect(isGeneralEnglish(id), id).toBe(true);
+    for (const id of ["s1-u1-writing", "s2-u1-speaking", "f3-u1-speaking", "placement", "p1-w1"]) expect(isGeneralEnglish(id), id).toBe(false);
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { isGeneralEnglish } from "@/content/tracks";
 import { useT } from "@/lib/i18n/client";
 import { useEffect, useRef, useState } from "react";
 import type { SpeakingTask } from "@/content/types";
@@ -196,7 +197,7 @@ export function SpeakingTaskView({
       <div className="card p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="eyebrow" style={{ color: accent }}>
-            {t("speaking.header", { n: task.part, time: fmtTime(target) })}
+            {isGeneralEnglish(refId) ? t("speaking.headerGeneral", { time: fmtTime(target) }) : t("speaking.header", { n: task.part, time: fmtTime(target) })}
           </div>
           {tts && phase !== "recording" && (
             <button type="button" onClick={readQuestion} className="btn btn-ghost px-3 py-1.5 text-sm">

@@ -658,6 +658,7 @@ export const en = {
   },
   writing: {
     header: "Writing Task {n} · {minutes} minutes",
+    headerGeneral: "Writing · {minutes} minutes",
     tips: "Planning tips",
     words: "{words} / {min} words",
     left: "{time} left",
@@ -672,6 +673,7 @@ export const en = {
   },
   speaking: {
     header: "Speaking Part {n} · aim for about {time}",
+    headerGeneral: "Speaking · aim for about {time}",
     hear: "Hear the examiner",
     youShouldSay: "You should say:",
     followUps: "Follow-up questions:",
