@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { ConversationScenario, SpeakingTask, WritingTask } from "@/content/types";
 import { mockEvaluate } from "./mock";
-import { normalizeEvaluation } from "./normalize";
+import { normalizeEvaluation, withoutPronunciationGuess } from "./normalize";
 import { CONVERSATION_CRITERIA, EvaluationSchema, SPEAKING_CRITERIA, WRITING_CRITERIA, type Evaluation } from "./schema";
 import { evaluateViaWebhook, type EvalRequest } from "./webhook";
 
@@ -84,7 +84,7 @@ export function speakingRequest(task: SpeakingTask, transcript: string, duration
     meta: { part: task.part, words, durationSec, wordsPerMinute: wpm },
     input: `Assess this IELTS Speaking Part ${task.part} response.
 
-You only have an automatic speech-to-text transcript, not the audio. Judge Fluency from the transcript, the speaking rate and the length; estimate Pronunciation cautiously (transcription errors such as odd or wrong words may hint at pronunciation problems) and say clearly in that criterion's comment that it is an estimate.
+You only have a transcript (from speech recognition, possibly corrected by the learner), not the audio. Judge Fluency from the transcript, the speaking rate and the length. Do NOT judge Pronunciation: a transcript carries no evidence about it, and speech-recognition errors are the machine's, not the learner's. Never treat odd or wrong words as pronunciation problems. For the Pronunciation criterion give the average of the other three bands and say it was not assessed.
 Use these four criteria, in this order: ${SPEAKING_CRITERIA.join("; ")}.
 
 Questions asked:
@@ -158,8 +158,8 @@ export async function evaluate(req: EvalRequest, responseText: string, minWords:
 
 export const evaluateWriting = (task: WritingTask, essay: string) => evaluate(writingRequest(task, essay), essay, task.minWords);
 
-export const evaluateSpeaking = (task: SpeakingTask, transcript: string, durationSec: number) =>
-  evaluate(speakingRequest(task, transcript, durationSec), transcript, Math.round(task.speakSeconds * 1.6));
+export const evaluateSpeaking = async (task: SpeakingTask, transcript: string, durationSec: number) =>
+  withoutPronunciationGuess(await evaluate(speakingRequest(task, transcript, durationSec), transcript, Math.round(task.speakSeconds * 1.6)));
 
 export const evaluateConversation = (s: ConversationScenario, transcript: string) =>
   evaluate(conversationRequest(s, transcript), transcript, s.turns * 18);

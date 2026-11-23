@@ -1,5 +1,24 @@
-import { clampBand } from "@/lib/scoring";
+import { clampBand, roundBand } from "@/lib/scoring";
 import { EvaluationSchema, type Evaluation } from "./schema";
+
+export const PRONUNCIATION_NOT_ASSESSED =
+  "Not assessed: pronunciation can't be judged from a transcript, and speech-recognition mistakes are not your mistakes. This band repeats the average of the other three criteria, so it neither raises nor lowers your score. Compare your recording with the model to practise pronunciation.";
+
+/**
+ * A transcript (often corrected by the learner) carries no evidence about pronunciation, so it must
+ * neither lower nor raise a speaking score: the Pronunciation band becomes the average of the other
+ * criteria and the overall band is recomputed from them. Applied to every speaking evaluation,
+ * whichever provider (Claude, n8n webhook, offline demo) produced it.
+ */
+export function withoutPronunciationGuess(e: Evaluation): Evaluation {
+  const i = e.criteria.findIndex((c) => /pronunciation/i.test(c.name));
+  if (i < 0) return e;
+  const others = e.criteria.filter((_, j) => j !== i).map((c) => c.band);
+  if (!others.length) return e;
+  const neutral = roundBand(others.reduce((a, b) => a + b, 0) / others.length);
+  const criteria = e.criteria.map((c, j) => (j === i ? { ...c, band: neutral, comment: PRONUNCIATION_NOT_ASSESSED } : c));
+  return { ...e, criteria, overall_band: neutral };
+}
 
 /** Clamp bands, force the expected criteria names/order and trim lists. */
 export function normalizeEvaluation(parsed: Evaluation, criteriaNames: string[]): Evaluation {
