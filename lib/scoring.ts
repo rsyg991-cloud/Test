@@ -122,3 +122,12 @@ export function cefrForBand(b: number | null): string {
   if (b >= 2) return "A1";
   return "A0";
 }
+
+/** The CEFR levels above A0 and the band each starts at (the thresholds of cefrForBand). */
+export const CEFR_STEPS: [string, number][] = [["A1", 2], ["A2", 3], ["B1", 4], ["B2", 5.5], ["C1", 7], ["C2", 8]];
+
+/** The next CEFR level above an estimated band, or null at the top (or with no estimate yet). */
+export function nextCefr(b: number | null): string | null {
+  if (b === null) return null;
+  return CEFR_STEPS.find(([, at]) => b < at)?.[0] ?? null;
+}

@@ -14,7 +14,8 @@ import { prisma } from "@/lib/db";
 import { addDays, dayKey } from "@/lib/dates";
 import { getPlan } from "@/lib/plan/scheduler";
 import { getSkillBands, getTodayPlan, stageProgress } from "@/lib/progress";
-import { cefrForBand } from "@/lib/scoring";
+import { cefrForBand, nextCefr } from "@/lib/scoring";
+import { showsLevels } from "@/content/goals";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
@@ -48,7 +49,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const due = today.dueIndices.map((i) => items[i]);
   const stagesP = stageProgress(completedIds, user.unlockedStage, user);
   const overallProgress = items.filter((i) => completedIds.has(i.id)).length / items.length;
-  const target = user.targetBand ?? 7;
+  // General English learners (no IELTS goal) see a CEFR level, never a band or band target.
+  const levels = showsLevels(user.goals);
+  const target = levels ? null : (user.targetBand ?? 7);
+  const next = nextCefr(overall);
   const weakest = (SKILLS.filter((s) => bands[s] !== null) as Skill[]).sort((a, b) => (bands[a] ?? 9) - (bands[b] ?? 9))[0];
   const practiceSkill: "writing" | "speaking" = weakest === "speaking" ? "speaking" : "writing";
   const practice = practicePrompts.filter((p) => p.stage <= user.unlockedStage && p.skill === practiceSkill);
@@ -288,18 +292,40 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
           <section className="card p-5">
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="eyebrow">{t("dashboard.estimatedOverall")}</div>
-                <div className="mt-1 flex items-baseline gap-2" dir="ltr">
-                  <span className="num text-5xl font-bold">{overall?.toFixed(1) ?? "—"}</span>
-                  <span className="font-bold" style={{ color: "var(--muted)" }}>
-                    {cefrForBand(overall)}
-                  </span>
+              {levels ? (
+                <div>
+                  <div className="eyebrow">{t("dashboard.estimatedLevel")}</div>
+                  <div className="mt-1 flex items-baseline gap-2">
+                    <span className="num text-5xl font-bold" dir="ltr">
+                      {overall === null ? "—" : cefrForBand(overall)}
+                    </span>
+                    {next && (
+                      <span className="font-bold" style={{ color: "var(--muted)" }}>
+                        {t("dashboard.nextLevel", { cefr: next })}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <div className="eyebrow">{t("dashboard.estimatedOverall")}</div>
+                  <div className="mt-1 flex items-baseline gap-2" dir="ltr">
+                    <span className="num text-5xl font-bold">{overall?.toFixed(1) ?? "—"}</span>
+                    <span className="font-bold" style={{ color: "var(--muted)" }}>
+                      {cefrForBand(overall)}
+                    </span>
+                  </div>
+                </div>
+              )}
               <div className="text-end">
                 <div className="eyebrow">{t("dashboard.target")}</div>
-                <BandPill band={target} />
+                {target === null ? (
+                  <span className="inline-block rounded-md px-2.5 py-0.5 text-sm font-bold" style={{ background: "var(--surface-2)" }}>
+                    {t("dashboard.goalGeneral")}
+                  </span>
+                ) : (
+                  <BandPill band={target} />
+                )}
               </div>
             </div>
             <div className="mt-4 space-y-3">
@@ -307,10 +333,14 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 <div key={s} className="flex items-center gap-3">
                   <span className="w-20 text-sm font-semibold">{t(`skills.${s}`)}</span>
                   <div className="relative flex-1">
-                    <ProgressBar value={(bands[s] ?? 0) / 9} color={SKILL_META[s].color} height={10} label={t("dashboard.skillBand", { skill: t(`skills.${s}`) })} />
-                    <span className="absolute top-[-3px] h-4 w-0.5 rounded" style={{ insetInlineStart: `${(target / 9) * 100}%`, background: "var(--ink)" }} aria-hidden="true" />
+                    <ProgressBar value={(bands[s] ?? 0) / 9} color={SKILL_META[s].color} height={10} label={t(levels ? "dashboard.skillLevel" : "dashboard.skillBand", { skill: t(`skills.${s}`) })} />
+                    {target !== null && (
+                      <span className="absolute top-[-3px] h-4 w-0.5 rounded" style={{ insetInlineStart: `${(target / 9) * 100}%`, background: "var(--ink)" }} aria-hidden="true" />
+                    )}
                   </div>
-                  <span className="num w-8 text-end font-bold">{bands[s]?.toFixed(1) ?? "—"}</span>
+                  <span className="num w-8 text-end font-bold" dir="ltr">
+                    {levels ? (bands[s] === null ? "—" : cefrForBand(bands[s])) : (bands[s]?.toFixed(1) ?? "—")}
+                  </span>
                 </div>
               ))}
             </div>
@@ -336,12 +366,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </section>
         <section className="card p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-xl">{t("dashboard.bandTrend")}</h2>
+            <h2 className="font-display text-xl">{t(levels ? "dashboard.skillTrend" : "dashboard.bandTrend")}</h2>
             <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
               {t("dashboard.planEnds", { date: formatDate(today.endDate) })}
             </span>
           </div>
-          <BandChart snapshots={snapshots} target={target} />
+          <BandChart snapshots={snapshots} target={target} levels={levels} />
         </section>
       </div>
     </div>

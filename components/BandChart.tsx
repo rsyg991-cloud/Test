@@ -2,6 +2,7 @@
 
 import { useT } from "@/lib/i18n/client";
 import type { Skill } from "@/content/types";
+import { CEFR_STEPS, cefrForBand } from "@/lib/scoring";
 import { SKILL_META } from "./ui";
 
 interface Point {
@@ -10,8 +11,11 @@ interface Point {
   createdAt: Date;
 }
 
-/** Band-over-time chart: one line per skill plus the learner's target. */
-export function BandChart({ snapshots, target, height = 240 }: { snapshots: Point[]; target: number | null; height?: number }) {
+/**
+ * Band-over-time chart: one line per skill plus the learner's target. With `levels` (General English
+ * learners) the axis is labelled with CEFR levels at their thresholds instead of band numbers.
+ */
+export function BandChart({ snapshots, target, height = 240, levels = false }: { snapshots: Point[]; target: number | null; height?: number; levels?: boolean }) {
   const { t, formatDate } = useT();
   const W = 640;
   const H = height;
@@ -22,7 +26,7 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
   if (sorted.length < 2) {
     return (
       <div className="grid place-items-center rounded-[10px] p-8 text-center text-sm" style={{ background: "var(--surface-2)", color: "var(--muted)", minHeight: 160 }}>
-        {t("chart.empty")}
+        {t(levels ? "chart.emptyLevels" : "chart.empty")}
       </div>
     );
   }
@@ -34,16 +38,17 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
   const x = (t: number) => pad.l + ((t - t0) / (t1 - t0)) * (W - pad.l - pad.r);
   const y = (b: number) => pad.t + (1 - (b - minB) / (maxB - minB)) * (H - pad.t - pad.b);
   const ticks: number[] = [];
-  for (let b = minB; b <= maxB; b += maxB - minB > 4 ? 1 : 0.5) ticks.push(b);
+  if (levels) for (const [, at] of CEFR_STEPS) if (at >= minB && at <= maxB) ticks.push(at);
+  if (!levels) for (let b = minB; b <= maxB; b += maxB - minB > 4 ? 1 : 0.5) ticks.push(b);
 
   return (
     <figure dir="ltr">
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={t("chart.label")}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={t(levels ? "chart.labelLevels" : "chart.label")}>
         {ticks.map((b) => (
           <g key={b}>
             <line x1={pad.l} x2={W - pad.r} y1={y(b)} y2={y(b)} stroke="var(--line)" strokeDasharray="3 5" />
             <text x={pad.l - 8} y={y(b) + 4} textAnchor="end" fontSize="11" fill="var(--muted)">
-              {b.toFixed(1)}
+              {levels ? cefrForBand(b) : b.toFixed(1)}
             </text>
           </g>
         ))}
@@ -64,7 +69,7 @@ export function BandChart({ snapshots, target, height = 240 }: { snapshots: Poin
               <path d={d} fill="none" stroke={SKILL_META[s].color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
               {pts.map((p, i) => (
                 <circle key={i} cx={x(p.createdAt.getTime())} cy={y(p.band)} r="3.5" fill="var(--surface)" stroke={SKILL_META[s].color} strokeWidth="2">
-                  <title>{t("chart.point", { skill: t(`skills.${s}`), band: p.band.toFixed(1), date: formatDate(p.createdAt) })}</title>
+                  <title>{t("chart.point", { skill: t(`skills.${s}`), band: levels ? cefrForBand(p.band) : p.band.toFixed(1), date: formatDate(p.createdAt) })}</title>
                 </circle>
               ))}
             </g>

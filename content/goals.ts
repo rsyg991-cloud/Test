@@ -39,3 +39,6 @@ export function tracksForGoals(goals: readonly Goal[] | null): Track[] | undefin
 }
 
 export const wantsIelts = (goals: readonly Goal[] | null) => !goals || goals.includes("ielts");
+
+/** Learners without the IELTS goal see their progress as a CEFR level, never as a band or band target. */
+export const showsLevels = (goalsJson: string | null | undefined) => !wantsIelts(parseGoals(goalsJson));

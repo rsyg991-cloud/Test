@@ -7,14 +7,32 @@ import { endStageFor, pathItemCount, TARGET_BANDS } from "@/content/stageList";
 import { useT } from "@/lib/i18n/client";
 import { paceLevel, PLANS } from "@/lib/plan/scheduler";
 
-export function PlanEditor({ months, target, examDate, startStage }: { months: number; target: number; examDate: string | null; startStage: number }) {
+/**
+ * `levels`: a General English learner (no IELTS goal) has no band target or exam date to set, and the
+ * length of their path (`pathItems`) comes from their goals rather than from a target band.
+ */
+export function PlanEditor({
+  months,
+  target,
+  examDate,
+  startStage,
+  levels = false,
+  pathItems,
+}: {
+  months: number;
+  target: number;
+  examDate: string | null;
+  startStage: number;
+  levels?: boolean;
+  pathItems?: number;
+}) {
   const { t: tr, plural, planText } = useT();
   const [m, setM] = useState(months);
   const [t, setT] = useState(target);
   const [d, setD] = useState(examDate ?? "");
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
-  const pace = paceLevel(m, pathItemCount(startStage, endStageFor(t)));
+  const pace = paceLevel(m, levels && pathItems ? pathItems : pathItemCount(startStage, endStageFor(t)));
   const dirty = m !== months || t !== target || (d || null) !== examDate;
 
   return (
@@ -46,6 +64,11 @@ export function PlanEditor({ months, target, examDate, startStage }: { months: n
           {tr(`pace.${pace.level}`, { n: pace.n })}
         </p>
       )}
+      {levels ? (
+        <p className="mt-5 text-sm" style={{ color: "var(--muted)" }}>
+          {tr("plan.generalNote")}
+        </p>
+      ) : (
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="mb-1.5 block text-sm font-bold">{tr("plan.targetBand")}</span>
@@ -62,6 +85,7 @@ export function PlanEditor({ months, target, examDate, startStage }: { months: n
           <input type="date" className="input" value={d} onChange={(e) => setD(e.target.value)} />
         </label>
       </div>
+      )}
       <div className="mt-5 flex items-center justify-end gap-3">
         {saved && !dirty && (
           <span className="flex items-center gap-1 text-sm font-semibold" style={{ color: "var(--success)" }}>
@@ -74,7 +98,7 @@ export function PlanEditor({ months, target, examDate, startStage }: { months: n
           disabled={!dirty || pending}
           onClick={() =>
             start(async () => {
-              await changePlan(m, t, d || null);
+              await changePlan(m, levels ? undefined : t, levels ? null : d || null);
               setSaved(true);
             })
           }

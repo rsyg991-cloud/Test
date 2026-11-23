@@ -9,6 +9,7 @@ import { addDays } from "@/lib/dates";
 import { getPlan, isReviewDay, scheduleItems } from "@/lib/plan/scheduler";
 import { getTodayPlan } from "@/lib/progress";
 import { PlanEditor } from "./PlanEditor";
+import { showsLevels } from "@/content/goals";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
@@ -130,7 +131,7 @@ export default async function PlanPage() {
         </ol>
       </section>
 
-      <PlanEditor startStage={user.startStage} months={plan.months} target={user.targetBand ?? 7} examDate={user.examDate ? user.examDate.toISOString().slice(0, 10) : null} />
+      <PlanEditor levels={showsLevels(user.goals)} pathItems={items.length} startStage={user.startStage} months={plan.months} target={user.targetBand ?? 7} examDate={user.examDate ? user.examDate.toISOString().slice(0, 10) : null} />
     </div>
   );
 }

@@ -10,7 +10,8 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { addDays, dayKey } from "@/lib/dates";
 import { getSkillBands } from "@/lib/progress";
-import { cefrForBand } from "@/lib/scoring";
+import { cefrForBand, nextCefr } from "@/lib/scoring";
+import { showsLevels } from "@/content/goals";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
@@ -43,7 +44,10 @@ export default async function ProgressPage() {
     prisma.lessonProgress.count({ where: { userId: user.id } }),
     prisma.vocabCard.count({ where: { userId: user.id } }),
   ]);
-  const target = user.targetBand ?? 7;
+  // General English learners (no IELTS goal) see CEFR levels, never a band target.
+  const levels = showsLevels(user.goals);
+  const target = levels ? null : (user.targetBand ?? 7);
+  const next = nextCefr(overall);
   const totalMinutes = days.reduce((a, d) => a + d.minutes, 0);
   const placement = snapshots.filter((s) => s.source === "placement");
   const startOverall = placement.length ? placement.reduce((a, s) => a + s.band, 0) / placement.length : null;
@@ -54,17 +58,17 @@ export default async function ProgressPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow={t("progress.eyebrow")} title={t("progress.title")} subtitle={t("progress.subtitle")} />
+      <PageHeader eyebrow={t("progress.eyebrow")} title={t("progress.title")} subtitle={t(levels ? "progress.subtitleLevels" : "progress.subtitle")} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="card flex items-center gap-4 p-5">
-          <Ring value={(overall ?? 0) / 9} size={72} stroke={8} label={t("progress.overallBand")}>
-            <span className="num text-xl font-bold">{overall?.toFixed(1) ?? "—"}</span>
+          <Ring value={(overall ?? 0) / 9} size={72} stroke={8} label={t(levels ? "progress.overallLevel" : "progress.overallBand")}>
+            <span className="num text-xl font-bold">{levels ? (overall === null ? "—" : cefrForBand(overall)) : (overall?.toFixed(1) ?? "—")}</span>
           </Ring>
           <div>
             <div className="eyebrow">{t("progress.overall")}</div>
-            <div className="font-bold">{t("progress.level", { cefr: cefrForBand(overall) })}</div>
-            {startOverall !== null && overall !== null && (
+            <div className="font-bold">{levels && next ? t("progress.nextLevel", { cefr: next }) : t("progress.level", { cefr: cefrForBand(overall) })}</div>
+            {!levels && startOverall !== null && overall !== null && (
               <div className="text-sm font-semibold" style={{ color: overall - startOverall >= 0 ? "var(--success)" : "var(--muted)" }}>
                 {t("progress.sincePlacement", { arrow: overall - startOverall >= 0 ? "▲" : "▼", gap: Math.abs(overall - startOverall).toFixed(1) })}
               </div>
@@ -91,16 +95,30 @@ export default async function ProgressPage() {
       </div>
 
       <section className="card p-5 sm:p-6">
-        <h2 className="mb-4 font-display text-xl">{t("progress.bandTrend")}</h2>
-        <BandChart snapshots={snapshots} target={target} height={280} />
+        <h2 className="mb-4 font-display text-xl">{t(levels ? "progress.skillTrend" : "progress.bandTrend")}</h2>
+        <BandChart snapshots={snapshots} target={target} height={280} levels={levels} />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="card p-5 sm:p-6">
-          <h2 className="mb-4 font-display text-xl">{t("progress.gaps")}</h2>
+          <h2 className="mb-4 font-display text-xl">{t(levels ? "progress.levels" : "progress.gaps")}</h2>
           <div className="space-y-4">
             {SKILLS.map((s) => {
               const b = bands[s];
+              if (target === null) {
+                const up = nextCefr(b);
+                return (
+                  <div key={s} className="flex items-center gap-3">
+                    <SkillBadge skill={s} size="md" />
+                    <div className="num flex-1 text-end text-lg font-bold" dir="ltr">
+                      {b === null ? "—" : cefrForBand(b)}
+                    </div>
+                    <div className="w-36 text-end text-sm font-semibold" style={{ color: b !== null && !up ? "var(--success)" : "var(--muted)" }}>
+                      {b === null ? t("progress.noData") : up ? t("progress.nextLevel", { cefr: up }) : t("progress.topLevel")}
+                    </div>
+                  </div>
+                );
+              }
               const gap = b === null ? null : target - b;
               return (
                 <div key={s} className="flex items-center gap-3">
