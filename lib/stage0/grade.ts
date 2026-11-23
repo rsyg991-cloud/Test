@@ -5,7 +5,7 @@
 import { stage0ItemById, type Stage0Lesson, type Step } from "@/content/stage0";
 import { evidenceFor, type Evidence } from "@/lib/learning/evidence";
 import { stage0Exit, type GateDecision, type Stage0Results } from "@/lib/learning/gates";
-import { lessonView } from "./view";
+import { lessonView, type Taught } from "./view";
 
 export interface StepAnswer {
   stepId: string;
@@ -81,10 +81,12 @@ export function gradeStage0Lesson(
     recentlySeen?: Set<string>;
     /** Unit check only: share of the unit's spoken steps the learner tried in earlier lessons. */
     speakingShare?: number;
+    /** Review sessions: what the learner knows (by default, everything taught before this lesson). */
+    taught?: Taught;
   } = {},
 ): LessonGrade {
   const byStep = new Map(answers.map((a) => [a.stepId, a]));
-  const views = lessonView(lesson);
+  const views = lessonView(lesson, opts.taught);
   const results: StepResult[] = views.map(({ step, items }) => {
     const a = byStep.get(step.id);
     const scored = SCORED.has(step.type);

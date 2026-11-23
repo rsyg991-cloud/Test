@@ -140,6 +140,15 @@ export const en = {
     "9": { name: "Foundation Builder", gain: "+2 to +2.5 bands", bestFor: "Starting from basic English (A1–A2) and aiming for an IELTS score." },
     "12": { name: "Zero to IELTS", gain: "+3 bands or more", bestFor: "Absolute beginners. The whole journey, from your first words to the exam." },
   },
+  plansGeneral: {
+    "1": { name: "Quick Boost", bestFor: "A short, intensive push when you need your English soon." },
+    "2": { name: "Accelerate", bestFor: "A fixed deadline and real daily commitment." },
+    "3": { name: "Balanced", bestFor: "Most learners. Enough time to build real skill." },
+    "4": { name: "Steady Climb", bestFor: "Working or studying full-time." },
+    "6": { name: "Deep Growth", bestFor: "Building long-lasting English for life, study and work." },
+    "9": { name: "Foundation Builder", bestFor: "Starting from basic English (A1–A2) and aiming for confident, independent English." },
+    "12": { name: "Zero to Fluent", bestFor: "Absolute beginners. The whole journey, from your first words to confident English." },
+  },
   pace: {
     veryTight: "Very tight: about {n} lessons every day for your path. Choose a longer plan if you can.",
     busy: "Busy pace: about {n} lessons a day. Doable with real daily commitment.",
@@ -582,6 +591,12 @@ export const en = {
     readyCta: "Full mock test",
   },
   starter: {
+    reviewTitle: "Today's review",
+    reviewBody: "{n} questions on what you've learned, about {minutes} min. Reviewing now stops you forgetting.",
+    reviewCta: "Review",
+    reviewDone: "Review done",
+    reviewNothing: "Nothing to review right now. Well done!",
+    reviewNext: "Your next review: {date}",
     title: "Stage 0 · Letters and sounds",
     intro: "Learn the English letters, their sounds and your first words, step by step. Every instruction is in Arabic, and speaking is always optional.",
     cardTitle: "Start from zero",

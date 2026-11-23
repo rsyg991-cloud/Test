@@ -37,8 +37,8 @@ export default async function PlanPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow={t("plan.eyebrow")}
-        title={t("plan.title", { name: planText(plan.months, "name"), months: plural("common.month", plan.months) })}
-        subtitle={planText(plan.months, "bestFor")}
+        title={t("plan.title", { name: planText(plan.months, "name", showsLevels(user.goals)), months: plural("common.month", plan.months) })}
+        subtitle={planText(plan.months, "bestFor", showsLevels(user.goals))}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { completeStage0Lesson, type Stage0Completion } from "@/app/actions/stage0";
+import { completeStage0Lesson, completeStage0Review, type Stage0Completion } from "@/app/actions/stage0";
 import type { StepAnswer } from "@/lib/stage0/grade";
 import type { ViewItem, ViewStep } from "@/lib/stage0/view";
 import { useT } from "@/lib/i18n/client";
@@ -205,7 +205,8 @@ function Recorder({ onRecorded }: { onRecorded: () => void }) {
   );
 }
 
-export function Stage0Player({ lessonId, titleAr, views }: { lessonId: string; titleAr: string; views: ViewStep[] }) {
+/** `review`: a daily review session (steps from completed lessons), sent back by step id. */
+export function Stage0Player({ lessonId, titleAr, views, review = false }: { lessonId: string; titleAr: string; views: ViewStep[]; review?: boolean }) {
   const { t } = useT();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, StepAnswer>>({});
@@ -280,7 +281,12 @@ export function Stage0Player({ lessonId, titleAr, views }: { lessonId: string; t
       const final = { ...answers };
       if (s.type === "say" && !final[s.id]) final[s.id] = { stepId: s.id, skipped: !recorded, recorded };
       start(async () => {
-        const r = await completeStage0Lesson(lessonId, Object.values(final));
+        const r = review
+          ? await completeStage0Review(
+              views.map((v) => v.step.id),
+              Object.values(final),
+            )
+          : await completeStage0Lesson(lessonId, Object.values(final));
         if (r.ok) setResult(r);
         else setError(r.error);
       });
@@ -289,7 +295,7 @@ export function Stage0Player({ lessonId, titleAr, views }: { lessonId: string; t
     setIndex((i) => i + 1);
   }
 
-  if (result) return <Result result={result} />;
+  if (result) return <Result result={result} review={review} />;
 
   const stateOf = (id: string): "right" | "wrong" | "dim" | undefined => {
     if (!feedback || feedback === "wrong") return feedback === "wrong" && choice === id ? "wrong" : undefined;
@@ -596,7 +602,7 @@ function BuildTiles({
   );
 }
 
-function Result({ result }: { result: Stage0Completion }) {
+function Result({ result, review }: { result: Stage0Completion; review: boolean }) {
   const { t } = useT();
   const g = result.grade;
   return (
@@ -604,7 +610,7 @@ function Result({ result }: { result: Stage0Completion }) {
       <Confetti count={60} />
       <div className="card space-y-4 p-8">
         <Icon name="trophy" size={44} style={{ margin: "0 auto", color: "var(--gold)" }} />
-        <h1 className="font-display text-3xl">{t("starter.resultTitle")}</h1>
+        <h1 className="font-display text-3xl">{t(review ? "starter.reviewDone" : "starter.resultTitle")}</h1>
         {g.total ? <p className="num text-lg">{t("starter.scoreLine", { correct: g.correct, total: g.total })}</p> : null}
         {result.unlockedStage1 ? <p className="font-bold" style={{ color: "var(--success)" }}>{t("starter.stage1Open")}</p> : null}
         {g.gate && g.gate.retake.length ? (
@@ -621,9 +627,11 @@ function Result({ result }: { result: Stage0Completion }) {
           <Link href={result.nextHref} className="btn btn-primary">
             {result.nextHref.startsWith("/starter/") ? t("starter.nextLesson") : result.nextHref === "/dashboard" ? t("starter.toDashboard") : t("starter.back")}
           </Link>
-          <Link href="/starter" className="btn btn-ghost">
-            {t("starter.back")}
-          </Link>
+          {result.nextHref !== "/starter" && (
+            <Link href="/starter" className="btn btn-ghost">
+              {t("starter.back")}
+            </Link>
+          )}
         </div>
       </div>
     </div>

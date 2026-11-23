@@ -82,6 +82,10 @@ if ((await page.getByRole("link", { name: /Practise again/ }).count()) < 2) thro
 await snap("s0-02-starter-progress");
 step("progress saved; the next lesson is open");
 
+await page.goto(`${BASE}/starter/review`);
+if (!(await page.getByText(/Nothing to review right now/).count())) throw new Error("Straight after two good lessons nothing should be due for review");
+step("daily review: nothing due straight after the lessons");
+
 await page.goto(`${BASE}/dashboard`);
 if (!page.url().endsWith("/starter")) throw new Error("A Stage 0 learner's dashboard should send them to Stage 0");
 step("dashboard sends a Stage 0 learner to Stage 0");

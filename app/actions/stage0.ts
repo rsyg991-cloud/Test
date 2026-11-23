@@ -11,6 +11,7 @@ import { gradeStage0Lesson, type LessonGrade, type StepAnswer } from "@/lib/stag
 import { combineStage0Checks } from "@/lib/learning/gates";
 import { getStage0Lesson, previousStage0Lesson } from "@/lib/stage0/view";
 import { readFeedback, type Stage0Feedback } from "@/lib/stage0/feedback";
+import { planReview, reviewableStep, REVIEW_ID } from "@/lib/stage0/review";
 
 /**
  * Stage 0 progress lives in the existing tables, so no database change is needed:
@@ -127,4 +128,53 @@ export async function completeStage0Lesson(lessonId: string, answers: StepAnswer
   revalidatePath("/dashboard");
   const { results: _r, ...summary } = grade;
   return { ok: true, grade: summary, activity, firstTime, unlockedStage1, nextHref };
+}
+
+/**
+ * Daily review: the browser sends back the step ids it was given and the answers. Every step must
+ * come from a lesson the learner has completed; the session is graded like a lesson, with exactly
+ * what the learner has been taught, and its evidence moves the review schedule on.
+ */
+export async function completeStage0Review(stepIds: string[], answers: StepAnswer[]): Promise<Stage0Completion | { ok: false; error: string }> {
+  const { t } = await getT();
+  if (!flags.stage0()) return { ok: false, error: t("errors.lessonNotFound") };
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: t("errors.loginAgain") };
+
+  const done = new Set(
+    (await prisma.lessonProgress.findMany({ where: { userId: user.id, stage: 0 }, select: { lessonId: true } })).map((p) => p.lessonId),
+  );
+  const ids = [...new Set(Array.isArray(stepIds) ? stepIds.slice(0, 40) : [])];
+  const steps = ids.map((id) => reviewableStep(id, done));
+  if (steps.length === 0 || steps.some((s) => !s)) return { ok: false, error: t("errors.lessonNotFound") };
+
+  const plan = planReview([], done, new Date());
+  const lesson = { ...plan.lesson, steps: steps as NonNullable<(typeof steps)[number]>[] };
+  const recent = await prisma.attempt.findMany({
+    where: { userId: user.id, kind: "stage0" },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: { feedbackJson: true },
+  });
+  const recentlySeen = new Set<string>();
+  for (const r of recent) for (const e of readFeedback(r.feedbackJson).evidence) recentlySeen.add(e.itemId);
+
+  const grade = gradeStage0Lesson(lesson, Array.isArray(answers) ? answers.slice(0, 400) : [], { recentlySeen, taught: plan.taught });
+  await prisma.attempt.create({
+    data: {
+      userId: user.id,
+      kind: "stage0",
+      refId: REVIEW_ID,
+      skill: "starter",
+      score: grade.pct,
+      band: null,
+      responseJson: JSON.stringify(answers),
+      feedbackJson: JSON.stringify({ evidence: grade.evidence, gate: null } satisfies Stage0Feedback),
+    },
+  });
+  const activity = await recordActivity(user.id, Math.round(5 + 15 * grade.pct), lesson.minutes);
+  // No revalidatePath here: it would re-render /starter/review under the player (now with nothing
+  // due) and replace the result screen. /starter and /dashboard are dynamic, so they are fresh anyway.
+  const { results: _r, ...summary } = grade;
+  return { ok: true, grade: summary, activity, firstTime: false, unlockedStage1: false, nextHref: "/starter" };
 }

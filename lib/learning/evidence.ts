@@ -29,7 +29,8 @@ export interface Evidence {
   credit: number;
 }
 
-const targetOf = (s: Step): string | undefined => {
+/** The item a step tests (the one its evidence is about). */
+export const targetOf = (s: Step): string | undefined => {
   if (s.type === "say") return s.target[0];
   if (s.type === "build") return s.tokens.find((t) => !t.startsWith("p:"));
   if (s.type === "namePick") return `letter:${s.letter}`;

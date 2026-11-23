@@ -7,6 +7,7 @@
 import { graphemeById, type Item } from "@/content/items";
 import { LETTER_NAMES, sentenceText, stage0ItemById, stage0Lessons, type Stage0Lesson, type Step } from "@/content/stage0";
 import { emptyTaught, modeOf, teach, type Mode, type Taught } from "@/lib/phonics";
+export type { Taught };
 
 export interface ViewItem {
   id: string;
@@ -83,8 +84,16 @@ function taughtBefore(lessonId: string): Taught {
   return taught;
 }
 
-export function lessonView(lesson: Stage0Lesson): ViewStep[] {
-  let taught = taughtBefore(lesson.id);
+/** Knowledge after a set of completed lessons (for review sessions built from their steps). */
+export function taughtThrough(lessonIds: ReadonlySet<string>): Taught {
+  let taught = emptyTaught();
+  for (const l of stage0Lessons) if (lessonIds.has(l.id)) for (const s of l.steps) if (s.type === "teach") taught = teach(taught, s.teaches);
+  return taught;
+}
+
+/** `start`: what the learner knows before the first step (by default, everything taught before this lesson). */
+export function lessonView(lesson: Stage0Lesson, start?: Taught): ViewStep[] {
+  let taught = start ?? taughtBefore(lesson.id);
   return lesson.steps.map((step) => {
     if (step.type === "teach") taught = teach(taught, step.teaches);
     const items: Record<string, ViewItem> = {};

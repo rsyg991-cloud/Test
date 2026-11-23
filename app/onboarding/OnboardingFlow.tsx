@@ -391,7 +391,7 @@ export function OnboardingFlow({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
-                      <span className="text-lg font-bold">{planText(p.months, "name")}</span>
+                      <span className="text-lg font-bold">{planText(p.months, "name", !ielts)}</span>
                       {p.months === recommended && (
                         <span className="chip" style={{ background: "var(--brand-soft)", color: "var(--brand)" }}>
                           {t("onboarding.recommended")}
@@ -409,7 +409,7 @@ export function OnboardingFlow({
                       )}
                     </span>
                     <span className="block text-sm" style={{ color: "var(--muted)" }}>
-                      {planText(p.months, "bestFor")}
+                      {planText(p.months, "bestFor", !ielts)}
                     </span>
                   </span>
                   <span className="text-end text-sm font-semibold">

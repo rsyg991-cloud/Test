@@ -54,7 +54,7 @@ export function PlanEditor({
           >
             <div className="font-bold">{plural("common.month", p.months)}</div>
             <div className="text-xs" style={{ color: "var(--muted)" }}>
-              {tr("plan.minPerDay", { name: planText(p.months, "name"), minutes: p.dailyMinutes })}
+              {tr("plan.minPerDay", { name: planText(p.months, "name", levels), minutes: p.dailyMinutes })}
             </div>
           </button>
         ))}

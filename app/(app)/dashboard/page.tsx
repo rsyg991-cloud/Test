@@ -72,7 +72,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <div className="flex items-center gap-3">
             <Icon name="mountain" size={26} />
             <div>
-              <div className="font-display text-xl">{t("dashboard.planReady", { plan: planText(plan.months, "name") })}</div>
+              <div className="font-display text-xl">{t("dashboard.planReady", { plan: planText(plan.months, "name", levels) })}</div>
               <div className="opacity-90">{t("dashboard.planReadyBody")}</div>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="eyebrow">
-            {t("dashboard.dayOf", { day: Math.min(today.dayNumber, today.totalDays), total: today.totalDays, plan: planText(plan.months, "name") })}
+            {t("dashboard.dayOf", { day: Math.min(today.dayNumber, today.totalDays), total: today.totalDays, plan: planText(plan.months, "name", levels) })}
           </div>
           <h1 className="mt-1 font-display text-3xl sm:text-4xl">{t("dashboard.greeting", { greeting: t(greetingKey(locale)), name: user.name })}</h1>
         </div>

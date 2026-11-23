@@ -103,7 +103,9 @@ export function createTranslator(locale: Locale, messages: Messages) {
   /** A stage's name, camp, tagline or description. */
   const stage = (id: number, field: "name" | "camp" | "tagline" | "description") => t(`stages.${id}.${field}` as MessageKey);
   /** A study plan's name, expected gain or "best for" line. */
-  const planText = (months: number, field: "name" | "gain" | "bestFor") => t(`plans.${months}.${field}` as MessageKey);
+  /** `general`: a learner without the IELTS goal gets plan names and descriptions with no exam talk. */
+  const planText = (months: number, field: "name" | "gain" | "bestFor", general = false) =>
+    t(`${general && field !== "gain" ? "plansGeneral" : "plans"}.${months}.${field}` as MessageKey);
   /** "{n} min" or "{n}h" for a daily study time. */
   const duration = (minutes: number) => (minutes >= 60 ? t("common.hoursShort", { n: minutes / 60 }) : t("common.minutesShort", { n: minutes }));
   return { locale, dir: locale === "ar" ? ("rtl" as const) : ("ltr" as const), t, plural, rich, formatDate, number, stage, planText, duration };
