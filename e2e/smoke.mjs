@@ -219,6 +219,8 @@ if (!/12\s*months/.test(await rec.innerText())) throw new Error("Expected the 12
 await b.getByRole("radio", { name: /1\s*month/ }).first().click();
 await b.getByText(/Very tight/).first().waitFor();
 await rec.click();
+// This beginner chooses to start at Stage 1 (Stage 0 for learners from zero is covered by e2e/stage0.mjs).
+await b.getByRole("button", { name: /^Stage 1: First Words/ }).click();
 if (shots) await b.screenshot({ path: `${shots}/18-beginner-plan.png`, fullPage: true });
 await b.getByRole("button", { name: /Start my journey/ }).click();
 await b.waitForURL("**/dashboard**");

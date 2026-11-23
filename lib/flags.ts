@@ -1,15 +1,12 @@
 /**
- * Feature flags for the curriculum redesign. Everything new a learner can see stays behind a flag,
- * off by default, so production behaves exactly as before until a flag is switched on.
+ * Feature flags. Everything is ON by default; a flag exists only so a feature can be switched off
+ * quickly (for example during a rollback) by setting its variable to 0 / false / off.
  *
- * Read on the server only (never NEXT_PUBLIC_…): a public variable is fixed at build time, so
- * switching it would need a rebuild. A server variable on Vercel still needs a redeploy to change;
- * moving these to a database row or Edge Config (switchable instantly, for rollback) is planned
- * before launch.
+ * Read on the server only (never NEXT_PUBLIC_…). On Vercel, changing a variable needs a redeploy.
  */
-const on = (name: string) => /^(1|true|on|yes)$/i.test(process.env[name]?.trim() ?? "");
+const off = (name: string) => /^(0|false|off|no)$/i.test(process.env[name]?.trim() ?? "");
 
 export const flags = {
-  /** Stage 0 (letters and sounds) for new learners starting from zero. */
-  stage0: () => on("STAGE0_ENABLED"),
+  /** Stage 0 (letters and sounds) for learners starting from zero. Set STAGE0_ENABLED=0 to switch it off. */
+  stage0: () => !off("STAGE0_ENABLED"),
 };

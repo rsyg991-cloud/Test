@@ -2,6 +2,13 @@
 
 Balbal is a full-stack English learning platform that takes a learner from **any level, even absolute beginner (A0)**, to the **IELTS band they need**, across all four skills — **Reading, Listening, Writing and Speaking** — in **seven stages**, on a plan of **1, 2, 3, 4, 6, 9 or 12 months**.
 
+## The curriculum (2026 redesign)
+
+- **Stage 0 · From Zero (Pre-A1)** — letters, sounds and first sentences for learners who don't know English letters yet (`content/stage0`, `/starter`). Every word is shown only once the learner can read it (`lib/phonics`, checked step by step by `tests/stage0-content.test.ts`); instructions are in Arabic; speaking is optional and never scored by speech recognition. Passing the Stage 0 check opens Stage 1. On by default; `STAGE0_ENABLED=0` switches it off (`lib/flags.ts`), and `scripts/stage0-rollback.ts` moves Stage 0 learners to Stage 1.
+- **General English for every stage** (`content/general`, `/general`) — 124 original lessons from A1 to C1, separate from the IELTS-format lessons, with Arabic support that fades by level and longer texts as the level rises (`tests/general-content.test.ts`).
+- **Goals** — onboarding asks what English is for (everyday life, IELTS, study, work). A General English path runs to Stage 7 with the General English lessons; the IELTS goal keeps every exam lesson and adds General English. Learners who joined before goals keep exactly their old path (`User.goals` is null; `tests/ids-baseline.test.ts` freezes every existing id and path).
+- **Tracks** — every lesson is tagged core / ielts / eap / work (`content/tracks.ts`); General English tasks use neutral labels, IELTS tasks keep their exam labels. Speaking scores never guess pronunciation from a transcript.
+
 ## The learner journey
 
 1. **Find your level** — beginners answer one question ("How much English do you know?") and start at Stage 1, 2 or 3 straight away. Learners at B1 or above take the **placement test (~15 min)**: grammar, reading, listening, a short writing task and a speaking question → a starting band for each skill and a recommended stage (`content/stageList.ts`).

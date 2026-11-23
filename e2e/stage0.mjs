@@ -1,6 +1,6 @@
 // End-to-end test of Stage 0 for a learner starting from zero: register → onboarding ("None, or almost
 // none") → /starter → the welcome lesson and Unit 1 lesson 1, speaking skipped → the dashboard sends
-// them back to Stage 0. Needs a server started with STAGE0_ENABLED=1.
+// them back to Stage 0. Stage 0 is on by default (unless STAGE0_ENABLED=0).
 // Usage: BASE_URL=http://localhost:3000 node e2e/stage0.mjs [screenshotDir]
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);

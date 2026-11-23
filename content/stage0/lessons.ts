@@ -386,7 +386,7 @@ function unitCheck(pools: { readable: string[]; pseudo: string[]; pictured: stri
 const pools = { readable: [] as string[], pseudo: [] as string[], graphemes: [] as GraphemeId[], pictured: [] as string[] };
 const unit1 = SPECS.map((s) => generate(s, pools));
 
-/** Stage 0 lessons in learning order. Not yet on any learner's path (behind flags.stage0). */
+/** Stage 0 lessons in learning order (on by default; STAGE0_ENABLED=0 switches Stage 0 off). */
 export const stage0Lessons: Stage0Lesson[] = [welcome, ...unit1, unitCheck(pools), ...unit2Lessons()];
 
 export { sentence as sentenceText } from "./builders";
