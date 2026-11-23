@@ -14,7 +14,7 @@ import { taskAnsweredCount, taskQuestionCount } from "@/lib/taskGrade";
 import { SpeakingTaskView } from "../task/SpeakingTaskView";
 import { WritingTaskView } from "../task/WritingTaskView";
 import { SKILL_META, SkillIcon } from "../ui";
-import { speak } from "../task/speech";
+import { speak, stopSpeech } from "../task/speech";
 import type { Support } from "@/lib/learning/gates";
 
 type Step = "learn" | "task";
@@ -196,7 +196,7 @@ export function LessonPlayer({
                 type="button"
                 className="btn btn-ghost mb-4"
                 onClick={() => {
-                  window.speechSynthesis?.cancel();
+                  stopSpeech();
                   void speak([lesson.reading!.title, ...lesson.reading!.paragraphs].join(". "), { rate: 0.8 });
                 }}
               >

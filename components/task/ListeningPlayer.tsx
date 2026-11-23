@@ -4,7 +4,8 @@ import { useT } from "@/lib/i18n/client";
 import { useEffect, useRef, useState } from "react";
 import type { ListeningTask } from "@/content/types";
 import { Icon } from "../icons";
-import { speak, ttsSupported } from "./speech";
+import { scriptVoices } from "@/lib/audio/voices";
+import { speak, stopSpeech, ttsSupported } from "./speech";
 
 export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; revealScript: boolean }) {
   const { t } = useT();
@@ -19,27 +20,28 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
 
   useEffect(() => {
     setSupported(ttsSupported());
-    if (ttsSupported()) {
-      // Voices load asynchronously in some browsers.
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      // The browser's voices (the fallback) load asynchronously in some browsers.
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
     return () => {
       cancelled.current = true;
-      if (ttsSupported()) window.speechSynthesis.cancel();
+      stopSpeech();
     };
   }, []);
 
   async function play() {
     if (!ttsSupported()) return;
-    window.speechSynthesis.cancel();
+    stopSpeech();
+    const voices = scriptVoices(task.script);
     cancelled.current = false;
     setPlaying(true);
     setPlays((p) => p + 1);
     for (let i = 0; i < task.script.length; i++) {
       if (cancelled.current) break;
       setLine(i);
-      await speak(task.script[i].text, { gender: task.script[i].voice, rate });
+      await speak(task.script[i].text, { gender: task.script[i].voice, voice: voices[i], rate });
       await new Promise((r) => setTimeout(r, 350));
     }
     setPlaying(false);
@@ -48,7 +50,7 @@ export function ListeningPlayer({ task, revealScript }: { task: ListeningTask; r
 
   function stop() {
     cancelled.current = true;
-    window.speechSynthesis.cancel();
+    stopSpeech();
     setPlaying(false);
     setLine(-1);
   }

@@ -1,7 +1,9 @@
 "use client";
 
+import { audioPath, defaultVoice, type Gender } from "@/lib/audio/voices";
+
 /** Pick an English voice for a speaker, preferring British voices, with distinct voices for female/male where possible. */
-export function pickVoice(gender: "female" | "male"): SpeechSynthesisVoice | null {
+export function pickVoice(gender: Gender): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en"));
   if (voices.length === 0) return null;
@@ -13,7 +15,23 @@ export function pickVoice(gender: "female" | "male"): SpeechSynthesisVoice | nul
   return prefer(gendered.length ? gendered : voices) ?? null;
 }
 
-export function speak(text: string, opts: { gender?: "female" | "male"; rate?: number } = {}): Promise<void> {
+/** The recorded clip playing now, if any (so stopSpeech can stop it). */
+let current: HTMLAudioElement | null = null;
+let currentDone: (() => void) | null = null;
+
+/** Stops whatever is being spoken: a recorded clip or the browser's voice. */
+export function stopSpeech() {
+  if (current) {
+    current.pause();
+    current = null;
+  }
+  currentDone?.();
+  currentDone = null;
+  if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
+}
+
+/** The browser's own voice: the fallback when there is no recording for a text. */
+function speakWithBrowser(text: string, opts: { gender?: Gender; rate?: number }): Promise<void> {
   return new Promise((resolve) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return resolve();
     const u = new SpeechSynthesisUtterance(text);
@@ -31,8 +49,42 @@ export function speak(text: string, opts: { gender?: "female" | "male"; rate?: n
   });
 }
 
+/**
+ * Says a text: the recorded clip (lib/audio/voices.ts) when there is one, otherwise the browser's
+ * voice. `voice` picks a recorded voice (a recording's speakers each keep their own); without it
+ * the voice follows `gender`. Resolves when speaking ends or is stopped.
+ */
+export function speak(text: string, opts: { gender?: Gender; rate?: number; voice?: string } = {}): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve();
+    if (typeof Audio === "undefined") return void speakWithBrowser(text, opts).then(resolve);
+    stopSpeech();
+    const audio = new Audio(audioPath(opts.voice ?? defaultVoice(opts.gender), text));
+    audio.playbackRate = opts.rate ?? 1;
+    current = audio;
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      if (current === audio) current = null;
+      currentDone = null;
+      resolve();
+    };
+    currentDone = finish;
+    audio.onended = finish;
+    // No recording for this text (or it can't play): use the browser's voice instead.
+    audio.onerror = () => {
+      if (settled || current !== audio) return;
+      current = null;
+      void speakWithBrowser(text, opts).then(finish);
+    };
+    audio.play().catch(() => audio.onerror?.(new Event("error")));
+  });
+}
+
+/** Can this browser speak at all (a recorded clip or its own voice)? */
 export function ttsSupported() {
-  return typeof window !== "undefined" && "speechSynthesis" in window;
+  return typeof window !== "undefined" && (typeof Audio !== "undefined" || "speechSynthesis" in window);
 }
 
 // Minimal typing for the Web Speech recognition API (not in TS DOM lib everywhere).

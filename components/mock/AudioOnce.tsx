@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { ListeningPart } from "@/lib/mock/schema";
 import { Icon } from "../icons";
-import { speak, ttsSupported } from "../task/speech";
+import { scriptVoices } from "@/lib/audio/voices";
+import { speak, stopSpeech, ttsSupported } from "../task/speech";
 
 /**
  * Plays a listening part exactly once, like the real test: a real recording (licensed tests)
@@ -20,7 +21,7 @@ export function AudioOnce({ part, autoStart, onEnded, timeScale = 1 }: { part: L
   const finish = () => {
     if (done.current) return;
     done.current = true;
-    if (ttsSupported()) window.speechSynthesis.cancel();
+    stopSpeech();
     setState("ended");
     onEnded();
   };
@@ -38,9 +39,10 @@ export function AudioOnce({ part, autoStart, onEnded, timeScale = 1 }: { part: L
       // No speech engine (or a sped-up test run): wait for the estimated duration.
       return;
     }
+    const voices = scriptVoices(part.script ?? []);
     for (let i = 0; i < total && !done.current; i++) {
       setLine(i + 1);
-      await speak(part.script![i].text, { gender: part.script![i].voice });
+      await speak(part.script![i].text, { gender: part.script![i].voice, voice: voices[i] });
     }
     clearTimeout(watchdog);
     finish();
@@ -49,7 +51,7 @@ export function AudioOnce({ part, autoStart, onEnded, timeScale = 1 }: { part: L
   useEffect(() => {
     if (autoStart) void play();
     return () => {
-      if (ttsSupported()) window.speechSynthesis.cancel();
+      stopSpeech();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);

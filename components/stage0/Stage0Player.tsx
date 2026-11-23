@@ -9,7 +9,7 @@ import { useT } from "@/lib/i18n/client";
 import { Confetti } from "../Celebration";
 import { Icon } from "../icons";
 import { ProgressBar } from "../ui";
-import { speak, ttsSupported } from "../task/speech";
+import { speak, stopSpeech, ttsSupported } from "../task/speech";
 
 /**
  * Plays one Stage 0 lesson, step by step. Rules the player keeps (and the server re-checks):
@@ -39,7 +39,7 @@ function shuffled<T>(list: readonly T[], seed: string): T[] {
 
 async function say(text: string, rate = 0.8) {
   if (!text || !ttsSupported()) return;
-  window.speechSynthesis.cancel();
+  stopSpeech();
   await speak(text, { rate });
 }
 

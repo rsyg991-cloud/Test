@@ -8,7 +8,7 @@ import type { Evaluation } from "@/lib/ai/schema";
 import { Icon } from "../icons";
 import { requestEvaluation, type EvalSource } from "./evaluate-client";
 import { FeedbackCard } from "./FeedbackCard";
-import { createRecognition, fmtTime, speak, ttsSupported, wordCount, type RecognitionLike } from "./speech";
+import { createRecognition, fmtTime, speak, stopSpeech, ttsSupported, wordCount, type RecognitionLike } from "./speech";
 
 type Phase = "idle" | "prep" | "recording" | "review";
 
@@ -86,7 +86,7 @@ export function SpeakingTaskView({
       if (mediaRef.current?.state === "recording") mediaRef.current.stop();
     } catch {}
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    if (ttsSupported()) window.speechSynthesis.cancel();
+    stopSpeech();
   }
 
   async function readQuestion() {
