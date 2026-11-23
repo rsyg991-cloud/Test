@@ -6,6 +6,7 @@ import { generalStage4 } from "./stage4";
 import { generalStage5 } from "./stage5";
 import { generalStage6 } from "./stage6";
 import { generalStage7 } from "./stage7";
+export { generalCheckpoints, getGeneralCheckpoint } from "./checkpoints";
 
 /**
  * General English lessons written for the redesign ("g3-" … "g7-"). They live outside `stages` on

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { curriculumFrom, FINAL_STAGE, parseGoals, tracksForGoals, getConversation, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
+import { checkpointAliases, checkpointFor, curriculumFrom, FINAL_STAGE, parseGoals, tracksForGoals, getConversation, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
 import { getCurrentUser } from "@/lib/auth";
 import { loadOwnedAttempt } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
@@ -43,7 +43,7 @@ async function nextStep(userId: string, user: { startStage: number; targetBand: 
     prisma.lessonProgress.findMany({ where: { userId }, select: { lessonId: true } }),
     prisma.attempt.findMany({ where: { userId, kind: "checkpoint", skill: "overall", score: 1 }, select: { refId: true } }),
   ]);
-  const done = new Set([...lessons.map((l) => l.lessonId), ...cps.map((c) => c.refId)]);
+  const done = new Set([...lessons.map((l) => l.lessonId), ...cps.flatMap((c) => checkpointAliases(c.refId))]);
   const next = items.find((i) => !done.has(i.id) && i.stage <= unlockedStage);
   const { t, stage } = await getT();
   if (!next) return { nextHref: "/dashboard", nextTitle: t("next.backToDashboard") };
@@ -146,7 +146,8 @@ export async function completeCheckpoint(
   const stage = getStage(stageId);
   if (!stage) return { ok: false, error: (await getT()).t("errors.stageNotFound") };
   if (stage.id > user.unlockedStage) return { ok: false, error: (await getT()).t("errors.checkpointLocked") };
-  const cp = stage.checkpoint;
+  // General English learners (no IELTS goal) take the General English checkpoint of Stages 3–7.
+  const cp = checkpointFor(stage, tracksForGoals(parseGoals(user.goals)));
 
   const wa = await loadOwnedAttempt(user.id, payload.writingAttemptId, { refId: cp.id, skill: "writing" });
   const sa = await loadOwnedAttempt(user.id, payload.speakingAttemptId, { refId: cp.id, skill: "speaking" });

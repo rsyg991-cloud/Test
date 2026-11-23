@@ -7,8 +7,8 @@ import { stage3 } from "./stage3";
 import { stage4 } from "./stage4";
 import { practicePrompts } from "./practice";
 import { lessonTracks } from "./tracks";
-import { generalLessons, getGeneralLesson } from "./general";
-export { generalLessons, generalUnits, getGeneralLesson } from "./general";
+import { generalLessons, getGeneralCheckpoint, getGeneralLesson } from "./general";
+export { generalCheckpoints, generalLessons, generalUnits, getGeneralCheckpoint, getGeneralLesson } from "./general";
 import type { Checkpoint, Lesson, PracticePrompt, Stage, Track } from "./types";
 
 export * from "./types";
@@ -36,8 +36,35 @@ export function getLesson(id: string): Lesson | undefined {
   return allLessons.find((l) => l.id === id) ?? getGeneralLesson(id);
 }
 
+/** A stage checkpoint, or a General English one (content/general/checkpoints). */
 export function getCheckpoint(id: string): Checkpoint | undefined {
-  return stages.find((s) => s.checkpoint.id === id)?.checkpoint;
+  return stages.find((s) => s.checkpoint.id === id)?.checkpoint ?? getGeneralCheckpoint(id);
+}
+
+/**
+ * The checkpoint a learner takes at the end of a stage. A path built from tracks without IELTS gets
+ * the General English checkpoint where one exists (Stages 3–7); every other path, including the
+ * legacy one (no tracks), keeps the stage's own checkpoint.
+ */
+export function checkpointFor(stage: Stage, tracks?: readonly Track[]): Checkpoint {
+  if (!tracks || tracks.includes("ielts")) return stage.checkpoint;
+  return getGeneralCheckpoint(`g${stage.id}-checkpoint`) ?? stage.checkpoint;
+}
+
+/** Every checkpoint that closes a stage (the stage's own and the General English one), by id. */
+export function stageCheckpointIds(stage: Stage): string[] {
+  const g = getGeneralCheckpoint(`g${stage.id}-checkpoint`);
+  return g ? [stage.checkpoint.id, g.id] : [stage.checkpoint.id];
+}
+
+/**
+ * Passing either checkpoint of a stage closes it, so a learner who changes goals never has to pass
+ * the same stage twice: given a checkpoint id, all the ids that count as passed with it.
+ */
+export function checkpointAliases(id: string): string[] {
+  const cp = getCheckpoint(id);
+  const stage = cp && getStage(cp.stage);
+  return stage ? stageCheckpointIds(stage) : [id];
 }
 
 export function getPractice(id: string): PracticePrompt | undefined {
@@ -70,7 +97,8 @@ export function curriculumFrom(startStage = 1, endStage: number = FINAL_STAGE, t
     const lessons = [...s.units.flatMap((u) => u.lessons).filter(wanted), ...general];
     if (tracks && lessons.length === 0) continue;
     for (const l of lessons) items.push({ kind: "lesson", id: l.id, stage: s.id, lesson: l });
-    items.push({ kind: "checkpoint", id: s.checkpoint.id, stage: s.id, checkpoint: s.checkpoint });
+    const cp = checkpointFor(s, tracks);
+    items.push({ kind: "checkpoint", id: cp.id, stage: s.id, checkpoint: cp });
   }
   return items;
 }

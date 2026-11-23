@@ -3,7 +3,8 @@ import { stage1Supports, supportedMinWords } from "@/lib/stage0/supports";
 import { getT } from "@/lib/i18n/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FINAL_STAGE, getStage, passBandFor } from "@/content";
+import { checkpointFor, FINAL_STAGE, getStage, parseGoals, passBandFor, tracksForGoals } from "@/content";
+import { showsLevels } from "@/content/goals";
 import { Icon } from "@/components/icons";
 import { requireUser } from "@/lib/auth";
 import { CheckpointFlow } from "./CheckpointFlow";
@@ -31,7 +32,8 @@ export default async function CheckpointPage({ params }: { params: Promise<{ sta
     );
   }
   const supports = stage.id === 1 ? await stage1Supports(user) : [];
-  const cp = stage.checkpoint;
+  // General English learners (no IELTS goal) take the General English checkpoint of Stages 3–7.
+  const cp = checkpointFor(stage, tracksForGoals(parseGoals(user.goals)));
   const checkpoint = { ...cp, writing: { ...cp.writing, minWords: supportedMinWords(cp.writing.minWords, supports, cp.id) } };
-  return <CheckpointFlow checkpoint={checkpoint} stageName={stageText(stage.id, "name")} passBand={passBandFor(stage.id)} isFinal={stage.id === FINAL_STAGE} />;
+  return <CheckpointFlow checkpoint={checkpoint} stageName={stageText(stage.id, "name")} passBand={passBandFor(stage.id)} isFinal={stage.id === FINAL_STAGE} levels={showsLevels(user.goals)} />;
 }

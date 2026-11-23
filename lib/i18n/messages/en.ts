@@ -748,6 +748,7 @@ export const en = {
   celebration: {
     streakPlus: "Streak +1!",
     dayStreak: "Day streak",
+    level: "Level",
     band: "Band",
     xp: "XP",
     freeze: "🧊 7-day streak! You earned a streak freeze.",
@@ -780,6 +781,12 @@ export const en = {
     nowUnlocked: "Stage {n} is now unlocked.",
     overallBand: "Overall Band {band}",
     seeMap: "See the map",
+    tipLevels: "Tip: find a quiet place with a microphone, and do it in one sitting, with no dictionary.",
+    introLevels: "A short test of all four skills, about 60 minutes. Reach level {cefr} overall to unlock the next stage. You can take it again any time.",
+    introFinalLevels: "A short test of all four skills, about 60 minutes. Reach level {cefr} overall to reach the summit. You can take it again any time.",
+    needLevel: "You need level {cefr} overall to pass. Look at your weakest skill below, practise a little more, and try again. Every attempt makes you stronger.",
+    summitLevels: "You've reached the summit: confident, precise English for life, study and work.",
+    overallLevel: "Overall level {cefr}",
   },
   conversation: {
     lockedTitle: "This conversation is locked",

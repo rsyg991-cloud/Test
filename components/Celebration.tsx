@@ -50,6 +50,8 @@ export interface CelebrationProps {
   title: string;
   subtitle?: string;
   band?: number | null;
+  /** A CEFR level to show instead of the band (General English learners). */
+  level?: string;
   xp: number;
   streak: number;
   streakExtended?: boolean;
@@ -92,7 +94,7 @@ export function Celebration(p: CelebrationProps) {
         <div className="grid grid-cols-3 gap-3 px-6 py-5">
           <Stat icon="star" color="var(--gold)" value={`+${p.xp}`} label={t("celebration.xp")} />
           <Stat icon="flame" color="var(--brand)" value={String(p.streak)} label={p.streakExtended ? t("celebration.streakPlus") : t("celebration.dayStreak")} />
-          <Stat icon="target" color="var(--listening)" value={p.band != null ? p.band.toFixed(1) : "—"} label={t("celebration.band")} />
+          <Stat icon="target" color="var(--listening)" value={p.level ?? (p.band != null ? p.band.toFixed(1) : "—")} label={t(p.level ? "celebration.level" : "celebration.band")} />
         </div>
         {(p.vocabAdded || p.freezeEarned) ? (
           <div className="mx-6 mb-4 space-y-1 rounded-md p-3 text-sm font-semibold" style={{ background: "var(--surface-2)" }}>

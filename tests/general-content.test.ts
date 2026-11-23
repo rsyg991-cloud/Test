@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ids-baseline.json";
-import { allLessons, conversations, generalLessons, generalUnits, getLesson } from "@/content";
+import { allLessons, checkpointAliases, checkpointFor, conversations, curriculumFrom, generalCheckpoints, generalLessons, generalUnits, getCheckpoint, getLesson, getStage, stages } from "@/content";
 import { isGeneralEnglish, lessonTracks } from "@/content/tracks";
 
 const EXAM_FRAMING = /\bIELTS\b|\bband\s*\d|\bband score|\bPart [1-4]\b|\bTask [12]\b|\bexaminer\b/i;
@@ -120,6 +120,80 @@ describe("General English lessons (content/general)", () => {
       for (const q of task?.questions ?? []) {
         if (q.type !== "gap") continue;
         expect(q.answer.some((a) => source.includes(joinDigits(a))), `${l.id}/${q.id}: ${q.answer.join(" | ")}`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("General English checkpoints (content/general/checkpoints)", () => {
+  const generalTracks = ["core"] as const;
+
+  it("close Stages 3–7 with new g<stage>-checkpoint ids, found by getCheckpoint", () => {
+    expect(generalCheckpoints.map((c) => c.id)).toEqual(["g3-checkpoint", "g4-checkpoint", "g5-checkpoint", "g6-checkpoint", "g7-checkpoint"]);
+    const taken = new Set(stages.map((s) => s.checkpoint.id));
+    for (const c of generalCheckpoints) {
+      expect(c.id, c.id).toBe(`g${c.stage}-checkpoint`);
+      expect(taken.has(c.id), c.id).toBe(false);
+      expect(getCheckpoint(c.id), c.id).toBe(c);
+      expect(isGeneralEnglish(c.id), c.id).toBe(true);
+    }
+  });
+
+  it("are what a General English path ends each stage with; IELTS and legacy paths keep the stage's own", () => {
+    for (const s of stages) {
+      const general = curriculumFrom(s.id, s.id, generalTracks).find((i) => i.kind === "checkpoint");
+      expect(general?.id, `stage ${s.id}`).toBe(s.id >= 3 ? `g${s.id}-checkpoint` : s.checkpoint.id);
+      expect(curriculumFrom(s.id, s.id, ["core", "ielts"]).find((i) => i.kind === "checkpoint")?.id).toBe(s.checkpoint.id);
+      expect(curriculumFrom(s.id, s.id).find((i) => i.kind === "checkpoint")?.id).toBe(s.checkpoint.id);
+      expect(checkpointFor(s, ["core", "work"]).id).toBe(general?.id);
+    }
+  });
+
+  it("count as passing the stage either way, so changing goals never means passing a stage twice", () => {
+    for (const c of generalCheckpoints) {
+      const own = getStage(c.stage)!.checkpoint.id;
+      expect(checkpointAliases(c.id).sort()).toEqual([c.id, own].sort());
+      expect(checkpointAliases(own).sort()).toEqual([c.id, own].sort());
+    }
+    expect(checkpointAliases("f1-checkpoint")).toEqual(["f1-checkpoint"]);
+  });
+
+  it("never talk about the exam, and test all four skills at the stage's level", () => {
+    const minWriting: Record<number, number> = { 3: 120, 4: 150, 5: 180, 6: 220, 7: 250 };
+    for (const c of generalCheckpoints) {
+      for (const t of texts(c)) expect(t, `${c.id}: "${t}"`).not.toMatch(EXAM_FRAMING);
+      expect(words(c.reading.paragraphs.join(" ")), c.id).toBeGreaterThanOrEqual(MIN_READING[c.stage]);
+      expect(words(c.listening.script.map((s) => s.text).join(" ")), c.id).toBeGreaterThanOrEqual(MIN_LISTENING[c.stage]);
+      expect(new Set(c.listening.script.map((s) => s.speaker)).size, c.id).toBeGreaterThanOrEqual(2);
+      if (c.stage <= 3) expect(c.listening.rate, c.id).toBeLessThan(1);
+      expect(c.writing.minWords, c.id).toBeGreaterThanOrEqual(minWriting[c.stage]);
+      expect(c.speaking.questions.length, c.id).toBeGreaterThanOrEqual(1);
+      for (const task of [c.reading, c.listening]) {
+        expect(task.questions.length, c.id).toBeGreaterThanOrEqual(6);
+        const ids = task.questions.map((q) => q.id);
+        expect(new Set(ids).size, c.id).toBe(ids.length);
+      }
+    }
+  });
+
+  it("have well-formed questions whose gap answers appear in the text or recording", () => {
+    const joinDigits = (s: string) => s.toLowerCase().replace(/(\d)[\s-]+(?=\d)/g, "$1");
+    for (const c of generalCheckpoints) {
+      for (const [task, source] of [
+        [c.reading, c.reading.paragraphs.join(" ")],
+        [c.listening, c.listening.script.map((s) => s.text).join(" ")],
+      ] as const) {
+        for (const q of task.questions) {
+          expect(q.explanation.length, `${c.id}/${q.id}`).toBeGreaterThan(5);
+          if (q.type === "mcq") {
+            expect(q.answer, `${c.id}/${q.id}`).toBeLessThan(q.options.length);
+            expect(new Set(q.options).size, `${c.id}/${q.id}`).toBe(q.options.length);
+          }
+          if (q.type === "gap") {
+            expect(q.prompt, `${c.id}/${q.id}`).toContain("___");
+            expect(q.answer.some((a) => joinDigits(source).includes(joinDigits(a))), `${c.id}/${q.id}: ${q.answer.join(" | ")}`).toBe(true);
+          }
+        }
       }
     }
   });

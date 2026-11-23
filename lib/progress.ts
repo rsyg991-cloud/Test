@@ -1,5 +1,5 @@
 import "server-only";
-import { curriculumFrom, endStageFor, FINAL_STAGE, parseGoals, SKILLS, stages, tracksForGoals, wantsIelts, type Skill, type VocabItem } from "@/content";
+import { checkpointAliases, curriculumFrom, stageCheckpointIds, endStageFor, FINAL_STAGE, parseGoals, SKILLS, stages, tracksForGoals, wantsIelts, type Skill, type VocabItem } from "@/content";
 import { prisma } from "@/lib/db";
 import { addDays, dayKey } from "@/lib/dates";
 import { computeToday } from "@/lib/plan/scheduler";
@@ -94,7 +94,7 @@ export async function getCompletedIds(userId: string) {
     prisma.attempt.findMany({ where: { userId, kind: "checkpoint", skill: "overall", score: 1 }, select: { refId: true, band: true } }),
   ]);
   const ids = new Set<string>(lessons.map((l) => l.lessonId));
-  checkpoints.forEach((c) => ids.add(c.refId));
+  checkpoints.forEach((c) => checkpointAliases(c.refId).forEach((id) => ids.add(id)));
   return { ids, lessons };
 }
 
@@ -138,10 +138,10 @@ export function stageProgress(
       pct: done / lessons.length,
       done,
       total: lessons.length,
-      passed: completedIds.has(s.checkpoint.id),
+      passed: stageCheckpointIds(s).some((id) => completedIds.has(id)),
       locked: s.id > unlockedStage,
       /** Below the learner's start stage (placed higher). */
-      skipped: s.id < start && !completedIds.has(s.checkpoint.id),
+      skipped: s.id < start && !stageCheckpointIds(s).some((id) => completedIds.has(id)),
       /** Inside the learner's path to their target band. */
       inPlan: s.id >= start && s.id <= Math.max(start, end),
     };

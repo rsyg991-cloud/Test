@@ -11,12 +11,25 @@ import { TaskQuestions } from "@/components/task/TaskQuestions";
 import { SpeakingTaskView } from "@/components/task/SpeakingTaskView";
 import { WritingTaskView } from "@/components/task/WritingTaskView";
 import { Ring, SKILL_META } from "@/components/ui";
-import type { Answers } from "@/lib/scoring";
+import { cefrForBand, type Answers } from "@/lib/scoring";
 import { useT } from "@/lib/i18n/client";
 
 const ORDER: Skill[] = ["listening", "reading", "writing", "speaking"];
 
-export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { checkpoint: Checkpoint; stageName: string; passBand: number; isFinal: boolean }) {
+/** `levels`: a General English learner sees CEFR levels and a general intro instead of bands and exam talk. */
+export function CheckpointFlow({
+  checkpoint,
+  stageName,
+  passBand,
+  isFinal,
+  levels = false,
+}: {
+  checkpoint: Checkpoint;
+  stageName: string;
+  passBand: number;
+  isFinal: boolean;
+  levels?: boolean;
+}) {
   const { t, stage } = useT();
   const [idx, setIdx] = useState(-1);
   const [reading, setReading] = useState<Answers>({});
@@ -70,7 +83,9 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
           </span>
           <h1 className="mt-4 font-display text-3xl">{t("checkpoint.title", { camp: stage(checkpoint.stage, "camp") })}</h1>
           <p className="mt-2" style={{ color: "var(--muted)" }}>
-            {t(isFinal ? "checkpoint.introFinal" : "checkpoint.intro", { band: passBand.toFixed(1) })}
+            {levels
+              ? t(isFinal ? "checkpoint.introFinalLevels" : "checkpoint.introLevels", { cefr: cefrForBand(passBand) })
+              : t(isFinal ? "checkpoint.introFinal" : "checkpoint.intro", { band: passBand.toFixed(1) })}
           </p>
           <ol className="mt-6 grid gap-2 sm:grid-cols-2">
             {ORDER.map((s, i) => (
@@ -84,7 +99,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
             ))}
           </ol>
           <p className="mt-4 text-sm" style={{ color: "var(--muted)" }}>
-            {t("checkpoint.tip")}
+            {t(levels ? "checkpoint.tipLevels" : "checkpoint.tip")}
           </p>
           <button type="button" className="btn btn-primary mt-6 px-6 py-3" onClick={() => go(0)}>
             {t("checkpoint.begin")} <Icon name="arrow" size={18} />
@@ -157,7 +172,7 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
           <div className="card p-6 text-center sm:p-8">
             <div className="eyebrow">{result.passed ? t("checkpoint.passed") : t("checkpoint.notYet")}</div>
             <h1 className="mt-2 font-display text-5xl" dir="ltr">
-              Band <span className="num">{result.overall.toFixed(1)}</span>
+              {levels ? <span className="num">{cefrForBand(result.overall)}</span> : <>Band <span className="num">{result.overall.toFixed(1)}</span></>}
             </h1>
             <p className="mx-auto mt-2 max-w-md" style={{ color: "var(--muted)" }}>
               {result.passed
@@ -166,15 +181,17 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
                   : result.fullWritingNeeded
                     ? t("starter.fullWritingNeeded", { n: result.fullWritingNeeded })
                     : isFinal
-                    ? t("checkpoint.summit")
+                    ? t(levels ? "checkpoint.summitLevels" : "checkpoint.summit")
                     : t("checkpoint.consolidated")
-                : t("checkpoint.needBand", { band: result.passBand.toFixed(1) })}
+                : levels
+                  ? t("checkpoint.needLevel", { cefr: cefrForBand(result.passBand) })
+                  : t("checkpoint.needBand", { band: result.passBand.toFixed(1) })}
             </p>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {ORDER.map((s) => (
                 <div key={s} className="flex flex-col items-center">
-                  <Ring value={result.bands[s] / 9} size={86} stroke={8} color={SKILL_META[s].color} label={`${t(`skills.${s}`)} ${result.bands[s]}`}>
-                    <span className="num text-xl font-bold">{result.bands[s].toFixed(1)}</span>
+                  <Ring value={result.bands[s] / 9} size={86} stroke={8} color={SKILL_META[s].color} label={`${t(`skills.${s}`)} ${levels ? cefrForBand(result.bands[s]) : result.bands[s]}`}>
+                    <span className="num text-xl font-bold">{levels ? cefrForBand(result.bands[s]) : result.bands[s].toFixed(1)}</span>
                   </Ring>
                   <span className="mt-2 text-sm font-bold">{t(`skills.${s}`)}</span>
                 </div>
@@ -210,8 +227,15 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
         <Celebration
           big
           title={isFinal ? t("checkpoint.summitReached") : t("checkpoint.campReached")}
-          subtitle={result.unlockedStage ? t("checkpoint.nowUnlocked", { n: result.unlockedStage }) : t("checkpoint.overallBand", { band: result.overall.toFixed(1) })}
+          subtitle={
+            result.unlockedStage
+              ? t("checkpoint.nowUnlocked", { n: result.unlockedStage })
+              : levels
+                ? t("checkpoint.overallLevel", { cefr: cefrForBand(result.overall) })
+                : t("checkpoint.overallBand", { band: result.overall.toFixed(1) })
+          }
           band={result.overall}
+          level={levels ? cefrForBand(result.overall) : undefined}
           xp={result.activity.xpGained}
           streak={result.activity.streak}
           streakExtended={result.activity.streakExtended}
