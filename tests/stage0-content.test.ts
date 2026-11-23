@@ -69,11 +69,13 @@ describe("Stage 0 lessons", () => {
     }
   });
 
-  it("start with the welcome lesson, then Unit 1 l1–l8 and the unit check", () => {
+  it("start with the welcome lesson, then Unit 1 l1–l8 and its check, then Unit 2 l1–l7 and the Stage 0 check", () => {
     expect(stage0Lessons.map((l) => l.id)).toEqual([
       "z0-u0-l1",
       ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `z0-u1-l${n}`),
       "z0-u1-check",
+      ...[1, 2, 3, 4, 5, 6, 7].map((n) => `z0-u2-l${n}`),
+      "z0-u2-check",
     ]);
   });
 
@@ -110,9 +112,22 @@ describe("Stage 0: nothing is shown before it may be (AC-1 … AC-5, AC-10)", ()
     });
   });
 
+  it("makes every sentence read for meaning only of readable words, taught sight words and explained punctuation", () => {
+    walk((s, t) => {
+      if (s.type !== "readSentence") return;
+      for (const id of s.tokens) expect(KNOWN, `${s.id}: ${id} is ${mode(id, t)}`).toContain(mode(id, t));
+      for (const o of s.options) {
+        const x = item(o) as { image?: string; ar?: string };
+        expect(x.image || x.ar, `${s.id}: option ${o} needs a picture or Arabic meaning`).toBeTruthy();
+      }
+      expect(s.options, s.id).toContain(s.target);
+      expect(new Set(s.options).size, s.id).toBe(s.options.length);
+    });
+  });
+
   it("shows punctuation only after it has been explained (R3-12)", () => {
     walk((s, t) => {
-      const shown: string[] = s.type === "show" || s.type === "readText" || s.type === "build" ? s.tokens : [];
+      const shown: string[] = s.type === "show" || s.type === "readText" || s.type === "build" || s.type === "readSentence" ? s.tokens : [];
       for (const id of shown.filter((x) => x.startsWith("p:"))) expect(mode(id, t), `${s.id}: ${id}`).toBe("readable");
     });
   });

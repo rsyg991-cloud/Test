@@ -18,7 +18,8 @@ export type SightWordId = `sw:${string}`;
 export type ChunkId = `ch:${string}`;
 export type PatternId = `p:${string}`;
 export type PseudoId = `pw:${string}`;
-export type ItemId = GraphemeId | WordId | SightWordId | ChunkId | PatternId | PseudoId;
+export type MeaningId = `m:${string}`;
+export type ItemId = GraphemeId | WordId | SightWordId | ChunkId | PatternId | PseudoId | MeaningId;
 
 export interface GraphemeItem {
   kind: "grapheme";
@@ -88,7 +89,15 @@ export interface PatternItem {
   ar: string;
 }
 
-export type Item = GraphemeItem | WordItem | PseudoWordItem | SightWordItem | ChunkItem | PatternItem;
+/** An answer choice that is a meaning, not English: an Arabic sentence and/or a picture. Never shows English text. */
+export interface MeaningItem {
+  kind: "meaning";
+  id: MeaningId;
+  ar: string;
+  image?: string;
+}
+
+export type Item = GraphemeItem | WordItem | PseudoWordItem | SightWordItem | ChunkItem | PatternItem | MeaningItem;
 
 const g = (spelling: string, ipa: string, ar: string, vowel = false): GraphemeItem => ({
   kind: "grapheme",

@@ -133,6 +133,9 @@ export function modeOf(item: Item, taught: Taught, use: Use): Mode {
       return use === "keyword" ? "hidden" : "supported";
     case "chunk":
       return use === "keyword" ? "hidden" : "supported";
+    case "meaning":
+      // Arabic meaning / picture choices carry no English text at all.
+      return "supported";
     case "grapheme":
       return taught.graphemes.has(item.id) ? "readable" : "hidden";
   }

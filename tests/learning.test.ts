@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { stage0Lessons, type Step } from "@/content/stage0";
 import { evidenceFor } from "@/lib/learning/evidence";
-import { stage0Exit, writingMinimum } from "@/lib/learning/gates";
+import { combineStage0Checks, stage0Exit, writingMinimum } from "@/lib/learning/gates";
 import { applyCredit, buildSession, eligible, gradeFor, needsReteach, newPair, type PairState } from "@/lib/learning/review";
 
 const steps = stage0Lessons.flatMap((l) => l.steps);
@@ -111,5 +111,22 @@ describe("Stage 0 exit (hard and soft gates)", () => {
     expect(writingMinimum(25, { supported: true, checkpoint: false })).toBe(15);
     expect(writingMinimum(50, { supported: true, checkpoint: true })).toBe(30);
     expect(writingMinimum(25, { supported: false, checkpoint: false })).toBe(25);
+  });
+});
+
+describe("final Stage 0 decision (both unit checks)", () => {
+  const final = { AR: 0.9, WFletters: 1, DC: 1, MCR: 0.9, SP: 1, PU: 1, speakingAttempts: 1 };
+
+  it("takes letters, decoding and spelling from the Unit 1 check", () => {
+    expect(combineStage0Checks(final, { WFletters: 0.95, DC: 0.85, SP: 0.7 }).unlocksStage1).toBe(true);
+    expect(combineStage0Checks(final, { WFletters: 0.95, DC: 0.6, SP: 0.7 })).toMatchObject({ unlocksStage1: false, retake: ["decoding"] });
+  });
+
+  it("never opens Stage 1 without a Unit 1 check on record", () => {
+    expect(combineStage0Checks(final, null).unlocksStage1).toBe(false);
+  });
+
+  it("asks to retake reading for meaning when the texts were not understood", () => {
+    expect(combineStage0Checks({ ...final, MCR: 0.5 }, { WFletters: 1, DC: 1, SP: 1 }).retake).toEqual(["readingMeaning"]);
   });
 });

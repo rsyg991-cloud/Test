@@ -45,6 +45,8 @@ function resolve(id: string, taught: Taught, use: "text" | "keyword" = "text"): 
       return { ...base, text: x.spelling.replace("_", "…").replace(/\/.*/, ""), say: x.spelling.replace("_", ""), ipa: x.ipa, ar: x.ar };
     case "pattern":
       return { ...base, text: x.label, ar: x.ar, say: "" };
+    case "meaning":
+      return { ...base, ar: x.ar, ...(x.image ? { image: x.image } : {}), say: "" };
     case "pseudo":
       return { ...base, ...(mode === "hidden" ? {} : { text: x.text }), say: x.text, ipa: x.ipa };
     default: {

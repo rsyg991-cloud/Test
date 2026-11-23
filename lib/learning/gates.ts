@@ -61,3 +61,13 @@ export function writingMinimum(taskMin: number, opts: { supported: boolean; chec
   if (!opts.supported) return taskMin;
   return opts.checkpoint ? Math.min(taskMin, 30) : Math.min(taskMin, 15);
 }
+
+/**
+ * The final Stage 0 decision: letters, decoding and spelling come from the latest Unit 1 check,
+ * listening, reading for meaning, building sentences and speaking practice from the final check.
+ * No Unit 1 check on record counts as zero, so Stage 1 can't open without it.
+ */
+export function combineStage0Checks(finalCheck: Stage0Results, unit1?: Partial<Stage0Results> | null): GateDecision & { results: Stage0Results } {
+  const results: Stage0Results = { ...finalCheck, WFletters: unit1?.WFletters ?? 0, DC: unit1?.DC ?? 0, SP: unit1?.SP ?? 0 };
+  return { ...stage0Exit(results), results };
+}

@@ -8,6 +8,7 @@ import { flags } from "@/lib/flags";
 import { getT } from "@/lib/i18n/server";
 import { recordActivity, type ActivityResult } from "@/lib/progress";
 import { gradeStage0Lesson, type LessonGrade, type StepAnswer } from "@/lib/stage0/grade";
+import { combineStage0Checks } from "@/lib/learning/gates";
 import { getStage0Lesson, previousStage0Lesson } from "@/lib/stage0/view";
 import { readFeedback, type Stage0Feedback } from "@/lib/stage0/feedback";
 
@@ -17,6 +18,9 @@ import { readFeedback, type Stage0Feedback } from "@/lib/stage0/feedback";
  * - Attempt: kind "stage0", the answers and the per-dimension evidence (for review scheduling).
  * Stage 0 never creates band snapshots or vocabulary cards: an IELTS band means nothing at this level.
  */
+
+/** The last Stage 0 check: passing it opens Stage 1. */
+const FINAL_CHECK = stage0Lessons[stage0Lessons.length - 1].id;
 
 export interface Stage0Completion {
   ok: true;
@@ -55,7 +59,7 @@ export async function completeStage0Lesson(lessonId: string, answers: StepAnswer
   let speakingShare = 1;
   if (lessonId.endsWith("-check")) {
     const unit = lesson.unit;
-    const unitLessons = stage0Lessons.filter((l) => l.unit === unit && !l.id.endsWith("-check"));
+    const unitLessons = stage0Lessons.filter((l) => (lessonId === FINAL_CHECK || l.unit === unit) && !l.id.endsWith("-check"));
     const totalSay = unitLessons.reduce((n, l) => n + l.steps.filter((s) => s.type === "say").length, 0);
     const attempts = await prisma.attempt.findMany({
       where: { userId: user.id, kind: "stage0", refId: { in: unitLessons.map((l) => l.id) } },
@@ -71,6 +75,19 @@ export async function completeStage0Lesson(lessonId: string, answers: StepAnswer
   }
 
   const grade = gradeStage0Lesson(lesson, Array.isArray(answers) ? answers.slice(0, 400) : [], { recentlySeen, speakingShare });
+
+  // Leaving Stage 0 is decided at the final check, combining both unit checks: letters, decoding and
+  // spelling from the Unit 1 check (its latest attempt), reading for meaning, listening and building
+  // sentences from this one. Earlier unit checks only show what to review.
+  const isFinal = lesson.id === FINAL_CHECK;
+  if (isFinal && grade.gate) {
+    const u1 = await prisma.attempt.findFirst({
+      where: { userId: user.id, kind: "stage0", refId: "z0-u1-check" },
+      orderBy: { createdAt: "desc" },
+      select: { feedbackJson: true },
+    });
+    grade.gate = combineStage0Checks(grade.gate.results, readFeedback(u1?.feedbackJson).gate?.results);
+  }
 
   await prisma.attempt.create({
     data: {
@@ -94,7 +111,7 @@ export async function completeStage0Lesson(lessonId: string, answers: StepAnswer
   });
 
   let unlockedStage1 = false;
-  if (grade.gate?.unlocksStage1 && user.unlockedStage < 1) {
+  if (isFinal && grade.gate?.unlocksStage1 && user.unlockedStage < 1) {
     await prisma.user.update({ where: { id: user.id }, data: { unlockedStage: 1 } });
     unlockedStage1 = true;
   }
@@ -104,7 +121,7 @@ export async function completeStage0Lesson(lessonId: string, answers: StepAnswer
 
   const i = stage0Lessons.findIndex((l) => l.id === lesson.id);
   const next = stage0Lessons[i + 1];
-  const nextHref = unlockedStage1 || (!next && grade.gate?.unlocksStage1) ? "/dashboard" : next ? `/starter/${next.id}` : "/starter";
+  const nextHref = unlockedStage1 || (isFinal && grade.gate?.unlocksStage1) ? "/dashboard" : next ? `/starter/${next.id}` : "/starter";
 
   revalidatePath("/starter");
   revalidatePath("/dashboard");

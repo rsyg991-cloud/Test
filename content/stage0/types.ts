@@ -44,6 +44,8 @@ export type Step =
   | (Scored & { type: "decodePick"; dimension: "DC"; target: ItemId; options: ItemId[] })
   /** Read a short text (audio withheld for readable tokens; supported tokens can be tapped to hear) and answer. */
   | (Scored & { type: "readText"; dimension: "WF" | "MC-R"; tokens: ItemId[]; target: ItemId; options: ItemId[] })
+  /** Read a sentence or short text (every token readable; audio withheld until answered), pick the picture that matches its meaning. */
+  | (Scored & { type: "readSentence"; dimension: "MC-R"; tokens: ItemId[]; target: ItemId; options: ItemId[] })
   /** Hear a word, type it (readable words) or order tiles (sight words). */
   | (Scored & { type: "spell"; dimension: "SP"; target: ItemId; input: "keyboard" | "tiles" })
   /** Order tiles into an utterance (punctuation tokens are placed automatically). Scored deterministically. */

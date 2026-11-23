@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { completeStage0Lesson, type Stage0Completion } from "@/app/actions/stage0";
 import type { StepAnswer } from "@/lib/stage0/grade";
 import type { ViewItem, ViewStep } from "@/lib/stage0/view";
@@ -20,7 +20,9 @@ import { speak, ttsSupported } from "../task/speech";
 
 type Feedback = null | "right" | "wrong" | "revealed";
 
-const PUNCT: Record<string, string> = { "p:full-stop": ".", "p:exclamation": "!", "p:question-mark": "?" };
+/** Sentence-final punctuation: the next word starts with a capital. */
+const END = new Set(["p:full-stop", "p:exclamation", "p:question-mark"]);
+const PUNCT: Record<string, string> = { "p:full-stop": ".", "p:exclamation": "!", "p:question-mark": "?", "p:comma": "," };
 
 /** Same order every time for a step, but not always the target first. */
 function shuffled<T>(list: readonly T[], seed: string): T[] {
@@ -108,20 +110,27 @@ function Tokens({
   onTap?: (id: string) => void;
   picked?: string | null;
 }) {
+  // Each word carries the punctuation that follows it, so "Nat." never splits into "Nat ." on screen.
+  const groups: { id: string; i: number; punct: string }[] = [];
+  tokens.forEach((id, i) => {
+    if (PUNCT[id] !== undefined || id === "p:apostrophe") {
+      if (groups.length) groups[groups.length - 1].punct += PUNCT[id] ?? "";
+    } else groups.push({ id, i, punct: "" });
+  });
   return (
     <p dir="ltr" lang="en" className="text-3xl font-bold leading-relaxed">
-      {tokens.map((id, i) => {
-        if (PUNCT[id] !== undefined || id === "p:apostrophe") return <span key={i}>{PUNCT[id] ?? ""}</span>;
+      {groups.map(({ id, i, punct }, g) => {
         const it = items[id];
         const raw = it?.text ?? "";
-        const text = i === 0 ? raw.charAt(0).toUpperCase() + raw.slice(1) : raw;
+        const text = i === 0 || END.has(tokens[i - 1]) ? raw.charAt(0).toUpperCase() + raw.slice(1) : raw;
         const supported = it?.mode === "supported";
         return (
-          <span key={i}>
-            {i > 0 ? " " : ""}
+          <Fragment key={i}>
+          {g > 0 ? " " : ""}
+          <span className="whitespace-nowrap">
             <button
               type="button"
-              className="rounded px-1"
+              className="rounded"
               style={{
                 textDecoration: supported ? "underline dotted" : undefined,
                 textUnderlineOffset: 6,
@@ -132,7 +141,9 @@ function Tokens({
             >
               {text}
             </button>
+            {punct}
           </span>
+          </Fragment>
         );
       })}
     </p>
@@ -420,6 +431,20 @@ export function Stage0Player({ lessonId, titleAr, views }: { lessonId: string; t
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {s.type === "readSentence" && (
+          <div className="space-y-4">
+            <div className="ruled rounded-[10px] border p-4 text-start" style={{ borderColor: "var(--line)" }}>
+              <Tokens tokens={s.tokens} items={items} />
+            </div>
+            <div className={`grid gap-3 ${options.length > 2 ? "grid-cols-3" : "grid-cols-2"}`}>
+              {options.map((o) => (
+                <PictureCard key={o} item={items[o]} state={stateOf(o)} disabled={locked} onClick={() => { setChoice(o); answer({ choice: o }); }} />
+              ))}
+            </div>
+            {locked ? <SoundButton text={s.tokens.map((id) => items[id]?.say ?? "").filter(Boolean).join(" ")} label={t("starter.listen")} /> : null}
           </div>
         )}
 

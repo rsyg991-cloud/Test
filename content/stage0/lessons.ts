@@ -1,190 +1,18 @@
 /**
- * Stage 0, Unit 0 (welcome) and Unit 1 (letters and sounds, l1–l8) + the Unit 1 check.
+ * Stage 0, Unit 0 (welcome) and Unit 1 (letters and sounds, l1–l8) + the Unit 1 check, then Unit 2.
  * Lessons are generated from a short spec per lesson so every exercise follows the same rules;
  * tests/stage0-content.test.ts then checks every step against what has been taught before it.
  */
-import { GRAPHEMES, graphemeById, type GraphemeId, type Item, type ItemId } from "../items";
-import { CHUNKS, CODAS, ONSETS, PATTERNS, PSEUDO_WORDS, SIGHT_WORDS, WORDS } from "./items";
+import { GRAPHEMES, graphemeById, type GraphemeId, type ItemId } from "../items";
+import { CODAS, ONSETS } from "./items";
+import {
+  arOf, build, contrast, decodePick, imageOf, LETTER_NAMES, listenPick, pick, readPick, resetSteps, say, sid, show, soundPick, spell, teach, textOf,
+  en,
+} from "./builders";
 import type { Stage0Lesson, Step } from "./types";
+import { unit2Lessons } from "./unit2";
 
-export const stage0Items: Item[] = [...GRAPHEMES, ...WORDS, ...PSEUDO_WORDS, ...SIGHT_WORDS, ...CHUNKS, ...PATTERNS];
-export const stage0ItemById = new Map<string, Item>(stage0Items.map((x) => [x.id, x]));
-
-const item = (id: string) => {
-  const x = stage0ItemById.get(id);
-  if (!x) throw new Error(`Unknown Stage 0 item ${id}`);
-  return x;
-};
-const textOf = (id: string) => {
-  const x = item(id);
-  return "text" in x ? x.text : "spelling" in x ? x.spelling : x.label;
-};
-const arOf = (id: string) => {
-  const x = item(id);
-  return "ar" in x ? x.ar : "";
-};
-const imageOf = (id: string) => (item(id) as { image?: string }).image;
-const gpcOf = (id: string) => (item(id) as { gpc?: GraphemeId[] }).gpc ?? [];
-
-export const LETTER_NAMES: Record<string, { ipa: string; ar: string }> = Object.fromEntries(
-  (
-    [
-      ["a", "eɪ", "إيه"], ["b", "biː", "بي"], ["c", "siː", "سي"], ["d", "diː", "دي"], ["e", "iː", "إي"],
-      ["f", "ɛf", "إف"], ["g", "dʒiː", "جي"], ["h", "eɪtʃ", "إيتش"], ["i", "aɪ", "آي"], ["j", "dʒeɪ", "جيه"],
-      ["k", "keɪ", "كيه"], ["l", "ɛl", "إل"], ["m", "ɛm", "إم"], ["n", "ɛn", "إن"], ["o", "oʊ", "أو"],
-      ["p", "piː", "بي (بنفَس)"], ["q", "kjuː", "كيو"], ["r", "ɑɹ", "آر"], ["s", "ɛs", "إس"], ["t", "tiː", "تي"],
-      ["u", "juː", "يو"], ["v", "viː", "في"], ["w", "ˈdʌbəljuː", "دبليو"], ["x", "ɛks", "إكس"], ["y", "waɪ", "واي"],
-      ["z", "ziː", "زي"],
-    ] as const
-  ).map(([l, ipa, ar]) => [l, { ipa, ar }]),
-);
-
-// ---------- step builders (Arabic templates) ----------
-
-let counter = 0;
-const sid = (lesson: string) => `${lesson}-s${++counter}`;
-
-/** Rotate through a pool deterministically, skipping excluded ids. */
-function pick<T extends string>(pool: readonly T[], exclude: readonly string[], n: number, seed: number): T[] {
-  const rest = pool.filter((x) => !exclude.includes(x));
-  const out: T[] = [];
-  for (let i = 0; i < rest.length && out.length < n; i++) out.push(rest[(seed + i) % rest.length]);
-  return out;
-}
-
-/** The n spelled items closest to the target: same length, most graphemes in the same place. */
-function neighbours(target: string, pool: readonly string[], n = 2): string[] {
-  const t = gpcOf(target);
-  return pool
-    .filter((id) => id !== target && gpcOf(id).length === t.length && textOf(id) !== textOf(target))
-    .map((id) => ({ id, same: gpcOf(id).filter((g, i) => g === t[i]).length }))
-    .sort((a, b) => b.same - a.same || textOf(a.id).localeCompare(textOf(b.id)))
-    .slice(0, n)
-    .map((x) => x.id);
-}
-
-const segments = (id: string) => gpcOf(id).map((g) => graphemeById.get(g)!.spelling.replace("_e", "…e")).join(" - ");
-
-function teach(L: string, teaches: ItemId[], explainAr: string, keyword?: ItemId): Step {
-  return { id: sid(L), type: "teach", ar: "تعلّم الجديد: اسمع وشوف.", teaches, explainAr, ...(keyword ? { keyword } : {}) };
-}
-
-function soundPick(L: string, target: GraphemeId, taught: GraphemeId[], seed: number): Step {
-  const g = graphemeById.get(target)!;
-  const others = pick(taught, [target, ...taught.filter((x) => graphemeById.get(x)!.ipa === g.ipa)], 2, seed);
-  return {
-    id: sid(L),
-    type: "soundPick",
-    dimension: "WF",
-    ar: "اسمع الصوت واختر الحرف.",
-    target,
-    options: [target, ...others],
-    wrongAr: `الحرف «${g.spelling}» صوته /${g.ipa}/: ${g.ar}.`,
-  };
-}
-
-function decodePick(L: string, target: string, pool: string[]): Step {
-  const pseudo = target.startsWith("pw:");
-  return {
-    id: sid(L),
-    type: "decodePick",
-    dimension: "DC",
-    ar: pseudo
-      ? "هذي كلمة مو حقيقية. اقرأها بنفسك صوت صوت، ثم اختر الصوت اللي يطابقها."
-      : "اقرأ الكلمة بنفسك صوت صوت، ثم اختر الصوت اللي يطابقها.",
-    target: target as ItemId,
-    options: [target, ...neighbours(target, pool)] as ItemId[],
-    wrongAr: `اقرأها صوت صوت: ${segments(target)} ← «${textOf(target)}»${pseudo ? " (مو كلمة حقيقية)" : ""}.`,
-  };
-}
-
-function readPick(L: string, target: string, pictured: string[], seed: number): Step {
-  return {
-    id: sid(L),
-    type: "readPick",
-    dimension: "WF",
-    ar: "اقرأ الكلمة بدون صوت، واختر الصورة.",
-    target: target as ItemId,
-    options: [target, ...pick(pictured, [target], 2, seed)] as ItemId[],
-    wrongAr: `«${textOf(target)}» معناها ${arOf(target)}. اقرأها صوت صوت: ${segments(target)}.`,
-  };
-}
-
-function spell(L: string, target: string): Step {
-  return {
-    id: sid(L),
-    type: "spell",
-    dimension: "SP",
-    ar: "اسمع الكلمة واكتبها.",
-    target: target as ItemId,
-    input: "keyboard",
-    wrongAr: `تنكتب «${textOf(target)}»: ${segments(target)}.`,
-  };
-}
-
-function contrast(L: string, a: string, b: string): Step[] {
-  const one = (target: string, other: string): Step => ({
-    id: sid(L),
-    type: "contrast",
-    dimension: "AR",
-    listeningOnly: true,
-    ar: "استماع فقط: اسمع واختر الصورة أو المعنى.",
-    target: target as ItemId,
-    options: [target, other] as ItemId[],
-    wrongAr: `الفرق صوت واحد بس: «${arOf(a)}» و«${arOf(b)}». اسمعهم مرة ثانية وركّز على الصوت المختلف.`,
-  });
-  return [one(a, b), one(b, a)];
-}
-
-function listenPick(L: string, target: string, pool: string[], seed: number): Step {
-  return {
-    id: sid(L),
-    type: "listenPick",
-    dimension: "AR",
-    ar: "اسمع واختر المعنى.",
-    target: target as ItemId,
-    options: [target, ...pick(pool, [target], 2, seed)] as ItemId[],
-    wrongAr: `«${textOf(target)}» معناها ${arOf(target)}.`,
-  };
-}
-
-function show(L: string, tokens: ItemId[], ar = "اسمع وتابع معنا."): Step {
-  return { id: sid(L), type: "show", ar, tokens };
-}
-
-function say(L: string, tokens: ItemId[]): Step {
-  return {
-    id: sid(L),
-    type: "say",
-    dimension: "OR",
-    optional: true,
-    ar: "قلها بصوتك (اختياري). نسمع محاولتك، لكن ما نصحح نطقك آلياً: قارن صوتك بالنموذج.",
-    target: tokens,
-    model: tokens,
-  };
-}
-
-const PUNCT = new Set(["p:full-stop", "p:exclamation", "p:question-mark"]);
-function sentence(tokens: string[]): string {
-  let s = "";
-  tokens.forEach((t, i) => {
-    const txt = textOf(t);
-    const shown = i === 0 ? txt[0].toUpperCase() + txt.slice(1) : txt;
-    s += PUNCT.has(t) ? shown : (s ? " " : "") + shown;
-  });
-  return s;
-}
-
-function build(L: string, tokens: ItemId[]): Step {
-  return {
-    id: sid(L),
-    type: "build",
-    dimension: "PU",
-    ar: "رتّب الكلمات وكوّن الجملة.",
-    tokens,
-    wrongAr: `الترتيب الصحيح: ${sentence(tokens)}`,
-  };
-}
+export { stage0Items, stage0ItemById, LETTER_NAMES, sentence } from "./builders";
 
 // ---------- lesson specs ----------
 
@@ -366,7 +194,7 @@ const SPECS: Spec[] = [
           ar: "اسمع الكلمة مهجّأة بأسماء الحروف، واختر الكلمة.",
           target,
           options: [target, ...pick(spelled, [target], 2, i)],
-          wrongAr: `سمعت أسماء الحروف ${textOf(target).toUpperCase().split("").join("-")}، وهذي تكوّن الكلمة «${textOf(target)}» (${arOf(target)}).`,
+          wrongAr: `سمعت أسماء الحروف ${en(textOf(target).toUpperCase().split("").join("-"))}، وهذي تكوّن الكلمة «${en(textOf(target))}» (${arOf(target)}).`,
         });
       }
       steps.push(say(L, ["w:name-nat"]));
@@ -454,7 +282,7 @@ const SPECS: Spec[] = [
 
 function generate(spec: Spec, pools: { readable: string[]; pseudo: string[]; graphemes: GraphemeId[]; pictured: string[] }): Stage0Lesson {
   const L = spec.id;
-  counter = 0;
+  resetSteps();
   const steps: Step[] = [];
 
   for (const [gid, keyword, explainAr] of spec.graphemes) {
@@ -492,7 +320,7 @@ function generate(spec: Spec, pools: { readable: string[]; pseudo: string[]; gra
 
 const welcome: Stage0Lesson = (() => {
   const L = "z0-u0-l1";
-  counter = 0;
+  resetSteps();
   return {
     id: L,
     unit: 0,
@@ -514,7 +342,7 @@ const welcome: Stage0Lesson = (() => {
 /** Unit 1 check: every part scored separately. */
 function unitCheck(pools: { readable: string[]; pseudo: string[]; pictured: string[] }): Stage0Lesson {
   const L = "z0-u1-check";
-  counter = 0;
+  resetSteps();
   const single = GRAPHEMES.filter((x) => /^[a-z]$/.test(x.spelling) && !x.id.includes("/")).map((x) => x.id);
   const digraphs = (["sh", "ch", "th", "ck", "ng", "nk", "qu"] as const).map(g);
   const steps: Step[] = [];
@@ -559,6 +387,6 @@ const pools = { readable: [] as string[], pseudo: [] as string[], graphemes: [] 
 const unit1 = SPECS.map((s) => generate(s, pools));
 
 /** Stage 0 lessons in learning order. Not yet on any learner's path (behind flags.stage0). */
-export const stage0Lessons: Stage0Lesson[] = [welcome, ...unit1, unitCheck(pools)];
+export const stage0Lessons: Stage0Lesson[] = [welcome, ...unit1, unitCheck(pools), ...unit2Lessons()];
 
-export { sentence as sentenceText };
+export { sentence as sentenceText } from "./builders";

@@ -198,6 +198,27 @@ export const WORDS: WordItem[] = [
   w("cats", "c a t s", "kæts", "قطط", "🐱🐱", { plural: true }),
   w("pens", "p e n s/z", "pɛnz", "أقلام", "🖊️🖊️", { plural: true }),
   { ...kw("dogs", "dɔɡz", "كلاب", "🐶🐶"), plural: true },
+  // ---- Unit 2: first sentences
+  w("mum", "m u m", "mʌm", "ماما", "👩"),
+  w("not", "n o t", "nɑt", "مو / ليس"),
+  w("on", "o n", "ɑn", "على"),
+  w("up", "u p", "ʌp", "فوق", "⬆️"),
+  w("has", "h a s/z", "hæz", "عنده"),
+  w("him", "h i m", "hɪm", "هو (مفعول به)"),
+  w("bag", "b a g", "bæɡ", "شنطة", "👜"),
+  w("am", "a m", "æm", "أكون (مع I)"),
+  w("and", "a n d", "ænd", "و"),
+  w("pet", "p e t", "pɛt", "حيوان أليف"),
+  w("pool", "p oo l", "puːl", "مسبح", "🏊"),
+  w("drive", "d r i_e v", "dɹaɪv", "يسوق", "🚗"),
+  { ...w("Sam", "s a m", "sæm", "سام (اسم)", "🧔"), id: "w:name-sam" },
+  // Mum and Dad used as names (capital letter inside a sentence).
+  { ...w("Mum", "m u m", "mʌm", "ماما", "👩"), id: "w:name-mum" },
+  { ...w("Dad", "d a d", "dæd", "بابا", "👨"), id: "w:name-dad" },
+  // Colours whose spelling isn't decodable yet: always shown with audio.
+  kw("blue", "bluː", "أزرق", "🟦"),
+  kw("yellow", "ˈjɛloʊ", "أصفر", "🟨"),
+  kw("white", "waɪt", "أبيض", "⬜"),
 ];
 
 /**
@@ -244,7 +265,22 @@ export const PSEUDO_WORDS: PseudoWordItem[] = [
   pw("poom", "p oo m", "puːm"),
 ];
 
-export const SIGHT_WORDS: SightWordItem[] = [{ kind: "sightWord", id: "sw:I", text: "I", ipa: "aɪ", ar: "أنا" }];
+const sw = (text: string, ipa: string, ar: string): SightWordItem => ({ kind: "sightWord", id: `sw:${text}`, text, ipa, ar });
+
+/** Irregular high-frequency words, taught as whole shapes (the tricky part is explained in Arabic). */
+export const SIGHT_WORDS: SightWordItem[] = [
+  sw("I", "aɪ", "أنا"),
+  sw("a", "ə", "أداة نكرة (واحد)"),
+  sw("the", "ðə", "الـ (أداة تعريف)"),
+  sw("my", "maɪ", "حقّي / لي"),
+  sw("you", "juː", "أنت"),
+  sw("he", "hiː", "هو"),
+  sw("she", "ʃiː", "هي"),
+  sw("we", "wiː", "نحن"),
+  sw("are", "ɑɹ", "يكونون / تكون (مع you و we)"),
+  sw("have", "hæv", "عندي / عندنا"),
+  sw("no", "noʊ", "لا"),
+];
 
 const ch = (id: string, text: string, ar: string, image?: string): ChunkItem & { image?: string } => ({
   kind: "chunk",
@@ -269,7 +305,7 @@ export const CHUNKS: (ChunkItem & { image?: string })[] = [
   ch("where-from", "Where are you from?", "من وين أنت؟"),
   ch("im-from", "I'm from Saudi Arabia.", "أنا من السعودية"),
   ch("nice-to-meet-you", "Nice to meet you.", "تشرفت بمعرفتك"),
-  ...["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"].map((n, i) =>
+  ...["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"].map((n, i) =>
     ch(`num-${i + 1}`, n, `الرقم ${i + 1}`, String(i + 1)),
   ),
 ];
@@ -284,6 +320,7 @@ export const PATTERNS: PatternItem[] = [
   pt("exclamation", "!", "علامة التعجب: حماس أو تحية"),
   pt("apostrophe", "'", "الفاصلة العلوية: تختصر حرف (I'm = I am)"),
   pt("question-mark", "?", "علامة الاستفهام: سؤال"),
+  pt("comma", ",", "الفاصلة: وقفة قصيرة داخل الجملة"),
   pt("reading-direction", "left → right", "الإنجليزي ينقرأ من اليسار لليمين"),
   pt("capital-letters", "Capital letters", "الحرف الكبير: أول الجملة، الأسماء، والكلمة I"),
   pt("letter-names", "Letter names A–Z", "اسم الحرف غير صوته: b اسمه 'بي' وصوته 'بْ'"),

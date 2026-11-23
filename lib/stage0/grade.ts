@@ -71,7 +71,7 @@ export function isCorrect(step: Step, a: StepAnswer | undefined): boolean {
   }
 }
 
-const SCORED = new Set<Step["type"]>(["soundPick", "namePick", "nameSpellPick", "listenPick", "contrast", "readPick", "decodePick", "readText", "spell", "build"]);
+const SCORED = new Set<Step["type"]>(["soundPick", "namePick", "nameSpellPick", "listenPick", "contrast", "readPick", "decodePick", "readText", "readSentence", "spell", "build"]);
 
 export function gradeStage0Lesson(
   lesson: Stage0Lesson,
@@ -90,7 +90,11 @@ export function gradeStage0Lesson(
     const scored = SCORED.has(step.type);
     const correct = scored && isCorrect(step, a);
     const targetId = "target" in step && typeof step.target === "string" ? step.target : undefined;
-    const mode = targetId ? items[targetId]?.mode ?? "supported" : "readable";
+    // A sentence read for meaning counts as reading only if every token in it is readable or a taught sight word.
+    const mode =
+      step.type === "readSentence"
+        ? step.tokens.every((t) => ["readable", "sight"].includes(items[t]?.mode ?? "")) ? "readable" : "supported"
+        : targetId ? items[targetId]?.mode ?? "supported" : "readable";
     // Decoding shows the word and lets the learner play the three candidate sounds: that is the task,
     // not a hint, so the target's own audio counts as withheld.
     const audioBeforeAnswer = step.type === "decodePick" ? false : !!a?.audioBeforeAnswer;
@@ -140,7 +144,7 @@ function unitGate(lesson: Stage0Lesson, results: StepResult[], speakingShare = 1
     WFletters: accuracy(lesson, results, (s) => s.type === "soundPick" || s.type === "namePick"),
     DC: accuracy(lesson, results, (s) => s.type === "decodePick"),
     // Unit 1 has no connected text yet: reading for meaning is measured on words (readPick).
-    MCR: accuracy(lesson, results, (s) => s.type === "readPick" || s.type === "readText"),
+    MCR: accuracy(lesson, results, (s) => s.type === "readSentence" || s.type === "readPick" || s.type === "readText"),
     SP: accuracy(lesson, results, (s) => s.type === "spell"),
     PU: accuracy(lesson, results, (s) => s.type === "build"),
     speakingAttempts: speakingShare,

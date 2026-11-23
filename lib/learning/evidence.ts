@@ -51,6 +51,7 @@ export function evidenceFor(a: Answer): Evidence | null {
       return { itemId, dimension: "OR", kind: "credit", credit: a.selfMark ? 0.5 : 0 };
     case "readPick":
     case "readText":
+    case "readSentence":
     case "decodePick":
     case "nameSpellPick": {
       // Written-form and decoding evidence only from text the learner could read, with no audio first.
