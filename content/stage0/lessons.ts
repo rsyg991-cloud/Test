@@ -512,7 +512,7 @@ const welcome: Stage0Lesson = (() => {
 })();
 
 /** Unit 1 check: every part scored separately. */
-function unitCheck(pools: { readable: string[]; pseudo: string[] }): Stage0Lesson {
+function unitCheck(pools: { readable: string[]; pseudo: string[]; pictured: string[] }): Stage0Lesson {
   const L = "z0-u1-check";
   counter = 0;
   const single = GRAPHEMES.filter((x) => /^[a-z]$/.test(x.spelling) && !x.id.includes("/")).map((x) => x.id);
@@ -539,6 +539,10 @@ function unitCheck(pools: { readable: string[]; pseudo: string[] }): Stage0Lesso
   for (const [a, b] of [["pin", "bin"], ["van", "fan"], ["thick", "sick"], ["hat", "hut"], ["pen", "pin"], ["hop", "hope"]] as const)
     steps.push(contrast(L, W(a), W(b))[0]);
   for (const s of ["map", "bed", "fish", "flag", "cake", "home"]) steps.push(spell(L, W(s)));
+  // Reading for meaning: picture choice with audio withheld (Unit 1 has no connected text yet).
+  ["w:crab", "w:sheep", "w:bus", "w:ring", "w:tent", "w:nose"].forEach((id, i) => steps.push(readPick(L, id, pools.pictured, i * 3)));
+  steps.push(build(L, ["sw:I", W("see"), W("three"), W("cats"), "p:full-stop"]));
+  steps.push(build(L, ["sw:I", W("can"), W("swim"), "p:full-stop"]));
   return {
     id: L,
     unit: 1,

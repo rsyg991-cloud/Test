@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getT } from "@/lib/i18n/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { catchUp } from "@/app/actions/study";
+import { flags } from "@/lib/flags";
 import { conversations, practicePrompts, SKILLS, type Skill } from "@/content";
 import { BandChart } from "@/components/BandChart";
 import { Icon } from "@/components/icons";
@@ -28,6 +30,8 @@ const greetingKey = (locale: string) => {
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const { welcome } = await searchParams;
   const user = await requireUser();
+  // A learner still in Stage 0 has nothing open in Stage 1 yet: their "today" is Stage 0.
+  if (user.unlockedStage === 0) redirect(flags.stage0() ? "/starter" : "/journey");
   const { t, plural, planText, stage, formatDate, locale } = await getT();
   const [{ items, today, completedIds }, { bands, overall, snapshots }, activity, vocabDue, convDone] = await Promise.all([
     getTodayPlan(user),

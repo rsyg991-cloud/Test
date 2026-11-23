@@ -81,7 +81,14 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
 
   function confirmPlan() {
     start(async () => {
-      await savePlan({ targetBand: target, examDate: examDate || null, months: chosenMonths, startStage: chosenStage });
+      await savePlan({
+        targetBand: target,
+        examDate: examDate || null,
+        months: chosenMonths,
+        startStage: chosenStage,
+        // A complete beginner who keeps the recommended stage starts with Stage 0 (when it is switched on).
+        fromZero: level === "a0" && !result && startStage === null,
+      });
     });
   }
 

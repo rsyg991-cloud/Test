@@ -11,6 +11,7 @@ import { prisma } from "@/lib/db";
 import { addBandSnapshot } from "@/lib/progress";
 import { bandFromScore, gradeQuestions, overallBand, roundBand, type Answers } from "@/lib/scoring";
 import { startOfUTCDay } from "@/lib/dates";
+import { flags } from "@/lib/flags";
 
 export interface PlacementResult {
   bands: { reading: number; listening: number; writing: number; speaking: number };
@@ -73,11 +74,19 @@ export async function savePlan(input: {
   examDate: string | null;
   months: number;
   startStage: number;
+  /** The learner said they know no English: start at Stage 0 when it is switched on. */
+  fromZero?: boolean;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const months = PLAN_MONTHS.includes(input.months) ? input.months : 3;
-  const startStage = Math.min(FINAL_STAGE, Math.max(1, Math.round(input.startStage)));
+  let startStage = Math.min(FINAL_STAGE, Math.max(1, Math.round(input.startStage)));
+  let unlockedStage = Math.max(user.unlockedStage, startStage);
+  // Stage 0 only for a learner with no progress yet, so nobody's open stages are ever taken away.
+  if (input.fromZero && flags.stage0() && (await prisma.lessonProgress.count({ where: { userId: user.id } })) === 0 && user.unlockedStage <= 1) {
+    startStage = 0;
+    unlockedStage = 0;
+  }
   const targetBand = roundBand(Math.min(9, Math.max(4, input.targetBand)));
   const examDate = input.examDate ? new Date(input.examDate) : null;
   await prisma.user.update({
@@ -88,9 +97,9 @@ export async function savePlan(input: {
       targetBand,
       examDate: examDate && !Number.isNaN(examDate.getTime()) ? examDate : null,
       startStage,
-      unlockedStage: Math.max(user.unlockedStage, startStage),
+      unlockedStage,
       placementDone: true,
     },
   });
-  redirect("/dashboard?welcome=1");
+  redirect(startStage === 0 ? "/starter" : "/dashboard?welcome=1");
 }
