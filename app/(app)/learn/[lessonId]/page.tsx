@@ -7,6 +7,7 @@ import { LessonPlayer } from "@/components/lesson/LessonPlayer";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getT } from "@/lib/i18n/server";
+import { stage1Supports, supportedMinWords } from "@/lib/stage0/supports";
 
 export async function generateMetadata({ params }: { params: Promise<{ lessonId: string }> }): Promise<Metadata> {
   const { lessonId } = await params;
@@ -36,5 +37,10 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
   }
 
   const progress = await prisma.lessonProgress.findUnique({ where: { userId_lessonId: { userId: user.id, lessonId } } });
-  return <LessonPlayer lesson={lesson} stageName={stage(lesson.stage, "name")} previousBest={progress?.bestScore ?? null} />;
+  // Learners who came through Stage 0 with a weak skill get Stage 1 supports (lower writing minimum, listen to the passage).
+  const supports = lesson.stage === 1 ? await stage1Supports(user) : [];
+  const shown = lesson.writing
+    ? { ...lesson, writing: { ...lesson.writing, minWords: supportedMinWords(lesson.writing.minWords, supports, lesson.id) } }
+    : lesson;
+  return <LessonPlayer lesson={shown} stageName={stage(lesson.stage, "name")} previousBest={progress?.bestScore ?? null} supports={supports} />;
 }

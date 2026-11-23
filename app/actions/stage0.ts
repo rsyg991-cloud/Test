@@ -9,6 +9,7 @@ import { getT } from "@/lib/i18n/server";
 import { recordActivity, type ActivityResult } from "@/lib/progress";
 import { gradeStage0Lesson, type LessonGrade, type StepAnswer } from "@/lib/stage0/grade";
 import { getStage0Lesson, previousStage0Lesson } from "@/lib/stage0/view";
+import { readFeedback, type Stage0Feedback } from "@/lib/stage0/feedback";
 
 /**
  * Stage 0 progress lives in the existing tables, so no database change is needed:
@@ -48,7 +49,7 @@ export async function completeStage0Lesson(lessonId: string, answers: StepAnswer
     select: { feedbackJson: true, responseJson: true },
   });
   const recentlySeen = new Set<string>();
-  for (const r of recent) for (const e of JSON.parse(r.feedbackJson ?? "[]") as { itemId: string }[]) recentlySeen.add(e.itemId);
+  for (const r of recent) for (const e of readFeedback(r.feedbackJson).evidence) recentlySeen.add(e.itemId);
 
   // Unit check: share of the unit's spoken steps tried in earlier lessons (soft gate, never blocks).
   let speakingShare = 1;
@@ -80,7 +81,7 @@ export async function completeStage0Lesson(lessonId: string, answers: StepAnswer
       score: grade.pct,
       band: null,
       responseJson: JSON.stringify(answers),
-      feedbackJson: JSON.stringify(grade.evidence),
+      feedbackJson: JSON.stringify({ evidence: grade.evidence, gate: grade.gate ?? null } satisfies Stage0Feedback),
     },
   });
 

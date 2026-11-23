@@ -10,6 +10,7 @@ import { getMockSpeakingPart, getMockWritingTask } from "@/lib/mock/registry";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { aiUsageToday } from "@/lib/progress";
+import { stage1Supports, supportedMinWords } from "@/lib/stage0/supports";
 
 export const maxDuration = 60;
 
@@ -55,7 +56,18 @@ export async function POST(req: Request) {
   }
 
   const words = text.trim().split(/\s+/).filter(Boolean).length;
-  if (kind === "writing" && words < 20) {
+  // Stage 1 learners who came through Stage 0 with weak writing get a lower minimum (15, or 30 at the
+  // checkpoint): the server enforces the minimum for their stage and supports, not a fixed 20.
+  let writingTask = kind === "writing" ? (task as WritingTask) : undefined;
+  let minWriting = 20;
+  if (writingTask && (source === "lesson" || source === "checkpoint")) {
+    const supported = supportedMinWords(writingTask.minWords, await stage1Supports(user), refId);
+    if (supported < writingTask.minWords) {
+      writingTask = { ...writingTask, minWords: supported };
+      minWriting = Math.min(minWriting, supported);
+    }
+  }
+  if (kind === "writing" && words < minWriting) {
     return NextResponse.json({ error: (await getT()).t("errors.minWords") }, { status: 400 });
   }
   if (kind === "conversation" && words < 30) {
@@ -78,7 +90,7 @@ export async function POST(req: Request) {
       kind === "conversation"
         ? await evaluateConversation(scenario!, text)
         : kind === "writing"
-          ? await evaluateWriting(task as WritingTask, text)
+          ? await evaluateWriting(writingTask!, text)
           : await evaluateSpeaking(task as SpeakingTask, text, durationSec);
 
     const attempt = await prisma.attempt.create({

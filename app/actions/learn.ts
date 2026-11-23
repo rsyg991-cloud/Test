@@ -12,6 +12,7 @@ import { gradeGroups, type MockAnswers, type MockResult, type SectionGrade } fro
 import { gradeTask, type TaskGrade } from "@/lib/taskGrade";
 import { getTest } from "@/lib/mock/registry";
 import { getT } from "@/lib/i18n/server";
+import { stage1Supports } from "@/lib/stage0/supports";
 
 export interface CompletionResult {
   ok: true;
@@ -129,6 +130,8 @@ export interface CheckpointResult {
   passBand: number;
   passed: boolean;
   unlockedStage: number | null;
+  /** Passed with Stage 1 writing supports: write again with at least this many words to open Stage 2. */
+  fullWritingNeeded: number | null;
   reading: TaskGrade;
   listening: TaskGrade;
   activity: ActivityResult;
@@ -175,14 +178,22 @@ export async function completeCheckpoint(
     },
   });
 
+  // A learner who passed Stage 1 with the lower (supported) writing minimum opens Stage 2 only after
+  // writing the checkpoint answer at the full minimum, so a weakness can't be carried forward for ever.
+  let fullWritingNeeded: number | null = null;
+  if (passed && stage.id === 1 && (await stage1Supports(user)).includes("writing")) {
+    const text = (JSON.parse(wa.responseJson) as { text?: string }).text ?? "";
+    if (text.trim().split(/\s+/).filter(Boolean).length < cp.writing.minWords) fullWritingNeeded = cp.writing.minWords;
+  }
+
   let unlockedStage: number | null = null;
-  if (passed && stage.id === user.unlockedStage && stage.id < FINAL_STAGE) {
+  if (passed && !fullWritingNeeded && stage.id === user.unlockedStage && stage.id < FINAL_STAGE) {
     unlockedStage = stage.id + 1;
     await prisma.user.update({ where: { id: user.id }, data: { unlockedStage } });
   }
   const activity = await recordActivity(user.id, passed ? 250 : 100, 60);
   revalidatePath("/dashboard");
-  return { ok: true, bands, overall, passBand, passed, unlockedStage, reading, listening, activity };
+  return { ok: true, bands, overall, passBand, passed, unlockedStage, fullWritingNeeded, reading, listening, activity };
 }
 
 export async function completePractice(promptId: string, attemptId: string): Promise<CompletionResult | CompletionError> {

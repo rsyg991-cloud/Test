@@ -565,6 +565,8 @@ export const en = {
     back: "Back to Stage 0",
     listen: "Listen",
     tapToHear: "Tap a dotted word to hear it",
+    listenPassage: "Listen to the text",
+    fullWritingNeeded: "To open Stage 2, write the checkpoint answer again with at least {n} words.",
     soundN: "Sound {n}",
     chooseSound: "Play each sound, then choose the one that matches the word",
     check: "Check",

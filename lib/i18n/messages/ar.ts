@@ -599,6 +599,8 @@ export const ar: Messages = {
     back: "ارجع للمرحلة 0",
     listen: "اسمع",
     tapToHear: "اضغط على الكلمة المنقّطة عشان تسمعها",
+    listenPassage: "اسمع النص",
+    fullWritingNeeded: "عشان تنفتح المرحلة 2، اكتب جواب الاختبار مرة ثانية بـ {n} كلمة على الأقل.",
     soundN: "الصوت {n}",
     chooseSound: "شغّل كل صوت، ثم اختر اللي يطابق الكلمة",
     check: "تحقّق",

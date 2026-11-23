@@ -163,7 +163,9 @@ export function CheckpointFlow({ checkpoint, stageName, passBand, isFinal }: { c
               {result.passed
                 ? result.unlockedStage
                   ? t("checkpoint.unlocked", { n: result.unlockedStage })
-                  : isFinal
+                  : result.fullWritingNeeded
+                    ? t("starter.fullWritingNeeded", { n: result.fullWritingNeeded })
+                    : isFinal
                     ? t("checkpoint.summit")
                     : t("checkpoint.consolidated")
                 : t("checkpoint.needBand", { band: result.passBand.toFixed(1) })}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { stage1Supports, supportedMinWords } from "@/lib/stage0/supports";
 import { getT } from "@/lib/i18n/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -29,5 +30,8 @@ export default async function CheckpointPage({ params }: { params: Promise<{ sta
       </div>
     );
   }
-  return <CheckpointFlow checkpoint={stage.checkpoint} stageName={stageText(stage.id, "name")} passBand={passBandFor(stage.id)} isFinal={stage.id === FINAL_STAGE} />;
+  const supports = stage.id === 1 ? await stage1Supports(user) : [];
+  const cp = stage.checkpoint;
+  const checkpoint = { ...cp, writing: { ...cp.writing, minWords: supportedMinWords(cp.writing.minWords, supports, cp.id) } };
+  return <CheckpointFlow checkpoint={checkpoint} stageName={stageText(stage.id, "name")} passBand={passBandFor(stage.id)} isFinal={stage.id === FINAL_STAGE} />;
 }

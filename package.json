@@ -13,7 +13,8 @@
     "e2e": "node e2e/smoke.mjs",
     "validate:tests": "tsx scripts/validate-tests.ts",
     "postinstall": "prisma generate",
-    "db:migrate": "prisma migrate deploy"
+    "db:migrate": "prisma migrate deploy",
+    "e2e:stage0": "node e2e/stage0.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.10.0",

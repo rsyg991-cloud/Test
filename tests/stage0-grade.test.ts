@@ -102,3 +102,20 @@ describe("Stage 0 server grading", () => {
     expect(g.speakingAttempts.tried).toBe(0);
   });
 });
+
+describe("Stage 1 supports (D7)", () => {
+  it("lowers writing minimums only for Stage 1 tasks with writing support (AC-16)", async () => {
+    const { supportedMinWords } = await import("@/lib/stage0/feedback");
+    expect(supportedMinWords(25, ["writing"], "f1-u1-writing")).toBe(15);
+    expect(supportedMinWords(50, ["writing"], "f1-checkpoint")).toBe(30);
+    expect(supportedMinWords(25, ["reading"], "f1-u1-writing")).toBe(25);
+    expect(supportedMinWords(60, ["writing"], "f2-u1-writing")).toBe(60);
+  });
+
+  it("reads both stored feedback formats", async () => {
+    const { readFeedback } = await import("@/lib/stage0/feedback");
+    expect(readFeedback('[{"itemId":"w:sit"}]').evidence).toHaveLength(1);
+    expect(readFeedback('{"evidence":[],"gate":{"supports":["writing"]}}').gate?.supports).toEqual(["writing"]);
+    expect(readFeedback("not json")).toEqual({ evidence: [], gate: null });
+  });
+});

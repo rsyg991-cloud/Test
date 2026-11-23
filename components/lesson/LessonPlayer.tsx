@@ -14,10 +14,23 @@ import { taskAnsweredCount, taskQuestionCount } from "@/lib/taskGrade";
 import { SpeakingTaskView } from "../task/SpeakingTaskView";
 import { WritingTaskView } from "../task/WritingTaskView";
 import { SKILL_META, SkillIcon } from "../ui";
+import { speak } from "../task/speech";
+import type { Support } from "@/lib/learning/gates";
 
 type Step = "learn" | "task";
 
-export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Lesson; stageName: string; previousBest: number | null }) {
+export function LessonPlayer({
+  lesson,
+  stageName,
+  previousBest,
+  supports = [],
+}: {
+  lesson: Lesson;
+  stageName: string;
+  previousBest: number | null;
+  /** Stage 1 supports for learners who came through Stage 0 with a weak skill. */
+  supports?: Support[];
+}) {
   const { t, locale } = useT();
   const [step, setStep] = useState<Step>("learn");
   const [answers, setAnswers] = useState<Answers>({});
@@ -178,6 +191,18 @@ export function LessonPlayer({ lesson, stageName, previousBest }: { lesson: Less
             <h2 className="mb-4 font-display text-2xl" lang="en" dir="ltr">
               {lesson.reading.title}
             </h2>
+            {supports.includes("reading") ? (
+              <button
+                type="button"
+                className="btn btn-ghost mb-4"
+                onClick={() => {
+                  window.speechSynthesis?.cancel();
+                  void speak([lesson.reading!.title, ...lesson.reading!.paragraphs].join(". "), { rate: 0.8 });
+                }}
+              >
+                <Icon name="volume" size={16} /> {t("starter.listenPassage")}
+              </button>
+            ) : null}
             <div className="prose-reading text-[16px]" lang="en" dir="ltr">
               {lesson.reading.paragraphs.map((p, i) => (
                 <p key={i}>{p}</p>
