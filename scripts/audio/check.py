@@ -14,7 +14,16 @@ ap.add_argument("--limit", type=int, default=0)
 ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "..", "public"))
 args = ap.parse_args()
 
+import subprocess  # noqa: E402
+
+import numpy as np  # noqa: E402
 from faster_whisper import WhisperModel  # noqa: E402
+
+
+def load(path):
+    """16 kHz mono float audio, decoded with ffmpeg (avoids PyAV version clashes)."""
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", path, "-f", "s16le", "-ac", "1", "-ar", "16000", "-"], capture_output=True, check=True).stdout
+    return np.frombuffer(raw, "<i2").astype(np.float32) / 32768
 
 NUM = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine", "10": "ten"}
 def words(s):
@@ -28,7 +37,7 @@ if args.limit:
 m = WhisperModel("base.en", device="cpu", compute_type="int8", download_root=args.model_dir)
 scores = []
 for i, x in enumerate(items, 1):
-    segs, _ = m.transcribe(os.path.join(args.out, x["path"].lstrip("/")), beam_size=1, language="en")
+    segs, _ = m.transcribe(load(os.path.join(args.out, x["path"].lstrip("/"))), beam_size=1, language="en")
     heard = " ".join(s.text for s in segs)
     r = SequenceMatcher(None, words(x["text"]), words(heard)).ratio()
     scores.append((r, x["voice"], x["text"], heard.strip()))
