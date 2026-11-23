@@ -85,6 +85,13 @@ describe("General English lessons (content/general)", () => {
     }
   });
 
+  it("explain every Stage 3 strategy in Arabic too (the Arabic gradient)", () => {
+    for (const l of generalLessons.filter((x) => x.stage <= 3)) {
+      expect(l.arabic?.points.length, l.id).toBe(l.strategy.points.length);
+      for (const p of l.arabic!.points) expect(p, l.id).toMatch(/[؀-ۿ]/);
+    }
+  });
+
   it("give writing and speaking tasks of a sensible size for the level", () => {
     for (const l of generalLessons) {
       if (l.writing) expect(l.writing.minWords, l.id).toBeGreaterThanOrEqual(l.stage >= 5 ? 180 : 100);
