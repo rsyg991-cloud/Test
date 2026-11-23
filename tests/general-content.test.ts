@@ -7,8 +7,8 @@ const EXAM_FRAMING = /\bIELTS\b|\bband\s*\d|\bband score|\bPart [1-4]\b|\bTask [
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 
 /** Minimum text lengths per stage (words): longer and denser as the level rises. */
-const MIN_READING: Record<number, number> = { 3: 180, 4: 280, 5: 400, 6: 550, 7: 700 };
-const MIN_LISTENING: Record<number, number> = { 3: 150, 4: 220, 5: 320, 6: 420, 7: 500 };
+const MIN_READING: Record<number, number> = { 1: 80, 2: 130, 3: 180, 4: 280, 5: 400, 6: 550, 7: 700 };
+const MIN_LISTENING: Record<number, number> = { 1: 60, 2: 100, 3: 150, 4: 220, 5: 320, 6: 420, 7: 500 };
 
 function texts(value: unknown, out: string[] = []): string[] {
   if (typeof value === "string") out.push(value);
@@ -92,9 +92,21 @@ describe("General English lessons (content/general)", () => {
     }
   });
 
+  it("give the Arabic meaning of every word and an Arabic explanation of every answer in Stages 1–2", () => {
+    for (const l of generalLessons.filter((x) => x.stage <= 2)) {
+      for (const v of l.vocab) expect(v.ar, `${l.id}/${v.word}`).toMatch(/[؀-ۿ]/);
+      for (const q of (l.reading ?? l.listening)?.questions ?? []) expect(q.ar, `${l.id}/${q.id}`).toMatch(/[؀-ۿ]/);
+    }
+  });
+
+  it("play recordings slower than normal in Stages 1–3", () => {
+    for (const l of generalLessons.filter((x) => x.stage <= 3 && x.listening)) expect(l.listening!.rate, l.id).toBeLessThan(1);
+  });
+
   it("give writing and speaking tasks of a sensible size for the level", () => {
     for (const l of generalLessons) {
-      if (l.writing) expect(l.writing.minWords, l.id).toBeGreaterThanOrEqual(l.stage >= 5 ? 180 : 100);
+      const minWriting: Record<number, number> = { 1: 25, 2: 60, 3: 100, 4: 100, 5: 180, 6: 180, 7: 180 };
+      if (l.writing) expect(l.writing.minWords, l.id).toBeGreaterThanOrEqual(minWriting[l.stage]);
       if (l.speaking) expect(l.speaking.questions.length, l.id).toBeGreaterThanOrEqual(1);
     }
   });
