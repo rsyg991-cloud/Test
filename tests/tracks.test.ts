@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allLessons, conversations, curriculumFrom, practicePrompts, stages, TRACKS } from "@/content";
+import { allLessons, conversations, curriculumFrom, generalLessons, practicePrompts, stages, TRACKS } from "@/content";
 import { conversationTracks, isGeneralEnglish, lessonTracks, practiceTracks } from "@/content/tracks";
 
 /** Text a learner sees that frames the lesson as exam preparation. */
@@ -14,16 +14,28 @@ function texts(value: unknown, out: string[] = []): string[] {
 }
 
 describe("paths by goal (AC-20)", () => {
-  it("gives a General-only learner core lessons only, and no stage without core lessons", () => {
+  it("gives a General-only learner core lessons only, with General English all the way to Stage 7", () => {
     const path = curriculumFrom(1, 7, ["core"]);
     for (const i of path.filter((x) => x.kind === "lesson")) expect(lessonTracks(i.lesson), i.id).toContain("core");
-    expect(Math.max(...path.map((i) => i.stage))).toBe(3);
+    expect(Math.max(...path.map((i) => i.stage))).toBe(7);
+    for (const g of generalLessons) expect(path.some((i) => i.id === g.id), g.id).toBe(true);
   });
 
-  it("gives the IELTS goal the same path as leaving tracks out (existing learners)", () => {
+  it("gives the IELTS goal every legacy item, in the same order, plus General English", () => {
     for (const [a, b] of [[1, 7], [4, 7], [2, 5]]) {
-      expect(curriculumFrom(a, b, ["core", "ielts"]).map((i) => i.id)).toEqual(curriculumFrom(a, b).map((i) => i.id));
+      const legacy = curriculumFrom(a, b).map((i) => i.id);
+      const withGoal = curriculumFrom(a, b, ["core", "ielts"]).map((i) => i.id);
+      expect(withGoal.filter((id) => legacy.includes(id)), `${a}-${b}`).toEqual(legacy);
+      expect(withGoal.filter((id) => !legacy.includes(id)).every((id) => id.startsWith("g")), `${a}-${b}`).toBe(true);
     }
+  });
+
+  it("keeps the legacy path for learners without goals", async () => {
+    const { tracksForGoals, parseGoals, normaliseGoals } = await import("@/content/goals");
+    expect(tracksForGoals(parseGoals(null))).toBeUndefined();
+    expect(tracksForGoals(parseGoals('["general","work"]'))).toEqual(["core", "work"]);
+    expect(normaliseGoals(["ielts", "bogus"])).toEqual(["general", "ielts"]);
+    expect(parseGoals("not json")).toBeNull();
   });
 });
 

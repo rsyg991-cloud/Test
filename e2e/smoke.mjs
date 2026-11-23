@@ -30,6 +30,7 @@ await page.waitForURL("**/onboarding");
 step("registered");
 
 // Goal
+await page.getByRole("checkbox", { name: /IELTS/ }).click();
 await page.getByRole("radio", { name: /Quite well/ }).click();
 await page.getByRole("radio", { name: "7.0" }).click();
 await snap("02-onboarding-goal");
@@ -208,6 +209,7 @@ await b.getByLabel("Mobile number").fill(randomMobile());
 await b.getByLabel("Password").fill("password123");
 await b.getByRole("button", { name: "Create my account" }).click();
 await b.waitForURL("**/onboarding");
+await b.getByRole("checkbox", { name: /IELTS/ }).click();
 await b.getByRole("radio", { name: /None, or almost none/ }).click();
 await b.getByRole("radio", { name: "6.5" }).click();
 await b.getByRole("button", { name: /Build my plan/ }).click();
@@ -257,9 +259,11 @@ await ar.getByLabel("رقم الجوال").fill(arMobileNo);
 await ar.getByLabel("كلمة المرور").fill("password123");
 await ar.getByRole("button", { name: "سوّ حسابي" }).click();
 await ar.waitForURL("**/onboarding");
+// A General English learner: no exam goal, so no band question; the path runs to Stage 7.
 await ar.getByRole("radio", { name: /أعرف كلمات وعبارات بسيطة/ }).click();
-await ar.getByRole("radio", { name: "6.0" }).click();
+if (await ar.getByRole("radio", { name: "6.0" }).count()) throw new Error("A General English learner should not be asked for a band");
 await ar.getByRole("button", { name: /ابنِ خطتي/ }).click();
+await ar.getByText(/المرحلة 7/).first().waitFor();
 await ar.getByRole("button", { name: /ابدأ رحلتي/ }).click();
 await ar.waitForURL("**/dashboard**");
 await ar.getByText(/جلسة اليوم|يوم مراجعة|ماشي صح/).first().waitFor();

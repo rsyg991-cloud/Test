@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { curriculumFrom, FINAL_STAGE, getConversation, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
+import { curriculumFrom, FINAL_STAGE, parseGoals, tracksForGoals, getConversation, getLesson, getPractice, getStage, passBandFor, type Skill } from "@/content";
 import { getCurrentUser } from "@/lib/auth";
 import { loadOwnedAttempt } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
@@ -35,10 +35,10 @@ export interface CompletionError {
   error: string;
 }
 
-async function nextStep(userId: string, user: { startStage: number; targetBand: number | null; unlockedStage: number }) {
+async function nextStep(userId: string, user: { startStage: number; targetBand: number | null; unlockedStage: number; goals?: string | null }) {
   const unlockedStage = user.unlockedStage;
   // The learner's own path first; once it is finished, carry on into the stages beyond it.
-  const items = [...learnerPath(user), ...curriculumFrom(user.startStage)];
+  const items = [...learnerPath(user), ...curriculumFrom(user.startStage, FINAL_STAGE, tracksForGoals(parseGoals(user.goals)))];
   const [lessons, cps] = await Promise.all([
     prisma.lessonProgress.findMany({ where: { userId }, select: { lessonId: true } }),
     prisma.attempt.findMany({ where: { userId, kind: "checkpoint", skill: "overall", score: 1 }, select: { refId: true } }),

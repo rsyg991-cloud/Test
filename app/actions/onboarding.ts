@@ -12,6 +12,7 @@ import { addBandSnapshot } from "@/lib/progress";
 import { bandFromScore, gradeQuestions, overallBand, roundBand, type Answers } from "@/lib/scoring";
 import { startOfUTCDay } from "@/lib/dates";
 import { flags } from "@/lib/flags";
+import { normaliseGoals } from "@/content/goals";
 
 export interface PlacementResult {
   bands: { reading: number; listening: number; writing: number; speaking: number };
@@ -76,6 +77,8 @@ export async function savePlan(input: {
   startStage: number;
   /** The learner said they know no English: start at Stage 0 when it is switched on. */
   fromZero?: boolean;
+  /** Learning goals (General English is always included). Leaving it out keeps the legacy behaviour. */
+  goals?: string[];
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
@@ -87,7 +90,9 @@ export async function savePlan(input: {
     startStage = 0;
     unlockedStage = 0;
   }
-  const targetBand = roundBand(Math.min(9, Math.max(4, input.targetBand)));
+  const goals = input.goals ? normaliseGoals(input.goals) : null;
+  // A band target only means something for the IELTS goal.
+  const targetBand = goals && !goals.includes("ielts") ? null : roundBand(Math.min(9, Math.max(4, input.targetBand)));
   const examDate = input.examDate ? new Date(input.examDate) : null;
   await prisma.user.update({
     where: { id: user.id },
@@ -95,7 +100,8 @@ export async function savePlan(input: {
       planMonths: months,
       planStart: startOfUTCDay(new Date()),
       targetBand,
-      examDate: examDate && !Number.isNaN(examDate.getTime()) ? examDate : null,
+      goals: goals ? JSON.stringify(goals) : null,
+      examDate: targetBand !== null && examDate && !Number.isNaN(examDate.getTime()) ? examDate : null,
       startStage,
       unlockedStage,
       placementDone: true,

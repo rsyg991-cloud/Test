@@ -7,12 +7,13 @@ import { stage3 } from "./stage3";
 import { stage4 } from "./stage4";
 import { practicePrompts } from "./practice";
 import { lessonTracks } from "./tracks";
-import { getGeneralLesson } from "./general";
+import { generalLessons, getGeneralLesson } from "./general";
 export { generalLessons, generalUnits, getGeneralLesson } from "./general";
 import type { Checkpoint, Lesson, PracticePrompt, Stage, Track } from "./types";
 
 export * from "./types";
 export { lessonTracks, conversationTracks, practiceTracks } from "./tracks";
+export { GOALS, normaliseGoals, parseGoals, tracksForGoals, wantsIelts, type Goal } from "./goals";
 export { conversations, getConversation } from "./conversations";
 
 /**
@@ -55,8 +56,9 @@ export type PathItem =
  *
  * `tracks` filters lessons by the learner's goals (content/tracks.ts). Leaving it out gives every
  * lesson, which is exactly the path existing learners have always had: they all chose an exam
- * target, so they follow the IELTS goal. A stage with no lesson in the chosen tracks is left out
- * altogether. Until General English lessons exist for Stages 4–7, a General-only path stops at Stage 3.
+ * target, so they follow the IELTS goal. A path with tracks that include the core also gets that
+ * stage's General English lessons (content/general), after the stage's own lessons. A stage with no
+ * lesson in the chosen tracks is left out altogether.
  */
 export function curriculumFrom(startStage = 1, endStage: number = FINAL_STAGE, tracks?: readonly Track[]): PathItem[] {
   const items: PathItem[] = [];
@@ -64,7 +66,8 @@ export function curriculumFrom(startStage = 1, endStage: number = FINAL_STAGE, t
   const wanted = (l: Lesson) => !tracks || lessonTracks(l).some((t) => tracks.includes(t));
   for (const s of stages) {
     if (s.id < startStage || s.id > last) continue;
-    const lessons = s.units.flatMap((u) => u.lessons).filter(wanted);
+    const general = tracks?.includes("core") ? generalLessons.filter((l) => l.stage === s.id) : [];
+    const lessons = [...s.units.flatMap((u) => u.lessons).filter(wanted), ...general];
     if (tracks && lessons.length === 0) continue;
     for (const l of lessons) items.push({ kind: "lesson", id: l.id, stage: s.id, lesson: l });
     items.push({ kind: "checkpoint", id: s.checkpoint.id, stage: s.id, checkpoint: s.checkpoint });

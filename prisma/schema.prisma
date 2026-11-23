@@ -29,6 +29,9 @@ model User {
   unlockedStage  Int       @default(1)
   locale         String?   // interface language: "en" | "ar" (null = follow the browser)
   placementDone  Boolean   @default(false)
+  // Learning goals as JSON, e.g. ["general","work"]. Null for learners who joined before goals
+  // existed: their path stays exactly as it was (content/goals.ts).
+  goals          String?
 
   // Motivation
   xp             Int       @default(0)

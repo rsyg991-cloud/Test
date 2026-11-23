@@ -15,6 +15,7 @@ import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { addDays } from "@/lib/dates";
 import { useT } from "@/lib/i18n/client";
 import { endStageFor, FINAL_STAGE, pathItemCount, SELF_LEVELS, TARGET_BANDS } from "@/content/stageList";
+import { GOALS, type Goal } from "@/content/goals";
 import { paceLevel, PLANS, planDays, recommendPlan } from "@/lib/plan/scheduler";
 import { cefrForBand, type Answers } from "@/lib/scoring";
 
@@ -22,11 +23,24 @@ const STEPS = ["goal", "grammar", "reading", "listening", "writing", "speaking",
 const SKILLS: Skill[] = ["reading", "listening", "writing", "speaking"];
 type SelfLevel = (typeof SELF_LEVELS)[number]["id"];
 
-export function OnboardingFlow({ name, initialResult }: { name: string; initialResult: PlacementResult | null }) {
+export function OnboardingFlow({
+  name,
+  initialResult,
+  pathCounts = {},
+}: {
+  name: string;
+  initialResult: PlacementResult | null;
+  /** Exact path sizes per goal combination and start/end stage ("general+ielts|1|7"). */
+  pathCounts?: Record<string, number>;
+}) {
   const { t, rich, stage, planText, duration, plural, formatDate, locale } = useT();
   const en = locale === "en";
   const [step, setStep] = useState(initialResult ? 6 : 0);
   const [target, setTarget] = useState(6.5);
+  // General English is always part of the path; IELTS, study and work are added on top.
+  const [goals, setGoals] = useState<Goal[]>(initialResult ? ["general", "ielts"] : ["general"]);
+  const ielts = goals.includes("ielts");
+  const toggleGoal = (g: Goal) => g !== "general" && setGoals((cur) => GOALS.filter((x) => x === "general" || (x === g ? !cur.includes(g) : cur.includes(x))));
   const [level, setLevel] = useState<SelfLevel | null>(initialResult ? "b1" : null);
   const [examDate, setExamDate] = useState<string>("");
   const [grammar, setGrammar] = useState<Answers>({});
@@ -45,13 +59,13 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
   const currentBand = result?.overall ?? self?.band ?? null;
   const recommendedStage = result?.recommendedStage ?? self?.stage ?? 1;
   const recommended = useMemo(
-    () => recommendPlan(currentBand, target, examDate ? new Date(examDate) : null),
-    [currentBand, target, examDate],
+    () => recommendPlan(currentBand, ielts ? target : 7, ielts && examDate ? new Date(examDate) : null),
+    [currentBand, target, examDate, ielts],
   );
   const chosenMonths = months ?? recommended;
   const chosenStage = startStage ?? recommendedStage;
-  const endStage = Math.max(chosenStage, endStageFor(target));
-  const pathItems = pathItemCount(chosenStage, endStage);
+  const endStage = ielts ? Math.max(chosenStage, endStageFor(target)) : FINAL_STAGE;
+  const pathItems = pathCounts[`${goals.join("+")}|${Math.max(1, chosenStage)}|${endStage}`] ?? pathItemCount(chosenStage, endStage);
   const chosenPace = paceLevel(chosenMonths, pathItems);
   const stageChoices = [...new Set([1, recommendedStage - 1, recommendedStage, recommendedStage + 1])].filter((s) => s >= 1 && s <= FINAL_STAGE).sort((a, b) => a - b);
 
@@ -88,6 +102,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
         startStage: chosenStage,
         // A complete beginner who keeps the recommended stage starts with Stage 0 (when it is switched on).
         fromZero: level === "a0" && !result && startStage === null,
+        goals,
       });
     });
   }
@@ -116,7 +131,33 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
             {t("onboarding.intro")}
           </p>
           <div className="card mt-8 p-6">
-            <h2 className="font-bold">{t("onboarding.levelQuestion")}</h2>
+            <h2 className="font-bold">{t("onboarding.goalQuestion")}</h2>
+            <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
+              {t("onboarding.goalHint")}
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2" role="group" aria-label={t("onboarding.goalQuestion")}>
+              {GOALS.map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={goals.includes(g)}
+                  aria-disabled={g === "general"}
+                  onClick={() => toggleGoal(g)}
+                  className="rounded-md border-[1.5px] px-4 py-3 text-start transition-colors"
+                  style={{ borderColor: goals.includes(g) ? "var(--brand)" : "var(--line)", background: goals.includes(g) ? "var(--brand-soft)" : "transparent" }}
+                >
+                  <span className="flex items-center gap-2 font-bold">
+                    {goals.includes(g) ? <Icon name="check" size={16} /> : null}
+                    {t(`onboarding.goals.${g}.label`)}
+                  </span>
+                  <span className="block text-sm" style={{ color: "var(--muted)" }}>
+                    {t(`onboarding.goals.${g}.detail`)}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <h2 className="mt-8 font-bold">{t("onboarding.levelQuestion")}</h2>
             {en && (
               <p className="ar mt-1 text-sm" lang="ar" dir="rtl" style={{ color: "var(--muted)" }}>
                 كم تعرف من الإنجليزي الآن؟ اختر الأقرب لك، ولا تقلق إذا كنت مبتدئاً تماماً.
@@ -145,6 +186,8 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
                 </button>
               ))}
             </div>
+            {ielts && (
+            <>
             <h2 className="mt-8 font-bold">{t("onboarding.targetQuestion")}</h2>
             <div className="mt-4 flex flex-wrap gap-2" role="radiogroup" aria-label={t("onboarding.targetLabel")}>
               {TARGET_BANDS.map((b) => (
@@ -175,6 +218,8 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
                 </span>
               )}
             </div>
+            </>
+            )}
           </div>
           {level === "b1" && (
           <div className="card mt-5 flex flex-wrap items-center gap-4 p-5">
@@ -263,8 +308,8 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
               Band <span className="num">{result.overall.toFixed(1)}</span> <span style={{ color: "var(--muted)" }}>·</span> {cefrForBand(result.overall)}
             </h1>
             <p className="mx-auto mt-3 max-w-lg" style={{ color: "var(--muted)" }}>
-              {rich("onboarding.targetIs", { band: target.toFixed(1) })}{" "}
-              {target > result.overall
+              {ielts ? <>{rich("onboarding.targetIs", { band: target.toFixed(1) })}{" "}</> : null}
+              {!ielts ? null : target > result.overall
                 ? target - result.overall > 2
                   ? t("onboarding.longClimb", { gap: (target - result.overall).toFixed(1) })
                   : t("onboarding.climb", { gap: (target - result.overall).toFixed(1) })
@@ -310,7 +355,7 @@ export function OnboardingFlow({ name, initialResult }: { name: string; initialR
         <section className="animate-rise">
           <h1 className="font-display text-4xl">{t("onboarding.paceTitle")}</h1>
           <p className="mt-2" style={{ color: "var(--muted)" }}>
-            {rich("onboarding.pathSummary", {
+            {rich(ielts ? "onboarding.pathSummary" : "onboarding.pathSummaryGeneral", {
               from: chosenStage,
               fromName: stage(chosenStage, "name"),
               to: endStage,

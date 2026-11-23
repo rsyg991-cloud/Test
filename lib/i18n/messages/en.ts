@@ -286,6 +286,16 @@ export const en = {
     placementStep: "Placement test · {n}/5",
     hello: "Hi {name}, let's plan your <hl>climb</hl>.",
     intro: "Three quick questions. Starting from zero is fine: Balbal begins with your first words.",
+    goalQuestion: "What do you want English for?",
+    goalHint: "Choose one or more. General English is always included.",
+    goals: {
+      general: { label: "Everyday life", detail: "Talk, read and write with confidence in daily life." },
+      ielts: { label: "IELTS", detail: "Prepare for the IELTS test and reach a band." },
+      academic: { label: "Study", detail: "English for university: lectures, reading and essays." },
+      work: { label: "Work", detail: "Emails, meetings, calls and interviews." },
+    },
+    pathSummaryGeneral:
+      "Your path runs from <ink>Stage {from}: {fromName}</ink> to <ink>Stage {to}: {toName}</ink>: <num>{items}</num> lessons and checkpoints. Every plan covers it; you can change your plan any time without losing progress.",
     levelQuestion: "How much English do you know right now?",
     levelLabel: "Your English now",
     levels: {

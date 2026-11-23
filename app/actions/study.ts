@@ -29,7 +29,7 @@ export async function finishVocabSession(reviewed: number) {
   return activity;
 }
 
-async function firstIncompleteIndex(userId: string, user: { startStage: number; targetBand: number | null }) {
+async function firstIncompleteIndex(userId: string, user: { startStage: number; targetBand: number | null; goals?: string | null }) {
   const items = learnerPath(user);
   const { ids } = await getCompletedIds(userId);
   const idx = items.findIndex((i) => !ids.has(i.id));

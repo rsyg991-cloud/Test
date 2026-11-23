@@ -1,5 +1,5 @@
 import "server-only";
-import { curriculumFrom, endStageFor, SKILLS, stages, type Skill, type VocabItem } from "@/content";
+import { curriculumFrom, endStageFor, FINAL_STAGE, parseGoals, SKILLS, stages, tracksForGoals, wantsIelts, type Skill, type VocabItem } from "@/content";
 import { prisma } from "@/lib/db";
 import { addDays, dayKey } from "@/lib/dates";
 import { computeToday } from "@/lib/plan/scheduler";
@@ -98,9 +98,12 @@ export async function getCompletedIds(userId: string) {
   return { ids, lessons };
 }
 
-/** The learner's own path: from their start stage to the stage that reaches their target band. */
-export function learnerPath(user: { startStage: number; targetBand: number | null }) {
-  return curriculumFrom(user.startStage, endStageFor(user.targetBand));
+/** The learner's own path: from their start stage to the stage their goals reach. */
+export function learnerPath(user: { startStage: number; targetBand: number | null; goals?: string | null }) {
+  const goals = parseGoals(user.goals);
+  // An IELTS target ends where the band is reached; other goals run through every stage.
+  const end = wantsIelts(goals) ? endStageFor(user.targetBand) : FINAL_STAGE;
+  return curriculumFrom(user.startStage, end, tracksForGoals(goals));
 }
 
 export async function getTodayPlan(user: CurrentUser) {
@@ -120,10 +123,10 @@ export async function getTodayPlan(user: CurrentUser) {
 export function stageProgress(
   completedIds: Set<string>,
   unlockedStage: number,
-  path?: { startStage: number; targetBand: number | null },
+  path?: { startStage: number; targetBand: number | null; goals?: string | null },
 ) {
   const start = path?.startStage ?? 1;
-  const end = path ? endStageFor(path.targetBand) : stages[stages.length - 1].id;
+  const end = !path ? stages[stages.length - 1].id : wantsIelts(parseGoals(path.goals)) ? endStageFor(path.targetBand) : FINAL_STAGE;
   return stages.map((s) => {
     const lessons = s.units.flatMap((u) => u.lessons);
     const done = lessons.filter((l) => completedIds.has(l.id)).length;

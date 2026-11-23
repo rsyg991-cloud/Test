@@ -5,6 +5,7 @@ import type { PlacementResult } from "@/app/actions/onboarding";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { stageForBand } from "@/content/stageList";
+import { curriculumFrom, FINAL_STAGE, tracksForGoals, type Goal } from "@/content";
 import { overallBand } from "@/lib/scoring";
 import { OnboardingFlow } from "./OnboardingFlow";
 
@@ -33,5 +34,16 @@ export default async function OnboardingPage() {
     };
   }
 
-  return <OnboardingFlow name={user.name} initialResult={initial} />;
+  // Exact path sizes for every goal combination, so the plan picker can pace any choice.
+  const pathCounts: Record<string, number> = {};
+  for (const ielts of [false, true])
+    for (const academic of [false, true])
+      for (const work of [false, true]) {
+        const goals: Goal[] = ["general", ...(ielts ? ["ielts" as const] : []), ...(academic ? ["academic" as const] : []), ...(work ? ["work" as const] : [])];
+        const tracks = tracksForGoals(goals)!;
+        for (let start = 1; start <= FINAL_STAGE; start++)
+          for (let end = start; end <= FINAL_STAGE; end++) pathCounts[`${goals.join("+")}|${start}|${end}`] = curriculumFrom(start, end, tracks).length;
+      }
+
+  return <OnboardingFlow name={user.name} initialResult={initial} pathCounts={pathCounts} />;
 }
