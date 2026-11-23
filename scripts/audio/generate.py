@@ -35,8 +35,14 @@ G2P = {b: en.G2P(trf=False, british=b, fallback=espeak.EspeakFallback(british=b)
 WORD = re.compile(r"(?<![\w'-])(" + "|".join(sorted(map(re.escape, LEXICON), key=len, reverse=True)) + r")(?![\w-])")
 
 
+SPELLED = re.compile(r"\b(?:[A-Z]-)+[A-Z]\b")
+
+
 def phonemes(text, british):
     """misaki phonemes, with the lexicon's pronunciations as misaki [word](/phonemes/) overrides."""
+    # A name spelled out with hyphens ("M-A-N-S-O-U-R") is read letter by letter, like "M, A, N, …";
+    # misaki would otherwise read the chunks as words ("man so you are").
+    text = SPELLED.sub(lambda m: ", ".join(m.group(0).split("-")), text)
     return G2P[british](WORD.sub(lambda m: f"[{m.group(1)}](/{LEXICON[m.group(1)]}/)", text))[0]
 
 
