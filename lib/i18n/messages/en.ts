@@ -440,6 +440,18 @@ export const en = {
     targetBand: "Target band",
     examDate: "Exam date",
   },
+  general: {
+    eyebrow: "General English",
+    title: "General English",
+    subtitle: "Everyday and working English for each level: real texts, conversations, emails and discussions, with no exam framing.",
+    stage: "Stage {n}: {name}",
+    unit: "Unit {n}",
+    locked: "Opens when you reach Stage {n}.",
+    done: "Done · best {pct}%",
+    cardTitle: "General English lessons",
+    cardBody: "Lessons for real life and work at your level, beside your plan.",
+    cardCta: "Open",
+  },
   practice: {
     eyebrow: "Extra practice",
     title: "Practice",

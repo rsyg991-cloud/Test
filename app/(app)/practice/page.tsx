@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getT } from "@/lib/i18n/server";
 import Link from "next/link";
-import { conversations, practicePrompts, stages } from "@/content";
+import { conversations, generalLessons, practicePrompts, stages } from "@/content";
 import { Icon } from "@/components/icons";
 import { PageHeader, SkillIcon } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
@@ -37,6 +37,19 @@ export default async function PracticePage() {
   return (
     <div>
       <PageHeader eyebrow={t("practice.eyebrow")} title={t("practice.title")} subtitle={t("practice.subtitle")} />
+
+      {generalLessons.some((l) => l.stage <= user.unlockedStage) ? (
+        <Link href="/general" className="card mb-10 flex items-center gap-4 p-5 transition hover:shadow-md">
+          <Icon name="book" size={28} style={{ color: "var(--brand)" }} />
+          <div className="flex-1">
+            <div className="font-bold">{t("general.cardTitle")}</div>
+            <div className="text-sm" style={{ color: "var(--muted)" }}>
+              {t("general.cardBody")}
+            </div>
+          </div>
+          <span className="btn btn-primary">{t("general.cardCta")}</span>
+        </Link>
+      ) : null}
 
       <section id="mock-tests" className="mb-12 scroll-mt-24">
         <h2 className="mb-1 font-display text-2xl">{t("practice.mockTitle")}</h2>

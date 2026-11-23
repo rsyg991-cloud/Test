@@ -7,6 +7,8 @@ import { stage3 } from "./stage3";
 import { stage4 } from "./stage4";
 import { practicePrompts } from "./practice";
 import { lessonTracks } from "./tracks";
+import { getGeneralLesson } from "./general";
+export { generalLessons, generalUnits, getGeneralLesson } from "./general";
 import type { Checkpoint, Lesson, PracticePrompt, Stage, Track } from "./types";
 
 export * from "./types";
@@ -28,8 +30,9 @@ export function getStage(id: number): Stage | undefined {
   return stages.find((s) => s.id === id);
 }
 
+/** A lesson of the seven stages, or a General English lesson (content/general). */
 export function getLesson(id: string): Lesson | undefined {
-  return allLessons.find((l) => l.id === id);
+  return allLessons.find((l) => l.id === id) ?? getGeneralLesson(id);
 }
 
 export function getCheckpoint(id: string): Checkpoint | undefined {
