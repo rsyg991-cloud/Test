@@ -17,11 +17,11 @@ export interface StageSummary {
 export const STAGE_LIST: StageSummary[] = [
   { id: 1, name: "First Words", camp: "Trailhead", cefr: "A0 → A1", bandFrom: 1, bandTo: 3, foundation: true, items: 13 },
   { id: 2, name: "Everyday English", camp: "Foothills", cefr: "A1 → A2", bandFrom: 3, bandTo: 4, foundation: true, items: 13 },
-  { id: 3, name: "Ready for IELTS", camp: "Approach", cefr: "A2 → B1", bandFrom: 4, bandTo: 5, foundation: true, items: 13 },
-  { id: 4, name: "Foundation", camp: "Base Camp", cefr: "B1 → B1+", bandFrom: 4.5, bandTo: 5.5, foundation: false, items: 13 },
-  { id: 5, name: "Development", camp: "The Ridge", cefr: "B1+ → B2", bandFrom: 5.5, bandTo: 6.5, foundation: false, items: 13 },
+  { id: 3, name: "Confident Communication", camp: "Approach", cefr: "A2 → B1", bandFrom: 4, bandTo: 5, foundation: true, items: 13 },
+  { id: 4, name: "Intermediate", camp: "Base Camp", cefr: "B1 → B1+", bandFrom: 4.5, bandTo: 5.5, foundation: false, items: 13 },
+  { id: 5, name: "Upper Intermediate", camp: "The Ridge", cefr: "B1+ → B2", bandFrom: 5.5, bandTo: 6.5, foundation: false, items: 13 },
   { id: 6, name: "Advanced", camp: "High Camp", cefr: "B2 → C1", bandFrom: 6.5, bandTo: 7.5, foundation: false, items: 13 },
-  { id: 7, name: "Exam Mastery", camp: "The Summit", cefr: "C1", bandFrom: 7, bandTo: 8.5, foundation: false, items: 13 },
+  { id: 7, name: "Mastery", camp: "The Summit", cefr: "C1", bandFrom: 7, bandTo: 8.5, foundation: false, items: 13 },
 ];
 
 export const FINAL_STAGE = STAGE_LIST[STAGE_LIST.length - 1].id;
@@ -32,7 +32,7 @@ export const TARGET_BANDS = [4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5];
 /**
  * The stage a learner needs to finish to reach their target band: the first stage whose
  * exit band reaches the target. Any IELTS score (Band 5+) needs at least one full IELTS stage,
- * and Band 7.5+ targets run to the end (Exam Mastery).
+ * and Band 7.5+ targets run to the end (Mastery).
  */
 export function endStageFor(targetBand: number | null | undefined): number {
   if (targetBand == null || targetBand >= 7.5) return FINAL_STAGE;

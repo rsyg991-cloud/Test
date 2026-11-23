@@ -216,7 +216,7 @@ export const foundationConversations: ConversationScenario[] = [
     selfCheck: ["I spoke only English", "I used the past simple (went, visited, ate…)", "I asked a question back"],
   },
 
-  // ---------------- Stage 3 · Ready for IELTS (A2 → B1) ----------------
+  // ---------------- Stage 3 · Confident Communication (A2 → B1) ----------------
   {
     id: "cf3-doctor",
     stage: 3,

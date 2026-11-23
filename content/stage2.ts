@@ -4,7 +4,7 @@ import { gap, mcq, tf, v } from "./helpers";
 export const stage2: Stage = {
   id: 5,
   slug: "development",
-  name: "Development",
+  name: "Upper Intermediate",
   camp: "The Ridge",
   cefr: "B1+ → B2",
   bandFrom: 5.5,

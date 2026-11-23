@@ -75,6 +75,12 @@ export const en = {
     speaking: "Speaking",
   },
   stages: {
+    "0": {
+      name: "From Zero",
+      camp: "The Gate",
+      tagline: "Letters, sounds and your first words.",
+      description: "Learn the English letters and their sounds, read your first words and say your first sentences. Every instruction is in Arabic.",
+    },
     "1": {
       name: "First Words",
       camp: "Trailhead",
@@ -90,39 +96,39 @@ export const en = {
         "Order food, book a room, talk about last weekend and next summer. Read short articles and emails, follow everyday phone calls and write your first emails.",
     },
     "3": {
-      name: "Ready for IELTS",
+      name: "Confident Communication",
       camp: "Approach",
-      tagline: "Your first steps inside the real exam.",
+      tagline: "Share opinions, follow longer texts and talk for a minute.",
       description:
-        "Meet the IELTS question types in simpler English: True/False/Not Given, note completion, a first chart, a first opinion essay and a first one-minute talk.",
+        "Read longer texts for facts and opinions, follow talks and interviews, write an opinion paragraph and a short essay, and talk for a minute about your life. This stage also opens the IELTS preview.",
     },
     "4": {
-      name: "Foundation",
+      name: "Intermediate",
       camp: "Base Camp",
-      tagline: "Learn the test, build the habits.",
+      tagline: "Understand more, say more (B1 → B1+).",
       description:
-        "Understand exactly how IELTS works, learn to skim and scan, catch details in everyday conversations, describe simple charts and answer Part 1 questions with confidence.",
+        "General English lessons for this level are being written. For now this stage holds the IELTS Foundation module: how the test works, skimming and scanning, everyday conversations, simple charts and extended answers.",
     },
     "5": {
-      name: "Development",
+      name: "Upper Intermediate",
       camp: "The Ridge",
-      tagline: "From understanding to control.",
+      tagline: "From understanding to control (B1+ → B2).",
       description:
-        "Master the question types that cost most marks, follow academic discussions, write a full Task 2 essay and speak for two minutes without stopping.",
+        "General English lessons for this level are being written. For now this stage holds the IELTS Development module: the question types that cost most marks, academic discussions, full essays and two-minute talks.",
     },
     "6": {
       name: "Advanced",
       camp: "High Camp",
-      tagline: "Depth, range and precision.",
+      tagline: "Depth, range and precision (B2 → C1).",
       description:
-        "Read between the lines, follow academic lectures, build arguments with real depth and discuss abstract ideas fluently — the skills that separate Band 6 from Band 7.",
+        "General English lessons for this level are being written. For now this stage holds the IELTS Advanced module: reading between the lines, academic lectures, arguments with real depth and abstract discussion.",
     },
     "7": {
-      name: "Exam Mastery",
+      name: "Mastery",
       camp: "The Summit",
-      tagline: "Perform at your best on exam day.",
+      tagline: "Precise, flexible English (C1).",
       description:
-        "Full timed practice, Band 8 language, error analysis and exam-day strategy. Everything here is designed to turn your skills into the highest possible score.",
+        "General English lessons for this level are being written. For now this stage holds the IELTS exam module: full timed practice, high-band language, error analysis and exam-day strategy.",
     },
   },
   plans: {
@@ -395,7 +401,7 @@ export const en = {
   journey: {
     eyebrow: "The climb",
     title: "Your journey",
-    subtitle: "Seven stages from your first words to exam mastery. Pass each checkpoint to unlock the next stage.",
+    subtitle: "Stages from your first words to confident, precise English. Pass each checkpoint to unlock the next stage.",
     stageLine: "Stage {n} · {camp} · {cefr}",
     passToUnlock: "Pass Stage {n} to unlock",
     campReached: "Camp reached",

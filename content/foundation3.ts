@@ -2,28 +2,28 @@ import type { Stage } from "./types";
 import { gap, mcq, tf, v } from "./helpers";
 
 /**
- * Stage 3 — Ready for IELTS (A2 → B1). The bridge into the exam: the first IELTS
+ * Stage 3 — Confident Communication (A2 → B1), formerly "Ready for IELTS". The first IELTS
  * question types, a first chart, a first opinion essay and a first Part 2 talk.
  * Arabic now only summarises each strategy; answers are explained in English.
  */
 export const foundation3: Stage = {
   id: 3,
   slug: "ready-for-ielts",
-  name: "Ready for IELTS",
+  name: "Confident Communication",
   camp: "Approach",
   cefr: "A2 → B1",
   bandFrom: 4,
   bandTo: 5,
   foundation: true,
-  arabic: { name: "جاهز للآيلتس", tagline: "أول خطوة داخل الاختبار: أنواع الأسئلة الحقيقية بلغة أبسط." },
-  tagline: "Your first steps inside the real exam.",
+  arabic: { name: "التواصل بثقة", tagline: "عبّر عن رأيك، تابع نصوص أطول، وتكلّم دقيقة كاملة." },
+  tagline: "Share opinions, follow longer texts and talk for a minute.",
   description:
-    "Meet the IELTS question types in simpler English: True/False/Not Given, note completion, a first chart, a first opinion essay and a first one-minute talk.",
+    "Read longer texts for facts and opinions, follow talks and interviews, write an opinion paragraph and a short essay, and talk for a minute about your life. This stage also opens the IELTS preview.",
   goals: {
-    reading: "Answer True/False/Not Given and gap questions on 250-word texts.",
-    listening: "Complete notes in a Part 1-style call and a short talk.",
-    writing: "Write a 100-word chart description and a 150-word opinion essay.",
-    speaking: "Give 3-sentence Part 1 answers and talk for one minute in Part 2.",
+    reading: "Tell facts from opinions and check statements against texts of about 150 words.",
+    listening: "Complete notes from a phone call and follow a short talk or interview.",
+    writing: "Write an opinion paragraph and a short four-paragraph essay.",
+    speaking: "Answer questions about yourself in three sentences and talk for one minute.",
   },
   units: [
     {

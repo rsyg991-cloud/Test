@@ -112,7 +112,7 @@ describe("translator", () => {
 
   it("reads stage and plan names", () => {
     expect(tAr.stage(1, "name")).toBe("الكلمات الأولى");
-    expect(tEn.stage(7, "name")).toBe("Exam Mastery");
+    expect(tEn.stage(7, "name")).toBe("Mastery");
     expect(tEn.planText(12, "name")).toBe("Zero to IELTS");
     expect(tAr.duration(90)).toBe("1.5 ساعة");
   });

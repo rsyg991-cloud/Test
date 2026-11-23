@@ -6,7 +6,7 @@ import { stage4Groups } from "./official/stage4";
 export const stage4: Stage = {
   id: 7,
   slug: "mastery",
-  name: "Exam Mastery",
+  name: "Mastery",
   camp: "The Summit",
   cefr: "C1",
   bandFrom: 7,
