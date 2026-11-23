@@ -92,8 +92,8 @@ function decodePick(L: string, target: string, pool: string[]): Step {
     ar: pseudo
       ? "هذي كلمة مو حقيقية. اقرأها بنفسك صوت صوت، ثم اختر الصوت اللي يطابقها."
       : "اقرأ الكلمة بنفسك صوت صوت، ثم اختر الصوت اللي يطابقها.",
-    target,
-    options: [target, ...neighbours(target, pool)],
+    target: target as ItemId,
+    options: [target, ...neighbours(target, pool)] as ItemId[],
     wrongAr: `اقرأها صوت صوت: ${segments(target)} ← «${textOf(target)}»${pseudo ? " (مو كلمة حقيقية)" : ""}.`,
   };
 }
@@ -104,8 +104,8 @@ function readPick(L: string, target: string, pictured: string[], seed: number): 
     type: "readPick",
     dimension: "WF",
     ar: "اقرأ الكلمة بدون صوت، واختر الصورة.",
-    target,
-    options: [target, ...pick(pictured, [target], 2, seed)],
+    target: target as ItemId,
+    options: [target, ...pick(pictured, [target], 2, seed)] as ItemId[],
     wrongAr: `«${textOf(target)}» معناها ${arOf(target)}. اقرأها صوت صوت: ${segments(target)}.`,
   };
 }
@@ -116,7 +116,7 @@ function spell(L: string, target: string): Step {
     type: "spell",
     dimension: "SP",
     ar: "اسمع الكلمة واكتبها.",
-    target,
+    target: target as ItemId,
     input: "keyboard",
     wrongAr: `تنكتب «${textOf(target)}»: ${segments(target)}.`,
   };
@@ -129,8 +129,8 @@ function contrast(L: string, a: string, b: string): Step[] {
     dimension: "AR",
     listeningOnly: true,
     ar: "استماع فقط: اسمع واختر الصورة أو المعنى.",
-    target,
-    options: [target, other],
+    target: target as ItemId,
+    options: [target, other] as ItemId[],
     wrongAr: `الفرق صوت واحد بس: «${arOf(a)}» و«${arOf(b)}». اسمعهم مرة ثانية وركّز على الصوت المختلف.`,
   });
   return [one(a, b), one(b, a)];
@@ -142,8 +142,8 @@ function listenPick(L: string, target: string, pool: string[], seed: number): St
     type: "listenPick",
     dimension: "AR",
     ar: "اسمع واختر المعنى.",
-    target,
-    options: [target, ...pick(pool, [target], 2, seed)],
+    target: target as ItemId,
+    options: [target, ...pick(pool, [target], 2, seed)] as ItemId[],
     wrongAr: `«${textOf(target)}» معناها ${arOf(target)}.`,
   };
 }
@@ -203,7 +203,7 @@ interface Spec {
   pseudo: string[];
   contrasts: [string, string][];
   spell: string[];
-  oral: { chunks: string[]; listenPool?: string[] };
+  oral: { chunks: ItemId[] };
   builds: ItemId[][];
   /** Extra steps placed after the standard ones. */
   more?: (L: string) => Step[];
@@ -357,7 +357,7 @@ const SPECS: Spec[] = [
         options: [letter, letters[(i + 7) % 26], letters[(i + 13) % 26]],
         wrongAr: `اسم الحرف ${letter.toUpperCase()} هو «${LETTER_NAMES[letter].ar}»${graphemeById.has(g(letter)) ? `، وصوته /${graphemeById.get(g(letter))!.ipa}/` : ""}.`,
       }));
-      const spelled = ["w:bus", "w:map", "w:sun", "w:cup", "w:pen", "w:fox"];
+      const spelled: ItemId[] = ["w:bus", "w:map", "w:sun", "w:cup", "w:pen", "w:fox"];
       for (const [i, target] of spelled.entries()) {
         steps.push({
           id: sid(L),
