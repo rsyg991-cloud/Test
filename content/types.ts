@@ -104,7 +104,16 @@ export interface Lesson {
   listening?: ListeningTask;
   writing?: WritingTask;
   speaking?: SpeakingTask;
+  /** Can-do objectives the lesson's exit check measures ("I can ask for a price"). */
+  objectives?: string[];
 }
+
+/**
+ * Learning tracks. Every stage has a General English core; IELTS, EAP and Work are add-on tracks.
+ * Tags are metadata only: they never change a lesson's id, stage or a learner's saved progress.
+ */
+export type Track = "core" | "ielts" | "eap" | "work";
+export const TRACKS: Track[] = ["core", "ielts", "eap", "work"];
 
 export interface Unit {
   id: string;
