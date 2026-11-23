@@ -17,7 +17,8 @@ export type WordId = `w:${string}`;
 export type SightWordId = `sw:${string}`;
 export type ChunkId = `ch:${string}`;
 export type PatternId = `p:${string}`;
-export type ItemId = GraphemeId | WordId | SightWordId | ChunkId | PatternId;
+export type PseudoId = `pw:${string}`;
+export type ItemId = GraphemeId | WordId | SightWordId | ChunkId | PatternId | PseudoId;
 
 export interface GraphemeItem {
   kind: "grapheme";
@@ -51,6 +52,20 @@ export interface WordItem {
   image?: string;
 }
 
+/**
+ * A made-up but decodable word ("tas", "fip"). Reading one proves decoding, not memory.
+ * Always labelled "مو كلمة حقيقية" (not a real word). Hand-picked, never generated, so none can be
+ * a real or offensive word.
+ */
+export interface PseudoWordItem {
+  kind: "pseudo";
+  id: PseudoId;
+  text: string;
+  gpc: GraphemeId[];
+  plural?: undefined;
+  ipa: string;
+}
+
 export interface SightWordItem {
   kind: "sightWord";
   id: SightWordId;
@@ -73,7 +88,7 @@ export interface PatternItem {
   ar: string;
 }
 
-export type Item = GraphemeItem | WordItem | SightWordItem | ChunkItem | PatternItem;
+export type Item = GraphemeItem | WordItem | PseudoWordItem | SightWordItem | ChunkItem | PatternItem;
 
 const g = (spelling: string, ipa: string, ar: string, vowel = false): GraphemeItem => ({
   kind: "grapheme",

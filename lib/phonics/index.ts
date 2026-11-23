@@ -69,7 +69,7 @@ export interface Structure {
 }
 
 /** Syllable shape of a one-syllable word: its onset and coda consonant spellings. */
-export function structureOf(word: Pick<WordItem, "gpc" | "plural">): Structure {
+export function structureOf(word: { gpc: readonly GraphemeId[]; plural?: boolean }): Structure {
   const gpc = word.plural ? word.gpc.slice(0, -1) : word.gpc;
   const isVowel = gpc.map((id) => graphemeById.get(id)!.vowel);
   const vowels = isVowel.filter(Boolean).length;
@@ -83,8 +83,11 @@ export function structureOf(word: Pick<WordItem, "gpc" | "plural">): Structure {
   };
 }
 
+/** Anything spelled out in graphemes: a real word or a pseudo-word. */
+type Spelled = Pick<WordItem, "text" | "gpc" | "plural"> & { decodable?: boolean };
+
 /** Everything a learner must have been taught to decode this word. */
-export function requirements(word: WordItem): { graphemes: GraphemeId[]; patterns: PatternId[] } {
+export function requirements(word: Spelled): { graphemes: GraphemeId[]; patterns: PatternId[] } {
   const s = structureOf(word);
   const patterns: PatternId[] = [];
   if (s.onset) patterns.push(`p:onset-${s.onset}`);
@@ -94,7 +97,7 @@ export function requirements(word: WordItem): { graphemes: GraphemeId[]; pattern
 }
 
 /** Problems that make a word unusable as a decoding exemplar (empty = fine). */
-export function wordProblems(word: WordItem): string[] {
+export function wordProblems(word: Spelled): string[] {
   const problems: string[] = [];
   let spelled: string;
   try {
@@ -107,7 +110,7 @@ export function wordProblems(word: WordItem): string[] {
   return problems;
 }
 
-export function isDecodable(word: WordItem, taught: Taught): boolean {
+export function isDecodable(word: Spelled, taught: Taught): boolean {
   if (word.decodable === false || wordProblems(word).length) return false;
   const req = requirements(word);
   return req.graphemes.every((id) => taught.graphemes.has(id)) && req.patterns.every((id) => taught.patterns.has(id));
@@ -118,11 +121,17 @@ export function modeOf(item: Item, taught: Taught, use: Use): Mode {
     case "word":
       if (isDecodable(item, taught)) return "readable";
       return use === "keyword" ? "hidden" : "supported";
+    case "pseudo":
+      // Never shown before it can be decoded: a pseudo-word has no meaning to support it.
+      return isDecodable(item, taught) ? "readable" : "hidden";
     case "sightWord":
       if (taught.sightWords.has(item.id)) return "sight";
       return use === "keyword" ? "hidden" : "supported";
-    case "chunk":
     case "pattern":
+      // Punctuation and frames: known once taught, otherwise explained where they appear.
+      if (taught.patterns.has(item.id)) return "readable";
+      return use === "keyword" ? "hidden" : "supported";
+    case "chunk":
       return use === "keyword" ? "hidden" : "supported";
     case "grapheme":
       return taught.graphemes.has(item.id) ? "readable" : "hidden";
