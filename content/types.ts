@@ -148,6 +148,8 @@ export interface KeyPhrase {
   phrase: string;
   use: string; // when / why to use it
   example: string;
+  /** Arabic meaning (foundation conversations). */
+  ar?: string;
 }
 
 /** A role-play the learner prepares for on Balbal, then practises with ChatGPT. */
@@ -156,6 +158,8 @@ export interface ConversationScenario {
   stage: number;
   title: string;
   situation: string;
+  /** Arabic help for the foundation stages: the situation and the grammar point. */
+  arabic?: { situation: string; grammar: string };
   ieltsPart: "Part 1" | "Part 2" | "Part 3" | "Full test" | "Real life";
   minutes: number;
   xp: number;

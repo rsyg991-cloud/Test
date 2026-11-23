@@ -139,7 +139,7 @@ await page.getByRole("dialog").waitFor();
 await snap("14-conversation-complete");
 step("conversation reviewed and completed");
 await page.goto(`${BASE}/practice`);
-if (!(await page.getByText("1/20 completed").isVisible())) throw new Error("Conversation completion not shown");
+if (!(await page.getByText("1/26 completed").isVisible())) throw new Error("Conversation completion not shown");
 step("practice page shows conversation progress");
 
 // Full mock test (timers sped up 100×): listening → reading → writing → speaking → results
@@ -226,8 +226,16 @@ await b.getByText("ابحث عن الكلمة المفتاحية").waitFor();
 if (shots) await b.screenshot({ path: `${shots}/19-beginner-lesson.png`, fullPage: true });
 await b.goto(`${BASE}/learn/s1-u1-reading`);
 if (!b.url().includes("/journey") && !(await b.getByText(/locked/i).count())) throw new Error("Stage 4 lesson should be locked for a Stage 1 learner");
+// Conversations are open from Stage 1, with Arabic help, and the ChatGPT prompt suits a beginner.
+await b.goto(`${BASE}/dashboard`);
+await b.getByText(/Talk with AI|ChatGPT/).first().waitFor();
+await b.goto(`${BASE}/conversations/cf1-hello`);
+await b.getByRole("heading", { level: 1, name: "Saying Hello" }).waitFor();
+await b.getByText("أول يوم لك في دورة إنجليزي").waitFor();
+await b.getByText("تشرّفنا.").waitFor();
+if (shots) await b.screenshot({ path: `${shots}/19b-beginner-conversation.png`, fullPage: true });
 await ctx2.close();
-step("beginner: self-assessed A0, 12-month plan recommended, tight plan warned, Arabic lesson shown, later stages locked");
+step("beginner: self-assessed A0, 12-month plan recommended, tight plan warned, Arabic lesson shown, later stages locked, Stage 1 conversation open with Arabic");
 
 // Arabic: first visit follows the browser, the switch remembers the choice, pages flip to right-to-left,
 // and English learning material stays left-to-right inside Arabic pages.

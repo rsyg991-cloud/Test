@@ -53,7 +53,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const doneConv = new Set(convDone.map((c) => c.refId));
   const conversation =
     [...conversations].sort((a, b) => b.stage - a.stage).find((c) => c.stage <= user.unlockedStage && !doneConv.has(c.id)) ??
-    conversations.filter((c) => c.stage <= user.unlockedStage)[new Date().getUTCDate() % 5];
+    ((open) => open[new Date().getUTCDate() % Math.max(1, open.length)])(conversations.filter((c) => c.stage <= user.unlockedStage));
   const examDays = user.examDate ? Math.ceil((user.examDate.getTime() - Date.now()) / 86_400_000) : null;
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i - 6));
 

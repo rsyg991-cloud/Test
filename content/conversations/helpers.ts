@@ -1,6 +1,6 @@
 import type { KeyPhrase, ListeningTask } from "../types";
 
-export const kp = (phrase: string, use: string, example: string): KeyPhrase => ({ phrase, use, example });
+export const kp = (phrase: string, use: string, example: string, ar?: string): KeyPhrase => ({ phrase, use, example, ...(ar ? { ar } : {}) });
 
 type Line = [speaker: string, voice: "female" | "male", text: string];
 

@@ -31,7 +31,7 @@ export function ConversationFlow({
   prompt: string;
   completedBefore: boolean;
 }) {
-  const { t, rich } = useT();
+  const { t, rich, locale } = useT();
   const [step, setStep] = useState(0);
   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
   const [answers, setAnswers] = useState<Answers>({});
@@ -129,6 +129,11 @@ export function ConversationFlow({
           <p className="mt-1" style={{ color: "var(--muted)" }} lang="en" dir="ltr">
             {s.situation}
           </p>
+          {s.arabic && (
+            <p className="ar mt-1" lang="ar" dir="rtl">
+              {s.arabic.situation}
+            </p>
+          )}
           <p className="mt-1 text-sm font-semibold" style={{ color: "var(--muted)" }}>
             {t("conversation.meta", { minutes: s.minutes, xp: s.xp })}
             {completedBefore && t("conversation.completedBefore")}
@@ -165,6 +170,11 @@ export function ConversationFlow({
                       {p.use}
                     </span>
                   </div>
+                  {p.ar && (
+                    <p className="ar mt-1 font-bold" lang="ar" dir="rtl">
+                      {p.ar}
+                    </p>
+                  )}
                   <p className="mt-1 italic" style={{ color: "var(--muted)" }}>
                     “{p.example}”
                   </p>
@@ -189,6 +199,22 @@ export function ConversationFlow({
                 ))}
               </ul>
               </div>
+              {s.arabic && (
+                <details className="mt-4 rounded-md p-4" style={{ background: "var(--surface-2)" }} open={locale === "ar" || s.stage <= 2}>
+                  <summary className="cursor-pointer text-sm font-bold">
+                    {locale === "ar" ? (
+                      t("lesson.explainArabic")
+                    ) : (
+                      <>
+                        {t("lesson.explainArabic")} <span className="ar font-bold" lang="ar">· الشرح بالعربي</span>
+                      </>
+                    )}
+                  </summary>
+                  <p lang="ar" dir="rtl" className="ar mt-2">
+                    {s.arabic.grammar}
+                  </p>
+                </details>
+              )}
             </section>
             <section className="card p-6">
               <div className="eyebrow mb-3" style={{ color: ACCENT }}>
@@ -211,6 +237,11 @@ export function ConversationFlow({
                       {flipped[i] ? (
                         <span lang="en" dir="ltr" className="block">
                           {v.definition} <span className="italic" style={{ color: "var(--muted)" }}>— “{v.example}”</span>
+                          {v.ar && (
+                            <span className="ar mt-0.5 block font-bold" lang="ar" dir="rtl">
+                              {v.ar}
+                            </span>
+                          )}
                         </span>
                       ) : (
                         t("conversation.guess")

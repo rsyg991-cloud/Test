@@ -51,14 +51,14 @@ The whole interface is available in **English and Arabic (Saudi / Gulf dialect, 
 - **Band tracker**: per-skill estimated band over time against the target line.
 - **Journey map** showing exactly where you are on the mountain.
 - **Spaced-repetition vocabulary deck** (SM-2) filled automatically from lessons.
-- **AI Conversations** (20 role-plays, 5 per IELTS stage) — see below.
+- **AI Conversations** (26 role-plays in every stage: 2 per foundation stage, 5 per IELTS stage) — see below.
 - **AI practice drills** (24 extra Writing/Speaking prompts) to fill daily minutes on longer plans.
 - **No-guilt catch-up**: if you fall behind, one tap re-paces the plan so today is a fresh start.
 - Celebrations (confetti, XP, band) after lessons and checkpoints.
 
 ## AI Conversations — learn first, then talk with ChatGPT
 
-20 speaking role-plays (5 per IELTS stage, Stages 4–7, from "Meeting a New Classmate" to full mock speaking tests and C1 discussions) in `content/conversations/`. Each one has five steps:
+26 speaking role-plays in `content/conversations/`, open from Stage 1. The foundation stages (1–3) have 2 short everyday role-plays each ("Saying Hello", "Ordering a Drink", "Asking for Directions", "Talking About Your Weekend", "At the Doctor's", "Making Plans with a Friend"), with the Arabic meaning of every phrase and word and the situation and grammar explained in Arabic; their ChatGPT prompt drops the IELTS framing, lets the learner type a word in Arabic when stuck, and asks for simple feedback with Arabic explanations instead of a band. The IELTS stages (4–7) have 5 each, from "Meeting a New Classmate" to full mock speaking tests and C1 discussions. Each one has five steps:
 
 1. **Learn** — goals, 5 key phrases with examples, a grammar focus, vocabulary flip-cards.
 2. **Listen** — a model dialogue played with two voices, with transcript.
@@ -105,7 +105,7 @@ app/api/evaluate/       AI grading endpoint
 components/             UI, journey map, charts, lesson player, task views (reading/listening/writing/speaking)
 content/                the curriculum: 7 stages, 84 lessons, 7 checkpoints, placement test, practice prompts
 content/stageList.ts    client-safe stage summary, target-stage and placement rules
-content/conversations/  20 AI-conversation role-plays (learn-first material + role-play setup)
+content/conversations/  26 AI-conversation role-plays (learn-first material + role-play setup)
 lib/plan/scheduler.ts   plan pacing, review days, catch-up, plan recommendation
 lib/scoring.ts          answer checking, IELTS band rounding, band estimates
 lib/srs.ts              spaced repetition

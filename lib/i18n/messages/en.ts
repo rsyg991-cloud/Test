@@ -447,7 +447,7 @@ export const en = {
     convTitle: "AI Conversations",
     convBody: "Learn the phrases first, then speak with ChatGPT using a ready-made role-play — and bring the conversation back for feedback.",
     convCount: "{done}/{total} completed",
-    convFrom: "Conversations start in Stage 4. Finish the foundation stages to unlock them.",
+    convFrom: "Every stage has conversations. Stages 1–3 are short everyday role-plays with Arabic help.",
     stageHeading: "Stage {n} · {name}",
     done: "Done",
     convMeta: "~{minutes} min · {xp} XP",

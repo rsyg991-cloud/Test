@@ -3,10 +3,20 @@ import { conversations, getConversation } from "@/content";
 import { buildChatGPTPrompt } from "@/lib/conversation/prompt";
 
 describe("conversation content", () => {
-  it("has 5 scenarios per stage with unique ids", () => {
-    expect(conversations).toHaveLength(20);
+  it("has conversations in every stage: 2 per foundation stage, 5 per IELTS stage, unique ids", () => {
+    expect(conversations).toHaveLength(26);
+    for (const stage of [1, 2, 3]) expect(conversations.filter((c) => c.stage === stage)).toHaveLength(2);
     for (const stage of [4, 5, 6, 7]) expect(conversations.filter((c) => c.stage === stage)).toHaveLength(5);
-    expect(new Set(conversations.map((c) => c.id)).size).toBe(20);
+    expect(new Set(conversations.map((c) => c.id)).size).toBe(26);
+  });
+
+  it("gives the foundation conversations Arabic help for every phrase and word", () => {
+    for (const c of conversations.filter((c) => c.stage <= 3)) {
+      expect(c.arabic?.situation, c.id).toMatch(/[؀-ۿ]/);
+      expect(c.arabic?.grammar, c.id).toMatch(/[؀-ۿ]/);
+      for (const k of c.keyPhrases) expect(k.ar, `${c.id}: ${k.phrase}`).toMatch(/[؀-ۿ]/);
+      for (const v of c.vocab) expect(v.ar, `${c.id}: ${v.word}`).toMatch(/[؀-ۿ]/);
+    }
   });
 
   it.each(conversations.map((c) => [c.id, c] as const))("%s has complete learning material", (_, c) => {
@@ -45,6 +55,15 @@ describe("buildChatGPTPrompt", () => {
     expect(p).toContain('"END"');
     expect(p).toMatch(/Do NOT correct my mistakes during the conversation/);
     expect(p).toMatch(/IELTS Speaking band/);
+  });
+
+  it("keeps beginner prompts simple: everyday practice, Arabic help when stuck, no band", () => {
+    const b = buildChatGPTPrompt(getConversation("cf1-hello")!);
+    expect(b).toContain("A1 (beginner)");
+    expect(b).toContain("practise speaking English in everyday situations");
+    expect(b).toMatch(/write a word in Arabic/);
+    expect(b).not.toMatch(/IELTS/);
+    expect(b).toContain('"END"');
   });
 
   it("adapts the language level by stage", () => {
