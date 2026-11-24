@@ -46,6 +46,14 @@ function cyrb53(str: string, seed = 0): number {
 /** Texts are matched after trimming and collapsing spaces, so formatting never breaks the link. */
 export const normaliseSpoken = (text: string) => text.replace(/\s+/g, " ").trim();
 
+/**
+ * A Stage 0 letter sound (/s/, /æ/ …) by grapheme id ("g:s", "g:th/ð"), from scripts/audio/sounds.py.
+ * Keep the file name in step with slug() there.
+ */
+export function soundPath(graphemeId: string): string {
+  return `/audio/sounds/${graphemeId.slice(2).replace("/ð", "-voiced").replace("/", "-")}.mp3`;
+}
+
 export function audioPath(voice: string, text: string): string {
   return `/audio/${voice}/${cyrb53(`${voice}|${normaliseSpoken(text)}`).toString(36)}.mp3`;
 }

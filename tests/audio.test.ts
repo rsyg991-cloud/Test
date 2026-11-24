@@ -45,3 +45,13 @@ describe("recorded audio (Kokoro)", () => {
     expect(missing.length / texts.length, missing.slice(0, 5).map((m) => m.text).join(" | ")).toBeLessThan(0.02);
   });
 });
+
+describe("Stage 0 letter sounds", () => {
+  it("has a recorded sound for every grapheme Stage 0 teaches", async () => {
+    const { GRAPHEMES } = await import("@/content/items");
+    const { soundPath } = await import("@/lib/audio/voices");
+    const missing = GRAPHEMES.filter((g) => !existsSync(join(process.cwd(), "public", soundPath(g.id))));
+    expect(missing.map((g) => g.id)).toEqual([]);
+    expect(new Set(GRAPHEMES.map((g) => soundPath(g.id))).size).toBe(GRAPHEMES.length);
+  });
+});

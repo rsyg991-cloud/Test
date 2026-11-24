@@ -9,7 +9,7 @@ import { useT } from "@/lib/i18n/client";
 import { Confetti } from "../Celebration";
 import { Icon } from "../icons";
 import { ProgressBar } from "../ui";
-import { speak, stopSpeech, ttsSupported } from "../task/speech";
+import { playSound, speak, stopSpeech, ttsSupported } from "../task/speech";
 
 /**
  * Plays one Stage 0 lesson, step by step. Rules the player keeps (and the server re-checks):
@@ -43,7 +43,19 @@ async function say(text: string, rate = 0.8) {
   await speak(text, { rate });
 }
 
-function SoundButton({ text, label, big, disabled, onPlay }: { text: string; label?: string; big?: boolean; disabled?: boolean; onPlay?: () => void }) {
+/** A letter's own sound (/s/, not "ess"); then, if given, a word that has it ("sun"). */
+async function saySound(graphemeId: string, keyword?: string) {
+  if (!ttsSupported()) return;
+  stopSpeech();
+  await playSound(graphemeId, keyword ?? "");
+  if (keyword) {
+    await new Promise((r) => setTimeout(r, 400));
+    await speak(keyword, { rate: 0.8 });
+  }
+}
+
+/** Plays `text`, or with `sound` a letter's own sound (and then `text`, a word that has it, if given). */
+function SoundButton({ text, sound, label, big, disabled, onPlay }: { text: string; sound?: string; label?: string; big?: boolean; disabled?: boolean; onPlay?: () => void }) {
   return (
     <button
       type="button"
@@ -51,7 +63,7 @@ function SoundButton({ text, label, big, disabled, onPlay }: { text: string; lab
       disabled={disabled}
       onClick={() => {
         onPlay?.();
-        void say(text);
+        void (sound ? saySound(sound, text || undefined) : say(text));
       }}
       aria-label={label ?? text}
     >
@@ -264,8 +276,12 @@ export function Stage0Player({ lessonId, titleAr, views, review = false }: { les
     if (ok || tries > 0) {
       record({ ...value, hinted: ok && hinted, audioBeforeAnswer: heard });
       setFeedback(ok ? "right" : "revealed");
-      const sayIt = targetSay();
-      if (sayIt) void say(sayIt);
+      // A letter sound is followed by a word that has it ("/s/ … sun"); anything else is said again.
+      if (s.type === "soundPick") void saySound(s.target, view.soundKeyword);
+      else {
+        const sayIt = targetSay();
+        if (sayIt) void say(sayIt);
+      }
     } else {
       setFeedback("wrong");
       setTries(1);
@@ -327,7 +343,14 @@ export function Stage0Player({ lessonId, titleAr, views, review = false }: { les
             <div className="flex flex-wrap items-center justify-center gap-6">
               {s.teaches.filter((id) => id.startsWith("g:") || id.startsWith("sw:")).map((id) => (
                 <div key={id} className="flex flex-col items-center gap-2">
-                  {id.startsWith("g:") ? <Letters item={items[id]} /> : <Word item={items[id]} size="text-6xl" />}
+                  {id.startsWith("g:") ? (
+                    <>
+                      <Letters item={items[id]} />
+                      <SoundButton sound={id} text="" label={t("starter.letterSound")} />
+                    </>
+                  ) : (
+                    <Word item={items[id]} size="text-6xl" />
+                  )}
                 </div>
               ))}
               {s.keyword && items[s.keyword] ? (
@@ -358,8 +381,11 @@ export function Stage0Player({ lessonId, titleAr, views, review = false }: { les
 
         {(s.type === "soundPick" || s.type === "namePick") && (
           <div className="space-y-4">
-            <SoundButton big text={s.type === "namePick" ? s.letter.toUpperCase() : targetSay()} label={t("starter.listen")} onPlay={() => setHeard(true)} />
-            {s.type === "soundPick" ? <p className="ar text-xs" style={{ color: "var(--muted)" }}>{t("starter.tempSound")}</p> : null}
+            {s.type === "soundPick" ? (
+              <SoundButton big sound={s.target} text="" label={t("starter.listen")} onPlay={() => setHeard(true)} />
+            ) : (
+              <SoundButton big text={s.letter.toUpperCase()} label={t("starter.listen")} onPlay={() => setHeard(true)} />
+            )}
             <div className="grid grid-cols-3 gap-3">
               {(s.type === "namePick" ? shuffled(s.options, s.id) : options).map((o) => (
                 <button

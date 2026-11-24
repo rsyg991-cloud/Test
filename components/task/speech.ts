@@ -1,6 +1,6 @@
 "use client";
 
-import { audioPath, defaultVoice, type Gender } from "@/lib/audio/voices";
+import { audioPath, defaultVoice, soundPath, type Gender } from "@/lib/audio/voices";
 
 /** Pick an English voice for a speaker, preferring British voices, with distinct voices for female/male where possible. */
 export function pickVoice(gender: Gender): SpeechSynthesisVoice | null {
@@ -55,11 +55,24 @@ function speakWithBrowser(text: string, opts: { gender?: Gender; rate?: number }
  * the voice follows `gender`. Resolves when speaking ends or is stopped.
  */
 export function speak(text: string, opts: { gender?: Gender; rate?: number; voice?: string } = {}): Promise<void> {
+  return playClip(audioPath(opts.voice ?? defaultVoice(opts.gender), text), text, opts);
+}
+
+/**
+ * Plays a Stage 0 letter sound (/s/, /æ/ …). Without its recording, says `fallback` instead (a word
+ * with the sound in it): the browser's voice would read a lone letter by its name ("ess").
+ */
+export function playSound(graphemeId: string, fallback: string, rate = 1): Promise<void> {
+  return playClip(soundPath(graphemeId), fallback, { rate });
+}
+
+/** Plays a recording; if it is missing or can't play, says `text` (recorded if possible, else the browser's voice). */
+function playClip(url: string, text: string, opts: { gender?: Gender; rate?: number; voice?: string }): Promise<void> {
   return new Promise((resolve) => {
     if (typeof window === "undefined") return resolve();
     if (typeof Audio === "undefined") return void speakWithBrowser(text, opts).then(resolve);
     stopSpeech();
-    const audio = new Audio(audioPath(opts.voice ?? defaultVoice(opts.gender), text));
+    const audio = new Audio(url);
     audio.playbackRate = opts.rate ?? 1;
     current = audio;
     let settled = false;
@@ -72,10 +85,13 @@ export function speak(text: string, opts: { gender?: Gender; rate?: number; voic
     };
     currentDone = finish;
     audio.onended = finish;
-    // No recording for this text (or it can't play): use the browser's voice instead.
+    // No recording (or it can't play): the text's own recording, else the browser's voice.
     audio.onerror = () => {
       if (settled || current !== audio) return;
       current = null;
+      const textClip = audioPath(opts.voice ?? defaultVoice(opts.gender), text);
+      if (!text) return finish();
+      if (url !== textClip) return void playClip(textClip, text, opts).then(finish);
       void speakWithBrowser(text, opts).then(finish);
     };
     audio.play().catch(() => audio.onerror?.(new Event("error")));

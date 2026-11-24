@@ -636,7 +636,7 @@ export const en = {
     noMic: "No microphone here: compare by listening, or skip.",
     notRealWord: "Not a real word",
     tempVoice: "Computer voice for now: recorded sounds are on their way.",
-    tempSound: "For now you hear a word with this sound in it.",
+    letterSound: "The sound",
     finish: "Finish the lesson",
     saving: "Saving…",
     resultTitle: "Lesson complete",

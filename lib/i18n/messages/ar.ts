@@ -670,7 +670,7 @@ export const ar: Messages = {
     noMic: "ما فيه مايك هنا: قارن بالسمع أو تخطَّ.",
     notRealWord: "مو كلمة حقيقية",
     tempVoice: "صوت الكمبيوتر مؤقتاً: الأصوات المسجّلة جاية.",
-    tempSound: "مؤقتاً تسمع كلمة فيها هالصوت.",
+    letterSound: "الصوت",
     finish: "خلّص الدرس",
     saving: "جاري الحفظ…",
     resultTitle: "خلصت الدرس",
