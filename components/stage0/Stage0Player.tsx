@@ -10,6 +10,7 @@ import { Confetti } from "../Celebration";
 import { Icon } from "../icons";
 import { ProgressBar } from "../ui";
 import { playSound, speak, stopSpeech, ttsSupported } from "../task/speech";
+import { Picture } from "../Picture";
 
 /**
  * Plays one Stage 0 lesson, step by step. Rules the player keeps (and the server re-checks):
@@ -83,7 +84,7 @@ function PictureCard({ item, onClick, state, disabled }: { item: ViewItem; onCli
       className="card flex min-h-28 flex-col items-center justify-center gap-2 p-4 transition"
       style={{ borderColor: border, borderWidth: 2, opacity: state === "dim" ? 0.55 : 1 }}
     >
-      {item.image ? <span className="text-5xl leading-none" aria-hidden>{item.image}</span> : null}
+      {item.image ? <Picture image={item.image} size={48} /> : null}
       <span className="ar text-sm" dir="rtl" style={{ color: "var(--muted)" }}>
         {item.ar}
       </span>
@@ -355,7 +356,7 @@ export function Stage0Player({ lessonId, titleAr, views, review = false }: { les
               ))}
               {s.keyword && items[s.keyword] ? (
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-6xl" aria-hidden>{items[s.keyword].image}</span>
+                  {items[s.keyword].image ? <Picture image={items[s.keyword].image!} size={64} /> : null}
                   {items[s.keyword].mode === "readable" ? <Word item={items[s.keyword]} size="text-2xl" /> : null}
                   <SoundButton text={items[s.keyword].say} />
                 </div>
