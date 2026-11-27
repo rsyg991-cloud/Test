@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { countryOptions } from "@/lib/countries";
 import { getT } from "@/lib/i18n/server";
 import { AuthForm } from "../AuthForm";
 
@@ -8,14 +9,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LoginPage() {
-  const { t } = await getT();
+  const { t, locale } = await getT();
   return (
     <>
       <h1 className="font-display text-4xl">{t("auth.loginTitle")}</h1>
       <p className="mb-8 mt-2" style={{ color: "var(--muted)" }}>
         {t("auth.loginSubtitle")}
       </p>
-      <AuthForm mode="login" />
+      <AuthForm mode="login" countries={countryOptions(locale)} />
     </>
   );
 }

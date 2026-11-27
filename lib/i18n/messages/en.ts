@@ -164,6 +164,8 @@ export const en = {
     namePlaceholder: "e.g. Sara",
     email: "Email",
     phone: "Mobile number",
+    country: "Country",
+    phonePlaceholder: "Mobile number",
     emailOptional: "Email (optional)",
     loginEmailHint: "Signed up with email before? Type it here instead.",
     password: "Password",
@@ -179,7 +181,7 @@ export const en = {
   errors: {
     nameRequired: "Please enter your name.",
     emailInvalid: "Please enter a valid email address.",
-    phoneInvalid: "Please enter a Saudi mobile number, like 05XXXXXXXX.",
+    phoneInvalid: "Please enter a valid mobile number and pick its country.",
     phoneTaken: "An account with this mobile number already exists. Try logging in.",
     passwordShort: "Password must be at least 8 characters.",
     invalid: "Invalid details.",

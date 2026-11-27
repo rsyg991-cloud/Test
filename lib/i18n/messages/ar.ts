@@ -163,6 +163,8 @@ export const ar: Messages = {
     namePlaceholder: "مثلاً: سارة",
     email: "الإيميل",
     phone: "رقم الجوال",
+    country: "الدولة",
+    phonePlaceholder: "رقم الجوال",
     emailOptional: "الإيميل (اختياري)",
     loginEmailHint: "سجّلت بالإيميل قبل؟ اكتبه هنا بدال الرقم.",
     password: "كلمة المرور",
@@ -178,7 +180,7 @@ export const ar: Messages = {
   errors: {
     nameRequired: "اكتب اسمك لو سمحت.",
     emailInvalid: "اكتب إيميل صحيح لو سمحت.",
-    phoneInvalid: "اكتب رقم جوال سعودي صحيح، مثل 05XXXXXXXX.",
+    phoneInvalid: "اكتب رقم جوال صحيح، واختر دولته من القائمة.",
     phoneTaken: "فيه حساب بهالرقم من قبل. جرّب تسجّل دخول.",
     passwordShort: "كلمة المرور لازم تكون 8 حروف على الأقل.",
     invalid: "البيانات غير صحيحة.",

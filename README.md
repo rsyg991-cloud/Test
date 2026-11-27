@@ -103,7 +103,7 @@ Writing and Speaking are graded by Claude (`lib/ai/evaluate.ts`) with structured
 
 ## Tech
 
-Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Prisma + PostgreSQL (Neon in production) · `@anthropic-ai/sdk` · Saudi mobile number + password auth (email optional; older email accounts can still log in with their email) with hashed session tokens in httpOnly cookies · Vitest.
+Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Prisma + PostgreSQL (Neon in production) · `@anthropic-ai/sdk` · mobile number + password auth for any country (a country picker beside the number, checked with libphonenumber-js; Saudi numbers keep their old format; email optional; older email accounts can still log in with their email) with hashed session tokens in httpOnly cookies · Vitest.
 
 ```
 app/                    pages (landing, auth, onboarding, dashboard, journey, learn, checkpoint, practice, vocab, progress, plan)
